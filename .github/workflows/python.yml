@@ -31,6 +31,6 @@ jobs:
           pdm run black ./ --check 
           pdm run ruff check .
           
-#       - name: Run Tests
-#         run: |
-#          pdm run -v pytest tests
+      - name: Run Tests
+        run: |
+          pdm run -v pytest

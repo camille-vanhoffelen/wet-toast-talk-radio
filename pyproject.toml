@@ -37,6 +37,11 @@ test = [
 [tool.setuptools]
 py-modules = []
 
+[tool.pytest.ini_options]
+pythonpath = [
+  "."
+]
+
 
 [tool.ruff]
 # Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
