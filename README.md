@@ -39,8 +39,7 @@ pdm run main.py --help
 
 We use [black](https://github.com/psf/black) as our code formattter.
 
-We use [pylint](https://pylint.org/) as our linter.
-A [.pylintrc](.pylintrc) is given in this repo to use with pylint.
+We use [ruff](https://beta.ruff.rs/docs/) as our linter.
 
 We use [pytest](https://docs.pytest.org/en/6.2.x/) as our testing framework.
 
