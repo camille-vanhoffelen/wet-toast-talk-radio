@@ -1,11 +1,12 @@
 import logging
 import os
 from typing import Optional
-import yaml
-import structlog
-import click
-from command.config import Config
 
+import click
+import structlog
+import yaml
+
+from command.config import Config
 
 logger = structlog.get_logger()
 

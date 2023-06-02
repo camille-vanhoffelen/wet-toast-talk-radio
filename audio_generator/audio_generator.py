@@ -2,11 +2,11 @@ import time
 
 import nltk
 import numpy as np
+import structlog
 from bark import SAMPLE_RATE, generate_audio, preload_models
 from scipy.io.wavfile import write as write_wav
-import structlog
 
-from audio_generator import AudioGeneratorConfig
+from audio_generator.config import AudioGeneratorConfig
 
 logger = structlog.get_logger()
 

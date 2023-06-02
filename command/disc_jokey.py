@@ -1,7 +1,7 @@
 import click
 import structlog
 
-from command import root_cmd
+from command.root import root_cmd
 from command.print_banner import print_banner
 from disc_jockey import DiscJockey
 from disc_jockey.config import validate_config

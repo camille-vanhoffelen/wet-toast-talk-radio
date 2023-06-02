@@ -1,6 +1,6 @@
-from disc_jockey import DiscJockeyConfig
 import structlog
 
+from disc_jockey.config import DiscJockeyConfig
 
 logger = structlog.get_logger()
 

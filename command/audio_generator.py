@@ -1,10 +1,10 @@
 import click
 import structlog
 
-from command import root_cmd
-from command.print_banner import print_banner
-from audio_generator.config import validate_config
 from audio_generator import AudioGenerator
+from audio_generator.config import validate_config
+from command.print_banner import print_banner
+from command.root import root_cmd
 
 logger = structlog.get_logger()
 
