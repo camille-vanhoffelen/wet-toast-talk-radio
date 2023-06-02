@@ -1,3 +1,7 @@
+
+config.yml
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -161,3 +165,4 @@ cython_debug/
 
 # macos
 *.DS_Store
+.pdm-python
