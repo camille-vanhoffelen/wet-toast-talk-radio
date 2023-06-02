@@ -28,7 +28,7 @@ jobs:
           
       - name: Lint
         run: |
-          pdm run black ./ --check --verbose
+          pdm run black ./ --check 
           pdm run ruff check .
           
 #       - name: Run Tests
