@@ -1,4 +1,5 @@
 import time
+import uuid
 
 import nltk
 import numpy as np
@@ -18,6 +19,10 @@ class AudioGenerator:
         self._cfg = cfg
 
     def run(self) -> None:
+        logger.warning("Not yet implemented")
+        pass
+
+    def benchmark(self) -> None:
         """Run audio_generator"""
         # download and load all models
         preload_models()
@@ -49,4 +54,6 @@ class AudioGenerator:
         logger.info(f"Audio generation took {end - start:0.3f} seconds")
 
         audio_array = np.concatenate(pieces)
-        write_wav("bark_generation.wav", SAMPLE_RATE, audio_array)
+
+        uuid_str = str(uuid.uuid4())[:4]
+        write_wav(f"bark_generation_{uuid_str}.wav", SAMPLE_RATE, audio_array)

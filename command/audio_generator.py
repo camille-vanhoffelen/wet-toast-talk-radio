@@ -25,7 +25,20 @@ def run(ctx: dict):
     root_cfg = ctx.obj["root_cfg"]
     cfg = root_cfg.audio_generator
 
+    logger.info("Starting audio_generator", cfg=root_cfg.audio_generator)
     audio_gen = AudioGenerator(cfg)
 
-    logger.info("Starting audio_generator", cfg=root_cfg.audio_generator)
     audio_gen.run()
+
+
+@audio_generator.command(help="Benchmark audio_generator")
+@click.pass_context
+def benchmark(ctx: dict):
+    """Benchmark command"""
+    root_cfg = ctx.obj["root_cfg"]
+    cfg = root_cfg.audio_generator
+
+    logger.info("Starting audio_generator", cfg=root_cfg.audio_generator)
+    audio_gen = AudioGenerator(cfg)
+
+    audio_gen.benchmark()
