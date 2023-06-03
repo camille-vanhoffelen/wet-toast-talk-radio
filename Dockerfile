@@ -1,16 +1,31 @@
 FROM python:3.10 AS builder
 
+ENV LANG=C.UTF-8
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
 RUN pip install -U pip setuptools wheel
 RUN pip install pdm
 
-WORKDIR /wet_toast_talk_radio
+WORKDIR /wet-toast-talk-radio
+
+COPY pyproject.toml pdm.lock .
+RUN pdm install --prod --no-lock
+
 COPY . .
-RUN mkdir __pypackages__ && pdm sync --prod --no-editable
 
-FROM python:3.10
+FROM python:3.10-slim
 
-# retrieve packages from build stage
-ENV PYTHONPATH=/wet_toast_talk_radio/pkgs
-COPY --from=builder /wet_toast_talk_radio/__pypackages__/3.10/lib /wet_toast_talk_radio/pkgs
+ENV LANG=C.UTF-8
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PIP_DISABLE_PIP_VERSION_CHECK=1
+ENV PATH="/wet-toast-talk-radio/.venv/bin:$PATH"
 
-ENTRYPOINT ["python", "-m", "wet_toast_talk_radio"]
+RUN apt-get update && apt-get install -y libgomp1
+
+WORKDIR /wet-toast-talk-radio
+
+COPY --from=builder /wet-toast-talk-radio .
+
+ENTRYPOINT ["python", "-m", "main"]
