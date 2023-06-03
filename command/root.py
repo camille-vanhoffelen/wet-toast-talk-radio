@@ -14,7 +14,7 @@ logger = structlog.get_logger()
 @click.group()
 @click.option("-v", "--verbose", is_flag=True)
 @click.option(
-    "-c", "--config", type=str, default="config.yml", help="Path to config file."
+    "-c", "--config", type=str, default="config.yaml", help="Path to config file."
 )
 @click.pass_context
 def root_cmd(ctx: dict, verbose: bool, config: Optional[str]):
