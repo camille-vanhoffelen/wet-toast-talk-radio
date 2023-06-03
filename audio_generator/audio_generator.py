@@ -22,7 +22,7 @@ class AudioGenerator:
         # download and load all models
         preload_models()
 
-        with open("resources/noodle-nose.txt", "r", encoding="utf-8") as f:
+        with open("audio_generator/resources/noodle-nose.txt", "r", encoding="utf-8") as f:
             script = f.read()
 
         # TODO remove
