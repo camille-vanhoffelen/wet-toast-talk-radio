@@ -8,16 +8,15 @@ Generating content for Wet Toast Talk Radio
 
 - [pdm](https://pdm.fming.dev/latest/)
 - python >= 3.10
+- [ffmpeg] `brew install ffmpeg`
 
 ### Config
 
 You will likely want to create a config.yaml with these contents:
 
 ```yaml
-audio_generator:
-  some_setting: "foo"
-disc_jockey:
-  some_setting: "bar"
+media_store:
+  virtual: true
 ```
 
 ### Running

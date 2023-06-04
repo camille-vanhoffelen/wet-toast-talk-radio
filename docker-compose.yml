@@ -1,0 +1,15 @@
+version: '3.7'
+services:
+  ices:
+    image: vimagick/ices
+    volumes:
+      - ./data:/etc/ices
+    links:
+      - icecast
+    restart: always
+
+  icecast:
+    image: vimagick/icecast
+    ports:
+      - "8000:8000"
+    restart: always

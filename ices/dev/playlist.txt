@@ -1,0 +1,2 @@
+/etc/ices/song2.ogg
+/etc/ices/song1.ogg

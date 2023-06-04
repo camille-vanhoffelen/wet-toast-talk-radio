@@ -1,5 +1,6 @@
 import time
 import uuid
+from pathlib import Path
 
 import nltk
 import numpy as np
@@ -27,7 +28,9 @@ class AudioGenerator:
         # download and load all models
         preload_models()
 
-        with open("audio_generator/resources/noodle-nose.txt", "r", encoding="utf-8") as f:
+        with Path("audio_generator/resources/noodle-nose.txt").open(
+            "r", encoding="utf-8"
+        ) as f:
             script = f.read()
 
         # TODO remove
