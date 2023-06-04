@@ -4,6 +4,11 @@ Dockerfile
 aws/
 resources/
 
+# ice data
+data/
+
+#ruf
+.ruff_cache/
 
 # Docker
 docker-compose.yml

@@ -10,4 +10,4 @@ class AudioGeneratorConfig(BaseModel):
 def validate_config(cfg: AudioGeneratorConfig):
     """Validate config"""
     assert cfg is not None, "AudioGeneratorConfig must not be None"
-    assert cfg.some_setting != "", "some_setting must not be empty"
+    assert cfg.some_setting, "some_setting must not be empty"

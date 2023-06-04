@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<ices>
+    <background>0</background>
+    <loglevel>4</loglevel>
+    <consolelog>1</consolelog>
+    <pidfile>/var/run/ices.pid</pidfile>
+    <stream>
+        <metadata>
+            <name>Wet Toast Talk Radio Stream</name>
+            <genre>Talk show radion</genre>
+            <description>TODO</description>
+            <url>http://wettoast.ai</url>
+        </metadata>
+        <input>
+            <module>playlist</module>
+            <param name="type">basic</param>
+            <param name="file">/etc/ices/playlist.txt</param>
+            <param name="random">0</param>
+            <param name="once">0</param>
+            <param name="restart-after-reread">1</param>
+        </input>
+        <instance>
+            <hostname>icecast</hostname>
+            <port>8000</port>
+            <password>hackme</password>
+            <mount>/live.ogg</mount>
+            <encode>
+                <quality>0</quality>
+                <samplerate>44100</samplerate>
+                <channels>1</channels>
+            </encode>
+        </instance>
+    </stream>
+</ices>
