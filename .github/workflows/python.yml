@@ -8,7 +8,30 @@ env:
 
 jobs:
   testing:
-    name: Testing/Linting/Formatting
+    name: Testing
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        python-version: ['3.10']
+        os: [ubuntu-latest]
+
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up PDM
+        uses: pdm-project/setup-pdm@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          
+      - name: Install dependencies
+        run: |
+          pdm sync -d
+          
+      - name: Run Tests
+        run: |
+          pdm run -v pytest
+  linting: 
+    name: Linting/Formatting
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -31,7 +54,3 @@ jobs:
         run: |
           pdm run black ./ --check 
           pdm run ruff check .
-          
-      - name: Run Tests
-        run: |
-          pdm run -v pytest
