@@ -4,9 +4,8 @@ from pathlib import Path
 from typing import Generator
 
 import pytest
-
-from media_store.virtual.bucket import ShowType, VirtualBucket
-from media_store.virtual.media_store import VirtualMediaStore
+from wet_toast_talk_radio.media_store.virtual.bucket import ShowType, VirtualBucket
+from wet_toast_talk_radio.media_store.virtual.media_store import VirtualMediaStore
 
 
 @pytest.fixture(autouse=True)

@@ -1,8 +1,8 @@
 from pydantic import BaseModel
 
-from audio_generator.config import AudioGeneratorConfig
-from disc_jockey.config import DiscJockeyConfig
-from media_store.config import MediaStoreConfig
+from wet_toast_talk_radio.audio_generator.config import AudioGeneratorConfig
+from wet_toast_talk_radio.disc_jockey.config import DiscJockeyConfig
+from wet_toast_talk_radio.media_store.config import MediaStoreConfig
 
 
 class Config(BaseModel):

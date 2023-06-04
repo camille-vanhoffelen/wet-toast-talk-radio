@@ -1,9 +1,8 @@
 from datetime import datetime
 
 import pytest
-
-from media_store.virtual.bucket import ShowType, VirtualBucket
-from media_store.virtual.media_store import VirtualObject
+from wet_toast_talk_radio.media_store.virtual.bucket import ShowType, VirtualBucket
+from wet_toast_talk_radio.media_store.virtual.media_store import VirtualObject
 
 
 @pytest.fixture()

@@ -1,12 +1,16 @@
 import click
 import structlog
 
-from command.print_banner import print_banner
-from command.root import root_cmd
-from disc_jockey import DiscJockey
-from disc_jockey.config import validate_config as validate_dj_config
-from media_store import new_media_store
-from media_store.config import validate_config as validate_ms_config
+from wet_toast_talk_radio.command.print_banner import print_banner
+from wet_toast_talk_radio.command.root import root_cmd
+from wet_toast_talk_radio.disc_jockey import DiscJockey
+from wet_toast_talk_radio.disc_jockey.config import (
+    validate_config as validate_dj_config,
+)
+from wet_toast_talk_radio.media_store import new_media_store
+from wet_toast_talk_radio.media_store.config import (
+    validate_config as validate_ms_config,
+)
 
 logger = structlog.get_logger()
 
@@ -14,7 +18,7 @@ logger = structlog.get_logger()
 @root_cmd.group()
 @click.pass_context
 def disc_jockey(ctx: dict):
-    """disc_jockey transcodes media files to mp3 and uploads them to the media stream server"""
+    """disc_jockey transcodes media files to .ogg and uploads them to the media stream server"""
     print_banner("disc_jockey_banner.txt")
     root_cfg = ctx.obj["root_cfg"]
     validate_dj_config(root_cfg.disc_jockey)

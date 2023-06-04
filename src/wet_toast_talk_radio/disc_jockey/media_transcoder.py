@@ -6,8 +6,8 @@ import structlog
 from pydub import AudioSegment
 from tqdm import tqdm
 
-from disc_jockey.config import MediaTranscoderConfig
-from media_store import MediaStore
+from wet_toast_talk_radio.disc_jockey.config import MediaTranscoderConfig
+from wet_toast_talk_radio.media_store import MediaStore
 
 # https://github.com/jiaaro/pydub#getting-ffmpeg-set-up
 

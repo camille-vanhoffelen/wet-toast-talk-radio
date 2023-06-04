@@ -1,8 +1,8 @@
 import structlog
 
-from disc_jockey.config import DiscJockeyConfig
-from disc_jockey.media_transcoder import MediaTranscoder
-from media_store import MediaStore
+from wet_toast_talk_radio.disc_jockey.config import DiscJockeyConfig
+from wet_toast_talk_radio.disc_jockey.media_transcoder import MediaTranscoder
+from wet_toast_talk_radio.media_store import MediaStore
 
 logger = structlog.get_logger()
 

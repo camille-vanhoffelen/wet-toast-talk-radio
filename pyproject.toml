@@ -37,12 +37,7 @@ test = [
     "pytest>=7.3.1",
     "hypothesis>=6.76.0",
 ]
+dev = []
 
-[tool.setuptools]
-py-modules = []
-
-[tool.pytest.ini_options]
-pythonpath = [
-  "."
-]
-
+[tool.pdm.scripts]
+disc-jockey = "python -m wet_toast_talk_radio.main disc-jockey"

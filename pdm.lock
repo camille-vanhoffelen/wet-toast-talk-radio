@@ -444,8 +444,8 @@ summary = "Whole Architecture Verification"
 [metadata]
 lock_version = "4.2"
 cross_platform = true
-groups = ["default", "lint", "test"]
-content_hash = "sha256:0725291fac3d2d6e853923fd8ede2046d42a08c86b56a975fa50e7a05617f2df"
+groups = ["default", "dev", "lint", "test"]
+content_hash = "sha256:f8e45e0d59a2e6aa01f3f34bca7f32b195cdf3a23f7bf6a1f1c8bca3b0d08f4e"
 
 [metadata.files]
 "attrs 23.1.0" = [

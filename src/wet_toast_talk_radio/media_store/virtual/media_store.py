@@ -5,9 +5,12 @@ from datetime import datetime
 from pathlib import Path
 
 import structlog
-
-from media_store.media_store import MediaStore
-from media_store.virtual.bucket import ShowType, VirtualBucket, VirtualObject
+from wet_toast_talk_radio.media_store.media_store import MediaStore
+from wet_toast_talk_radio.media_store.virtual.bucket import (
+    ShowType,
+    VirtualBucket,
+    VirtualObject,
+)
 
 logger = structlog.get_logger()
 _MAX_WORKERS = 3

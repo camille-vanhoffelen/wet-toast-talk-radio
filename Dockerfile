@@ -1,35 +1,29 @@
-FROM python:3.10 
+FROM python:3.10 as builder
+
+RUN pip install -U pip setuptools wheel
+RUN pip install pdm
+
+WORKDIR /wet-toast
+
+COPY . .
+RUN mkdir __pypackages__ && pdm sync --prod --no-editable
+
+FROM python:3.10
+
+RUN wget https://downloads.xiph.org/releases/ices/ices-2.0.3.tar.gz
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    libavcodec-extra \
+    libgomp1 
 
 WORKDIR /wet-toast
 
 ENV LANG=C.UTF-8
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/wet-toast/pkgs
 
-RUN pip install -U pip setuptools wheel
-RUN pip install pdm
-RUN wget https://downloads.xiph.org/releases/ices/ices-2.0.3.tar.gz
-RUN apt-get install ffmpeg libavcodec-extra
+COPY --from=builder /wet-toast/__pypackages__/3.10/lib ./pkgs
+RUN python -m wet_toast_talk_radio.main --help > /dev/null
 
-WORKDIR /wet-toast-talk-radio
-
-COPY pyproject.toml pdm.lock .
-RUN pdm install --prod --no-lock
-
-COPY . .
-
-FROM python:3.10-slim
-
-ENV LANG=C.UTF-8
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-ENV PIP_DISABLE_PIP_VERSION_CHECK=1
-ENV PATH="/wet-toast-talk-radio/.venv/bin:$PATH"
-
-RUN apt-get update && apt-get install -y libgomp1
-
-WORKDIR /wet-toast-talk-radio
-
-COPY --from=builder /wet-toast-talk-radio .
-
-ENTRYPOINT ["python", "-m", "main"]
+ENTRYPOINT ["python", "-m", "wet_toast_talk_radio.main"]

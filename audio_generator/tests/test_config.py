@@ -1,6 +1,0 @@
-from audio_generator.config import AudioGeneratorConfig, validate_config
-
-
-def test_config():
-    cfg = AudioGeneratorConfig()
-    validate_config(cfg)

@@ -1,4 +1,4 @@
-from media_store import MediaStore
+from wet_toast_talk_radio.media_store import MediaStore
 
 
 class S3MediaStore(MediaStore):

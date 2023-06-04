@@ -1,9 +1,8 @@
 import traceback
 
 import structlog
-
-from command import root_cmd
-from logger import init_logger
+from wet_toast_talk_radio.command import root_cmd
+from wet_toast_talk_radio.logger import init_logger
 
 if __name__ == "__main__":
     init_logger()

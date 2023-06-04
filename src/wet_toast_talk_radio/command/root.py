@@ -6,7 +6,7 @@ import click
 import structlog
 import yaml
 
-from command.config import Config
+from wet_toast_talk_radio.command.config import Config
 
 logger = structlog.get_logger()
 

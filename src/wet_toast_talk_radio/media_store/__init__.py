@@ -1,7 +1,7 @@
-from media_store.config import MediaStoreConfig
-from media_store.media_store import MediaStore
-from media_store.s3 import S3MediaStore
-from media_store.virtual import VirtualMediaStore
+from wet_toast_talk_radio.media_store.config import MediaStoreConfig
+from wet_toast_talk_radio.media_store.media_store import MediaStore
+from wet_toast_talk_radio.media_store.s3 import S3MediaStore
+from wet_toast_talk_radio.media_store.virtual import VirtualMediaStore
 
 
 def new_media_store(cfg: MediaStoreConfig) -> MediaStore:

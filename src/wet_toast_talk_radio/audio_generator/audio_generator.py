@@ -8,7 +8,7 @@ import structlog
 from bark import SAMPLE_RATE, generate_audio, preload_models
 from scipy.io.wavfile import write as write_wav
 
-from audio_generator.config import AudioGeneratorConfig
+from wet_toast_talk_radio.audio_generator.config import AudioGeneratorConfig
 
 logger = structlog.get_logger()
 

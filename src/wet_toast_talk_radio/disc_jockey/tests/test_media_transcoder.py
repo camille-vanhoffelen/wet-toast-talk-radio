@@ -3,11 +3,11 @@ from typing import Generator
 
 import pytest
 
-from disc_jockey.config import MediaTranscoderConfig
-from disc_jockey.media_transcoder import MediaTranscoder
-from media_store import MediaStore, new_media_store
-from media_store.config import MediaStoreConfig
-from media_store.virtual.bucket import VirtualBucket
+from wet_toast_talk_radio.disc_jockey.config import MediaTranscoderConfig
+from wet_toast_talk_radio.disc_jockey.media_transcoder import MediaTranscoder
+from wet_toast_talk_radio.media_store import MediaStore, new_media_store
+from wet_toast_talk_radio.media_store.config import MediaStoreConfig
+from wet_toast_talk_radio.media_store.virtual.bucket import VirtualBucket
 
 
 @pytest.fixture()
