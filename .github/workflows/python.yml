@@ -8,6 +8,7 @@ env:
 
 jobs:
   testing:
+    name: Testing/Linting/Formatting
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
