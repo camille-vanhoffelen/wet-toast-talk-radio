@@ -22,6 +22,7 @@ readme = "README.md"
 license = { text = "MIT" }
 [project.optional-dependencies]
 ide = ["setuptools>=67.8.0"]
+cpu = ["torch>=2.0.1"]
 
 
 [build-system]
