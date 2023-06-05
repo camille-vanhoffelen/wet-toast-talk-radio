@@ -1,6 +1,7 @@
 import traceback
 
 import structlog
+
 from wet_toast_talk_radio.command import root_cmd
 from wet_toast_talk_radio.logger import init_logger
 
