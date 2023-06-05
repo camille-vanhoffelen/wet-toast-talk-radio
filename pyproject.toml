@@ -28,6 +28,9 @@ ide = ["setuptools>=67.8.0"]
 requires = ["setuptools>=61", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools]
+py-modules = ["wet_toast_talk_radio"]
+
 [tool.pdm.dev-dependencies]
 lint = [
     "black>=23.3.0",
