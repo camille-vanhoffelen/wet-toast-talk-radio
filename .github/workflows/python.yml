@@ -25,6 +25,7 @@ jobs:
           
       - name: Install dependencies
         run: |
+          apt-get update && apt-get install -y ffmpeg libavcodec-extra libgomp1 
           pdm sync -d 
           
       - name: Run Tests
