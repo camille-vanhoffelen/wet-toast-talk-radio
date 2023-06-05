@@ -48,7 +48,6 @@ jobs:
           
       - name: Install dependencies
         run: |
-          pdm install -d
           pdm sync -d
           
       - name: Lint
