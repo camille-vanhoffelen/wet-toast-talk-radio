@@ -11,7 +11,6 @@ from scipy.io.wavfile import write as write_wav
 from wet_toast_talk_radio.audio_generator.config import AudioGeneratorConfig
 
 logger = structlog.get_logger()
-nltk.download("popular")
 
 
 class AudioGenerator:
