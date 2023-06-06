@@ -8,7 +8,10 @@ from langchain.schema import BaseOutputParser
 
 def generate_guest_generation_template(polarity: str):
     system_template = "You are an edgy, satirical writer who writes character profiles."
-    human_template = f"Think of the most stereotypical person who would argue {polarity} of the use of {{topic}}. Describe them in three sentences."
+    human_template = (
+        f"Think of the most stereotypical person who would argue {polarity} of the use of {{topic}}. "
+        "Describe them in three sentences."
+    )
     system_message_prompt = SystemMessagePromptTemplate.from_template(system_template)
     human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
     return ChatPromptTemplate.from_messages(
@@ -18,7 +21,13 @@ def generate_guest_generation_template(polarity: str):
 
 def generate_script_generation_template():
     system_template = "You are an edgy, satirical writer. {format_instructions}"
-    human_template = "Here are the descriptions of two characters: {in_favor_guest} and {against_guest}. Imagine that these two characters are discussing the pros and cons of {topic}. They are stubborn, emotional, and stuck in disagreement. The conversation is chaotic. They cut eachother off often, and still disagree at the end. Now generate a dialogue for this conversation of roughly 1000 words."
+    human_template = (
+        "Here are the descriptions of two characters: {in_favor_guest} and {against_guest}. "
+        "Imagine that these two characters are discussing the pros and cons of {topic}. "
+        "They are stubborn, emotional, and stuck in disagreement. The conversation is chaotic. "
+        "They cut eachother off often, and still disagree at the end. "
+        "Now generate a dialogue for this conversation of roughly 1000 words."
+    )
     system_message_prompt = SystemMessagePromptTemplate.from_template(system_template)
     human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
     return ChatPromptTemplate(
