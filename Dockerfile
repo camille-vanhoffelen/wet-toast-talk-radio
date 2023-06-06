@@ -32,7 +32,6 @@ USER wettoast
 COPY --from=builder /home/wettoast/.local /home/wettoast/.local
 ENV PATH=/home/wettoast/.local/bin:$PATH
 
-# TODO copy only source files instead
 COPY . .
 
 ENTRYPOINT ["python", "-m", "wet_toast_talk_radio.main"]
