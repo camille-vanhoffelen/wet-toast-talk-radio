@@ -41,9 +41,9 @@ class GuestGenerationChain(Chain):
         return [self.in_favor_guest_output_key, self.against_guest_output_key]
 
     def _call(
-            self,
-            inputs: dict[str, Any],
-            run_manager: CallbackManagerForChainRun | None = None,
+        self,
+        inputs: dict[str, Any],
+        run_manager: CallbackManagerForChainRun | None = None,
     ) -> dict[str, str]:
         logger.info("Starting guest generation chain")
         logger.debug("Guest generation chain inputs", inputs=inputs)
@@ -53,25 +53,27 @@ class GuestGenerationChain(Chain):
 
         in_favor_guest = self.llm.generate_prompt(
             prompts=[in_favor_prompt_value],
-            callbacks=run_manager.get_child() if run_manager else None
+            callbacks=run_manager.get_child() if run_manager else None,
         )
 
         against_guest = self.llm.generate_prompt(
             prompts=[against_prompt_value],
-            callbacks=run_manager.get_child() if run_manager else None
+            callbacks=run_manager.get_child() if run_manager else None,
         )
 
-        output = {self.in_favor_guest_output_key: in_favor_guest.generations[0][0].text,
-                  self.against_guest_output_key: against_guest.generations[0][0].text}
+        output = {
+            self.in_favor_guest_output_key: in_favor_guest.generations[0][0].text,
+            self.against_guest_output_key: against_guest.generations[0][0].text,
+        }
 
         logger.info("Finished guest generation chain")
         logger.debug("Guest generation chain output", output=output)
         return output
 
     async def _acall(
-            self,
-            inputs: dict[str, Any],
-            run_manager: AsyncCallbackManagerForChainRun | None = None,
+        self,
+        inputs: dict[str, Any],
+        run_manager: AsyncCallbackManagerForChainRun | None = None,
     ) -> dict[str, str]:
         logger.info("Starting guest generation chain")
         logger.debug("Guest generation chain inputs", inputs=inputs)
@@ -81,15 +83,17 @@ class GuestGenerationChain(Chain):
 
         in_favor_guest = await self.llm.agenerate_prompt(
             [in_favor_prompt_value],
-            callbacks=run_manager.get_child() if run_manager else None
+            callbacks=run_manager.get_child() if run_manager else None,
         )
 
         against_guest = await self.llm.agenerate_prompt(
             [against_prompt_value],
-            callbacks=run_manager.get_child() if run_manager else None
+            callbacks=run_manager.get_child() if run_manager else None,
         )
-        output = {self.in_favor_guest_output_key: in_favor_guest.generations[0][0].text,
-                  self.against_guest_output_key: against_guest.generations[0][0].text}
+        output = {
+            self.in_favor_guest_output_key: in_favor_guest.generations[0][0].text,
+            self.against_guest_output_key: against_guest.generations[0][0].text,
+        }
 
         logger.info("Finished guest generation chain")
         logger.debug("Guest generation chain output", output=output)
@@ -116,9 +120,9 @@ class ScriptGenerationChain(Chain):
         return [self.output_key]
 
     def _call(
-            self,
-            inputs: dict[str, Any],
-            run_manager: CallbackManagerForChainRun | None = None,
+        self,
+        inputs: dict[str, Any],
+        run_manager: CallbackManagerForChainRun | None = None,
     ) -> dict[str, str]:
         logger.info("Starting script generation chain")
         logger.debug("Script generation chain inputs", inputs=inputs)
@@ -127,7 +131,7 @@ class ScriptGenerationChain(Chain):
 
         result = self.llm.generate_prompt(
             prompts=[prompt_value],
-            callbacks=run_manager.get_child() if run_manager else None
+            callbacks=run_manager.get_child() if run_manager else None,
         )
         raw_script = result.generations[0][0].text
         logger.debug("Parsing raw script", raw_script=raw_script)
@@ -138,9 +142,9 @@ class ScriptGenerationChain(Chain):
         return {self.output_key: script}
 
     async def _acall(
-            self,
-            inputs: dict[str, Any],
-            run_manager: AsyncCallbackManagerForChainRun | None = None,
+        self,
+        inputs: dict[str, Any],
+        run_manager: AsyncCallbackManagerForChainRun | None = None,
     ) -> dict[str, str]:
         logger.info("Starting script generation chain")
         logger.debug("Script generation chain inputs", inputs=inputs)
@@ -149,7 +153,7 @@ class ScriptGenerationChain(Chain):
 
         result = await self.llm.agenerate_prompt(
             prompts=[prompt_value],
-            callbacks=run_manager.get_child() if run_manager else None
+            callbacks=run_manager.get_child() if run_manager else None,
         )
         raw_script = result.generations[0][0].text
         logger.debug("Parsing raw script", raw_script=raw_script)
@@ -165,6 +169,7 @@ class TheGreatDebateChain(Chain):
     Generates a radio script for "The Great Debate" show for a given topic.
     Combines the guest generation and script generation chains.
     """
+
     chain: SequentialChain
 
     @property
@@ -175,18 +180,28 @@ class TheGreatDebateChain(Chain):
     def output_keys(self) -> list[str]:
         return self.chain.output_keys
 
-    def _call(self, inputs: dict[str, Any], run_manager: CallbackManagerForChainRun | None = None) -> dict[str, Any]:
+    def _call(
+        self,
+        inputs: dict[str, Any],
+        run_manager: CallbackManagerForChainRun | None = None,
+    ) -> dict[str, Any]:
         return self.chain._call(inputs=inputs, run_manager=run_manager)
 
-    async def _acall(self, inputs: dict[str, Any], run_manager: CallbackManagerForChainRun | None = None) -> dict[
-        str, Any]:
+    async def _acall(
+        self,
+        inputs: dict[str, Any],
+        run_manager: CallbackManagerForChainRun | None = None,
+    ) -> dict[str, Any]:
         return await self.chain._acall(inputs=inputs, run_manager=run_manager)
 
     @classmethod
     def from_llm(cls, llm: BaseLanguageModel) -> "TheGreatDebateChain":
         guest_generation_chain = GuestGenerationChain(llm=llm)
         script_generation_chain = ScriptGenerationChain(llm=llm)
-        chain = SequentialChain(chains=[guest_generation_chain, script_generation_chain],
-                                input_variables=guest_generation_chain.input_keys,
-                                output_variables=guest_generation_chain.output_keys + script_generation_chain.output_keys)
+        chain = SequentialChain(
+            chains=[guest_generation_chain, script_generation_chain],
+            input_variables=guest_generation_chain.input_keys,
+            output_variables=guest_generation_chain.output_keys
+            + script_generation_chain.output_keys,
+        )
         return cls(chain=chain)

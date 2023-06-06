@@ -3,6 +3,7 @@ from pydantic import BaseModel
 
 class ScriptwriterConfig(BaseModel):
     """scriptwriter config file"""
+
     openai_api_key: str
 
 
