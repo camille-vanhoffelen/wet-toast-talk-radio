@@ -47,7 +47,7 @@ class ScriptOutputParser(BaseOutputParser):
         speakers = set()
         clean_lines = []
         for line in lines:
-            assert ":" in line
+            assert ":" in line, f"Expected line of format 'speaker: text', but got: {line}"
             speaker, text = line.split(":")
             speakers.add(speaker.strip().lower())
             clean_lines.append(line.strip())
@@ -58,5 +58,4 @@ class ScriptOutputParser(BaseOutputParser):
 
 IN_FAVOR_GUEST = generate_guest_generation_template(polarity="in favor")
 AGAINST_GUEST = generate_guest_generation_template(polarity="against")
-
 SCRIPT = generate_script_generation_template()

@@ -17,7 +17,8 @@ class Scriptwriter:
 
     def run(self) -> None:
         topic = "toilet paper"
-        llm = ChatOpenAI(openai_api_key=self._cfg.openai_api_key, model=self.llm_model, temperature=self.llm_temperature)
+        llm = ChatOpenAI(openai_api_key=self._cfg.openai_api_key, model=self.llm_model,
+                         temperature=self.llm_temperature)
         chain = TheGreatDebateChain.from_llm(llm=llm)
         logger.info("Writing The Great Debate show...", topic=topic)
         outputs = chain(inputs={"topic": topic})

@@ -63,7 +63,7 @@ class GuestGenerationChain(Chain):
 
         output = {self.in_favor_guest_output_key: in_favor_guest.generations[0][0].text,
                   self.against_guest_output_key: against_guest.generations[0][0].text}
-        
+
         logger.info("Finished guest generation chain")
         logger.debug("Guest generation chain output", output=output)
         return output
@@ -165,7 +165,7 @@ class TheGreatDebateChain(Chain):
     Generates a radio script for "The Great Debate" show for a given topic.
     Combines the guest generation and script generation chains.
     """
-    chain: Chain
+    chain: SequentialChain
 
     @property
     def input_keys(self) -> list[str]:
@@ -175,10 +175,10 @@ class TheGreatDebateChain(Chain):
     def output_keys(self) -> list[str]:
         return self.chain.output_keys
 
-    def _call(self, inputs: dict[str, Any], run_manager: CallbackManagerForChainRun | None = None, ) -> dict[str, Any]:
+    def _call(self, inputs: dict[str, Any], run_manager: CallbackManagerForChainRun | None = None) -> dict[str, Any]:
         return self.chain._call(inputs=inputs, run_manager=run_manager)
 
-    async def _acall(self, inputs: dict[str, Any], run_manager: CallbackManagerForChainRun | None = None, ) -> dict[
+    async def _acall(self, inputs: dict[str, Any], run_manager: CallbackManagerForChainRun | None = None) -> dict[
         str, Any]:
         return await self.chain._acall(inputs=inputs, run_manager=run_manager)
 
