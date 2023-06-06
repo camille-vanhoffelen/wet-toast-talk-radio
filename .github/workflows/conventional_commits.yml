@@ -3,13 +3,9 @@ name: Conventional Commits
 on: push
 
 jobs:
-  commits:
+  build:
     name: Conventional Commits
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Check Commmits
-        run: |
-          if echo ${{ github.event.head_commit.message }} | grep -q -E ".*(refactor|feat|fix|docs|breaking|misc|chore|test):\s.*$"; then echo "Commit message is properly formatted. Nice"; exit 0; fi
-          echo "Fix your commit message to a proper format"
-          exit 1
+      - uses: webiny/action-conventional-commits@v1.1.0

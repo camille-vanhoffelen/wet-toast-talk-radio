@@ -1,0 +1,55 @@
+name: Build
+on: [push]
+jobs:
+  build:
+    name: ECR Build
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Docker Build
+      run: |
+        docker build -t wettoast .
+    - name: Configure AWS credentials Dev
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        role-to-assume: arn:aws:iam::289115055556:role/GitHubActionsWetToastTalkRadio
+        aws-region: us-east-1
+    - name: Docker Push
+      run: |
+        aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 166675158797.dkr.ecr.us-east-1.amazonaws.com
+        docker tag wettoast:latest 166675158797.dkr.ecr.us-east-1.amazonaws.com/wet-toast-talk-radio:commit-$GITHUB_SHA
+        docker push 166675158797.dkr.ecr.us-east-1.amazonaws.com/wet-toast-talk-radio:commit-$GITHUB_SHA
+
+  build-main:
+    name: ECR Build Main
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    permissions:
+      id-token: write
+      contents: read
+      actions: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          lfs: true
+      - name: Turnstyle
+        uses: softprops/turnstyle@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: Configure AWS credentials Dev
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::289115055556:role/GitHubActionsWetToastTalkRadio
+          aws-region: us-east-1
+      - name: Docker Push
+        run: |
+          aws ecr get-login-password | docker login --username AWS --password-stdin 289115055556.dkr.ecr.us-east-1.amazonaws.com
+          docker pull 289115055556.dkr.ecr.us-east-1.amazonaws.com/wet-toast-talk-radio:commit-$GITHUB_SHA
+          docker tag 289115055556.dkr.ecr.us-east-1.amazonaws.com/wet-toast-talk-radio:commit-$GITHUB_SHA 289115055556.dkr.ecr.us-east-1.amazonaws.com/wet-toast-talk-radio:latest
+          docker push 289115055556.dkr.ecr.us-east-1.amazonaws.com/wet-toast-talk-radio:latest
