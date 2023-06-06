@@ -70,7 +70,7 @@ A Icecast and Ices service will start on [http://localhost:8000/](http://localho
 The [test](./tests/) folder containes integration tests that need the `docker-compose up` cmd to run. These tests are skipped by default but can be enabled with the following flag: 
 
 ```bash
-pdm run pytest --intergration
+pdm run pytest --integration
 ```
 
 
