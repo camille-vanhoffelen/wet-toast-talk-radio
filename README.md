@@ -20,7 +20,7 @@ media_store:
 audio_generator:
   foo: "bar"
 scriptwriter:
-  foo: "bar"
+  openai_api_key: "sk-....."
 ```
 
 ### Running
