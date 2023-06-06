@@ -46,7 +46,3 @@ dev = []
 disc-jockey = "python -m wet_toast_talk_radio.main disc-jockey"
 audio-generator = "python -m wet_toast_talk_radio.main audio-generator"
 
-[tool.pytest]
-[tool.pytest.ini_options]
-norecursedirs = "__pypackages__"
-
