@@ -6,10 +6,10 @@ RUN useradd --create-home wettoast
 WORKDIR /home/wettoast
 USER wettoast
 
-RUN pip install -U pip setuptools wheel
+RUN pip install --no-warn-script-location -U pip setuptools wheel
 
 COPY ./requirements.txt .
-RUN pip --no-warn-script-location install --user -r requirements.txt
+RUN pip install --no-warn-script-location --user -r requirements.txt
 
 RUN wget https://downloads.xiph.org/releases/ices/ices-2.0.3.tar.gz
 
