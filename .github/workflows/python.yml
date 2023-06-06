@@ -29,10 +29,6 @@ jobs:
           apt-get update && apt-get install -y ffmpeg libavcodec-extra libgomp1 
           pdm sync -d 
 
-      - name: Install nltk models
-        run: |
-          python -m nltk.downloader popular
-          
       - name: Run Tests
         run: |
           pdm run -v pytest

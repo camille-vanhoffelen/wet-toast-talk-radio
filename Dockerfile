@@ -25,7 +25,7 @@ RUN useradd --create-home wettoast
 WORKDIR /home/wettoast
 USER wettoast
 
-RUN pip install -U pip
+RUN pip install -U pip setuptools wheel
 
 COPY --from=builder1 /wet-toast-talk-radio/requirements.txt .
 RUN pip install --user -r requirements.txt
