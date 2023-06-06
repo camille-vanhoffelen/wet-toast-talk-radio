@@ -1,5 +1,13 @@
 name: Build
-on: [push]
+on:
+  push:
+    tags:
+      - '*'
+
+env:
+  REGISTRY: 289115055556.dkr.ecr.us-east-1.amazonaws.com
+  IMAGE_NAME: wet-toast-talk-radio
+
 jobs:
   build:
     name: ECR Build
@@ -21,35 +29,5 @@ jobs:
     - name: Docker Push
       run: |
         aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 289115055556.dkr.ecr.us-east-1.amazonaws.com
-        docker tag wettoast:latest 289115055556.dkr.ecr.us-east-1.amazonaws.com/wet-toast-talk-radio:commit-$GITHUB_SHA
-        docker push 289115055556.dkr.ecr.us-east-1.amazonaws.com/wet-toast-talk-radio:commit-$GITHUB_SHA
-
-  build-main:
-    name: ECR Build Main
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    needs: build
-    permissions:
-      id-token: write
-      contents: read
-      actions: read
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          lfs: true
-      - name: Turnstyle
-        uses: softprops/turnstyle@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-      - name: Configure AWS credentials Dev
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          role-to-assume: arn:aws:iam::289115055556:role/GitHubActionsWetToastTalkRadio
-          aws-region: us-east-1
-      - name: Docker Push
-        run: |
-          aws ecr get-login-password | docker login --username AWS --password-stdin 289115055556.dkr.ecr.us-east-1.amazonaws.com
-          docker pull 289115055556.dkr.ecr.us-east-1.amazonaws.com/wet-toast-talk-radio:commit-$GITHUB_SHA
-          docker tag 289115055556.dkr.ecr.us-east-1.amazonaws.com/wet-toast-talk-radio:commit-$GITHUB_SHA 289115055556.dkr.ecr.us-east-1.amazonaws.com/wet-toast-talk-radio:latest
-          docker push 289115055556.dkr.ecr.us-east-1.amazonaws.com/wet-toast-talk-radio:latest
+        docker tag wettoast:latest ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{  github.ref_name }}
+        docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{  github.ref_name }}
