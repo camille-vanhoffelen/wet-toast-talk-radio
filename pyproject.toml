@@ -45,3 +45,4 @@ dev = []
 [tool.pdm.scripts]
 disc-jockey = "python -m wet_toast_talk_radio.main disc-jockey"
 audio-generator = "python -m wet_toast_talk_radio.main audio-generator"
+
