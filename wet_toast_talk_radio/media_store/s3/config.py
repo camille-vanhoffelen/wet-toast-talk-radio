@@ -2,8 +2,9 @@ from pydantic import BaseModel
 
 
 class S3Config(BaseModel):
-    # When using docker-compose locally, this should be set to `http://localhost:4566`
-    local_endpoint: str | None = None
+    # This will connect to localstack at `http://localhost:4566`
+    local: bool = False
+
     bucket_name: str | None = "wet-toast-talk-radio"
     max_workers: int = 10
 

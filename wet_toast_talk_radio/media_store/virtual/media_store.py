@@ -32,38 +32,38 @@ class VirtualMediaStore(MediaStore):
                 if file.name.endswith(".wav"):
                     with file.open("rb") as f:
                         data = f.read()
-                    self.upload_raw_show(show_name=file.name, data=data)
+                    self.upload_raw_show(show_id=file.name, data=data)
                 if file.name.endswith(".txt"):
                     with file.open("r") as f:
                         content = f.read()
-                    self.upload_script_show(show_name=file.name, content=content)
+                    self.upload_script_show(show_id=file.name, content=content)
 
-    def upload_raw_show(self, show_name: str, data: bytes):
-        if not show_name.endswith(".wav"):
-            raise ValueError("show_name must end with .wav")
-        self._bucket[f"{ShowType.RAW.value}/{show_name}"] = VirtualObject(
-            show_name=show_name,
+    def upload_raw_show(self, show_id: str, data: bytes):
+        if not show_id.endswith(".wav"):
+            raise ValueError("show_id must end with .wav")
+        self._bucket[f"{ShowType.RAW.value}/{show_id}"] = VirtualObject(
+            show_id=show_id,
             data=data,
             last_modified=datetime.now(),
             show_type=ShowType.RAW,
         )
 
-    def upload_transcoded_show(self, show_name: str, data: bytes):
-        if not show_name.endswith(".ogg"):
-            raise ValueError("show_name must end with .wav")
-        self._bucket[f"{ShowType.TRANSCODED.value}/{show_name}"] = VirtualObject(
-            show_name=show_name,
+    def upload_transcoded_show(self, show_id: str, data: bytes):
+        if not show_id.endswith(".ogg"):
+            raise ValueError("show_id must end with .ogg")
+        self._bucket[f"{ShowType.TRANSCODED.value}/{show_id}"] = VirtualObject(
+            show_id=show_id,
             data=data,
             last_modified=datetime.now(),
             show_type=ShowType.TRANSCODED,
         )
 
-    def upload_script_show(self, show_name: str, content: str):
-        if not show_name.endswith(".txt"):
-            raise ValueError("show_name must end with .txt")
+    def upload_script_show(self, show_id: str, content: str):
+        if not show_id.endswith(".txt"):
+            raise ValueError("show_id must end with .txt")
         data = content.encode(TXT_ENCODING)
-        self._bucket[f"{ShowType.SCRIPT.value}/{show_name}"] = VirtualObject(
-            show_name=show_name,
+        self._bucket[f"{ShowType.SCRIPT.value}/{show_id}"] = VirtualObject(
+            show_id=show_id,
             data=data,
             last_modified=datetime.now(),
             show_type=ShowType.SCRIPT,
@@ -73,7 +73,7 @@ class VirtualMediaStore(MediaStore):
         def upload_file(show: Path, key: str):
             with show.open("rb") as f:
                 self._bucket[key] = VirtualObject(
-                    show_name=show.name,
+                    show_id=show.name,
                     data=f.read(),
                     last_modified=datetime.now(),
                     show_type=ShowType.TRANSCODED,
@@ -93,27 +93,33 @@ class VirtualMediaStore(MediaStore):
 
             concurrent.futures.wait(futures)
 
-    def download_raw_shows(self, show_names: list[str], dir_output: Path):
-        def download_file(show_name: str, dir_output: Path):
-            obj = self._bucket.get(f"{ShowType.RAW.value}/{show_name}", None)
+    def download_raw_shows(self, show_ids: list[str], dir_output: Path):
+        def download_file(show_id: str, dir_output: Path):
+            obj = self._bucket.get(f"{ShowType.RAW.value}/{show_id}", None)
             if obj:
-                with (dir_output / show_name).open("wb") as f:
+                with (dir_output / show_id).open("wb") as f:
                     f.write(obj.data)
 
         with concurrent.futures.ThreadPoolExecutor(
             max_workers=_MAX_WORKERS
         ) as executor:
             futures = []
-            for show_name in show_names:
-                futures.append(executor.submit(download_file, show_name, dir_output))
+            for show_id in show_ids:
+                futures.append(executor.submit(download_file, show_id, dir_output))
             concurrent.futures.wait(futures)
 
-    def download_script_show(self, show_name: str, dir_output: Path):
-        obj = self._bucket.get(f"{ShowType.SCRIPT.value}/{show_name}", None)
+    def download_script_show(self, show_id: str, dir_output: Path):
+        obj = self._bucket.get(f"{ShowType.SCRIPT.value}/{show_id}", None)
         content = obj.data.decode(TXT_ENCODING)
         if obj:
-            with (dir_output / show_name).open("w") as f:
+            with (dir_output / show_id).open("w") as f:
                 f.write(content)
+
+    def get_transcoded_show(self, show_id: str) -> bytes:
+        obj = self._bucket.get(f"{ShowType.TRANSCODED.value}/{show_id}", None)
+        if obj:
+            return obj.data
+        return None
 
     def list_raw_shows(self, since: datetime | None = None) -> list[str]:
         return self._list_shows(ShowType.RAW, since)
@@ -131,9 +137,9 @@ class VirtualMediaStore(MediaStore):
         for obj in self._bucket.values():
             if obj.show_type == show_type:
                 if not since:
-                    ret.append(obj.show_name)
+                    ret.append(obj.show_id)
                     continue
 
                 if obj.last_modified > since:
-                    ret.append(obj.show_name)
+                    ret.append(obj.show_id)
         return ret

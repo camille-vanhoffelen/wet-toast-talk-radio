@@ -17,7 +17,7 @@ class RootConfig(BaseSettings):
       wet_toast_talk_radio/<my_secret>
     """
 
-    disc_jockey: DiscJockeyConfig = DiscJockeyConfig()
+    disc_jockey: DiscJockeyConfig | None = None
     audio_generator: AudioGeneratorConfig | None = None
     scriptwriter: ScriptwriterConfig | None = None
     media_store: MediaStoreConfig | None = None

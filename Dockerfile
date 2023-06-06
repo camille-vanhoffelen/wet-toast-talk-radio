@@ -12,7 +12,6 @@ RUN pip install --no-warn-script-location -U pip setuptools wheel
 COPY ./requirements.txt .
 RUN pip install --no-warn-script-location --user -r requirements.txt
 
-RUN wget https://downloads.xiph.org/releases/ices/ices-2.0.3.tar.gz
 
 # GPU prod image
 FROM nvidia/cuda:11.7.1-cudnn8-runtime-ubuntu22.04 AS prod-gpu

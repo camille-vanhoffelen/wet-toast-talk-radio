@@ -3,6 +3,7 @@ from pathlib import Path
 import boto3
 import pytest
 
+from wet_toast_talk_radio.common.aws_clients import new_s3_client
 from wet_toast_talk_radio.disc_jockey import DiscJockey
 from wet_toast_talk_radio.disc_jockey.config import (
     DiscJockeyConfig,
@@ -13,7 +14,6 @@ from wet_toast_talk_radio.media_store.config import MediaStoreConfig
 from wet_toast_talk_radio.media_store.s3.config import S3Config
 
 _BUCKET_NAME = "wet-toast-talk-radio"
-_LOCAL_ENDPOINT = "http://localhost:4566"
 
 
 def _clear_bucket(s3_client: boto3.client):
@@ -26,8 +26,7 @@ def _clear_bucket(s3_client: boto3.client):
 
 
 def _setup_bucket() -> list[str]:
-    session = boto3.Session()
-    s3_client = session.client("s3", endpoint_url=_LOCAL_ENDPOINT)
+    s3_client = new_s3_client(local=True)
     _clear_bucket(s3_client)
     data_dir = (
         Path(__file__).parent.parent
@@ -36,10 +35,9 @@ def _setup_bucket() -> list[str]:
         / "virtual"
         / "data"
     )
-    print(data_dir)
     ret = []
     for file in data_dir.iterdir():
-        if file.is_file():
+        if file.is_file() and file.name.endswith(".wav"):
             s3_client.upload_file(file, _BUCKET_NAME, f"raw/{file.name}")
             ret.append(file.name)
     return ret
@@ -50,12 +48,7 @@ class TestTranscode:
     def test_transcode(self):
         raw_shows = _setup_bucket()
         media_store = new_media_store(
-            MediaStoreConfig(
-                s3=S3Config(
-                    bucket_name=_BUCKET_NAME,
-                    local_endpoint=_LOCAL_ENDPOINT,
-                )
-            )
+            MediaStoreConfig(s3=S3Config(bucket_name=_BUCKET_NAME, local=True))
         )
         cfg = DiscJockeyConfig(
             media_transcoder=MediaTranscoderConfig(
