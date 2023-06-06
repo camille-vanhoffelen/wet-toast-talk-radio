@@ -6,10 +6,10 @@ RUN useradd --create-home wettoast
 WORKDIR /home/wettoast
 USER wettoast
 
-RUN pip install -U pip setuptools wheel
+RUN pip install --no-warn-script-location -U pip setuptools wheel
 
 COPY ./requirements.txt .
-RUN pip install --user -r requirements.txt
+RUN pip install --no-warn-script-location --user -r requirements.txt
 
 RUN wget https://downloads.xiph.org/releases/ices/ices-2.0.3.tar.gz
 
@@ -33,5 +33,7 @@ COPY --from=builder /home/wettoast/.local /home/wettoast/.local
 ENV PATH=/home/wettoast/.local/bin:$PATH
 
 COPY . .
+
+RUN python -m wet_toast_talk_radio.main --help > /dev/null
 
 ENTRYPOINT ["python", "-m", "wet_toast_talk_radio.main"]
