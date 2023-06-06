@@ -41,9 +41,9 @@ class GuestGenerationChain(Chain):
         return [self.in_favor_guest_output_key, self.against_guest_output_key]
 
     def _call(
-            self,
-            inputs: dict[str, Any],
-            run_manager: CallbackManagerForChainRun | None = None,
+        self,
+        inputs: dict[str, Any],
+        run_manager: CallbackManagerForChainRun | None = None,
     ) -> dict[str, str]:
         logger.info("Starting guest generation chain")
         logger.debug("Guest generation chain inputs", inputs=inputs)
@@ -71,9 +71,9 @@ class GuestGenerationChain(Chain):
         return output
 
     async def _acall(
-            self,
-            inputs: dict[str, Any],
-            run_manager: AsyncCallbackManagerForChainRun | None = None,
+        self,
+        inputs: dict[str, Any],
+        run_manager: AsyncCallbackManagerForChainRun | None = None,
     ) -> dict[str, str]:
         logger.info("Starting guest generation chain")
         logger.debug("Guest generation chain inputs", inputs=inputs)
@@ -120,9 +120,9 @@ class ScriptGenerationChain(Chain):
         return [self.output_key]
 
     def _call(
-            self,
-            inputs: dict[str, Any],
-            run_manager: CallbackManagerForChainRun | None = None,
+        self,
+        inputs: dict[str, Any],
+        run_manager: CallbackManagerForChainRun | None = None,
     ) -> dict[str, str]:
         logger.info("Starting script generation chain")
         logger.debug("Script generation chain inputs", inputs=inputs)
@@ -142,9 +142,9 @@ class ScriptGenerationChain(Chain):
         return {self.output_key: script}
 
     async def _acall(
-            self,
-            inputs: dict[str, Any],
-            run_manager: AsyncCallbackManagerForChainRun | None = None,
+        self,
+        inputs: dict[str, Any],
+        run_manager: AsyncCallbackManagerForChainRun | None = None,
     ) -> dict[str, str]:
         logger.info("Starting script generation chain")
         logger.debug("Script generation chain inputs", inputs=inputs)
@@ -181,16 +181,16 @@ class TheGreatDebateChain(Chain):
         return self.chain.output_keys
 
     def _call(
-            self,
-            inputs: dict[str, Any],
-            run_manager: CallbackManagerForChainRun | None = None,
+        self,
+        inputs: dict[str, Any],
+        run_manager: CallbackManagerForChainRun | None = None,
     ) -> dict[str, Any]:
         return self.chain(inputs=inputs, callbacks=run_manager)
 
     async def _acall(
-            self,
-            inputs: dict[str, Any],
-            run_manager: AsyncCallbackManagerForChainRun | None = None,
+        self,
+        inputs: dict[str, Any],
+        run_manager: AsyncCallbackManagerForChainRun | None = None,
     ) -> dict[str, Any]:
         return await self.chain.acall(inputs=inputs, callbacks=run_manager)
 
@@ -202,6 +202,6 @@ class TheGreatDebateChain(Chain):
             chains=[guest_generation_chain, script_generation_chain],
             input_variables=guest_generation_chain.input_keys,
             output_variables=guest_generation_chain.output_keys
-                             + script_generation_chain.output_keys,
+            + script_generation_chain.output_keys,
         )
         return cls(chain=chain)
