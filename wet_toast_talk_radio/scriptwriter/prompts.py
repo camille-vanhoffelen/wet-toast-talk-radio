@@ -16,7 +16,7 @@ def generate_guest_generation_template(polarity: str):
 
 def generate_script_generation_template():
     system_template = "You are an edgy, satirical writer. {format_instructions}"
-    human_template = "Here are the descriptions of two characters: {in_favor_guest} and {against_guest}. Imagine that these two characters are discussing the pros and cons of {topic}. They are stubborn, emotional, and stuck in disagreement. The conversation is chaotic. They cut eachother off often, and still disagree at the end. Now generate a dialogue for this conversation of roughly 2000 words."
+    human_template = "Here are the descriptions of two characters: {in_favor_guest} and {against_guest}. Imagine that these two characters are discussing the pros and cons of {topic}. They are stubborn, emotional, and stuck in disagreement. The conversation is chaotic. They cut eachother off often, and still disagree at the end. Now generate a dialogue for this conversation of roughly 1000 words."
     system_message_prompt = SystemMessagePromptTemplate.from_template(system_template)
     human_message_prompt = HumanMessagePromptTemplate.from_template(human_template)
     return ChatPromptTemplate(messages=[system_message_prompt, human_message_prompt],
@@ -41,14 +41,13 @@ class ScriptOutputParser(BaseOutputParser):
         )
 
     def parse(self, script: str) -> str:
-        """Parse the output of an LLM call."""
         script = script.strip()
         lines = script.split("\n\n")
         speakers = set()
         clean_lines = []
         for line in lines:
             assert ":" in line, f"Expected line of format 'speaker: text', but got: {line}"
-            speaker, text = line.split(":")
+            speaker, text = line.split(":", maxsplit=1)
             speakers.add(speaker.strip().lower())
             clean_lines.append(line.strip())
         assert len(speakers) == self.n_speakers, f"Expected {self.n_speakers} speakers, but got: {len(speakers)}"

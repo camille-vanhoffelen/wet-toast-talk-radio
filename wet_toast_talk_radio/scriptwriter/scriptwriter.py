@@ -15,8 +15,7 @@ class Scriptwriter:
     def __init__(self, cfg: ScriptwriterConfig):
         self._cfg = cfg
 
-    def run(self) -> None:
-        topic = "toilet paper"
+    def run(self, topic: str) -> None:
         llm = ChatOpenAI(openai_api_key=self._cfg.openai_api_key, model=self.llm_model,
                          temperature=self.llm_temperature)
         chain = TheGreatDebateChain.from_llm(llm=llm)
