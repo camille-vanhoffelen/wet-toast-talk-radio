@@ -12,7 +12,7 @@ logger = structlog.get_logger()
 @root_cmd.group()
 @click.pass_context
 def scriptwriter(ctx: dict):
-    print_banner("scriptwriter.txt")
+    print_banner("scriptwriter_banner.txt")
     root_cfg = ctx.obj["root_cfg"]
     validate_config(root_cfg.scriptwriter)
 
