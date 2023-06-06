@@ -1,29 +1,39 @@
-FROM python:3.10 as builder
+FROM python:3.10.11-bullseye as builder
 
-RUN pip install -U pip setuptools wheel
-RUN pip install pdm
+RUN apt-get update && apt-get -y upgrade
 
-WORKDIR /wet-toast
+RUN useradd --create-home wettoast
+WORKDIR /home/wettoast
+USER wettoast
 
-COPY . .
-RUN mkdir __pypackages__ && pdm sync --prod --no-editable
+RUN pip install --no-warn-script-location -U pip setuptools wheel
 
-FROM python:3.10
+COPY ./requirements.txt .
+RUN pip install --no-warn-script-location --user -r requirements.txt
 
 RUN wget https://downloads.xiph.org/releases/ices/ices-2.0.3.tar.gz
+
+# Build prod image
+FROM python:3.10.11-slim-bullseye
+
+RUN apt-get update && apt-get -y upgrade
 RUN apt-get update && apt-get install -y \
     ffmpeg \
     libavcodec-extra \
-    libgomp1 
+    libgomp1
 
-WORKDIR /wet-toast
-
-ENV LANG=C.UTF-8
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-ENV PYTHONPATH=/wet-toast/pkgs
 
-COPY --from=builder /wet-toast/__pypackages__/3.10/lib ./pkgs
+RUN useradd --create-home wettoast
+WORKDIR /home/wettoast
+USER wettoast
+
+COPY --from=builder /home/wettoast/.local /home/wettoast/.local
+ENV PATH=/home/wettoast/.local/bin:$PATH
+
+COPY . .
+
 RUN python -m wet_toast_talk_radio.main --help > /dev/null
 
 ENTRYPOINT ["python", "-m", "wet_toast_talk_radio.main"]
