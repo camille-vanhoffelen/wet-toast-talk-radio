@@ -17,22 +17,23 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      
-      - name: Set up PDM
-        uses: pdm-project/setup-pdm@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-          enable-pep582: false
-          
+
       - name: Install dependencies
         run: |
           apt-get update && apt-get install -y ffmpeg libavcodec-extra libgomp1 
-          pdm sync -d 
+          python -m pip install --upgrade pip
+          pip install -r dev-requirements.txt
 
-      - name: Run Tests
+      - name: Test with pytest
         run: |
-          pdm run -v pytest
-  linting: 
+          pytest -v
+
+  linting:
     name: Linting/Formatting
     runs-on: ${{ matrix.os }}
     strategy:
@@ -42,18 +43,19 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      
-      - name: Set up PDM
-        uses: pdm-project/setup-pdm@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-          enable-pep582: false
-          
+
       - name: Install dependencies
         run: |
-          pdm sync -d
+          apt-get update && apt-get install -y ffmpeg libavcodec-extra libgomp1 
+          python -m pip install --upgrade pip
+          pip install -r dev-requirements.txt
 
-      - name: Lint
+      - name: Lint with ruff
         run: |
-          pdm run black ./ --check 
-          pdm run ruff check .
+          black ./ --check 
+          ruff check .
