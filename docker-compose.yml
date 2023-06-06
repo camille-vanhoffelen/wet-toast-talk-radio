@@ -1,9 +1,41 @@
 version: '3.7'
 services:
+  health-check:
+    depends_on:
+      localstack:
+        condition: service_healthy
+    image: alpine:latest
+    command: echo "Health check done."
+
+  # Services to facilitate S3 bucket are localstack, s3Bucket
+  localstack:
+    image: localstack/localstack:latest
+    environment:
+      - AWS_DEFAULT_REGION=us-east-1
+      - EDGE_PORT=4566
+      - SERVICES=s3
+    ports:
+      - "4566-4583:4566-4583"
+    volumes:
+      - "./docker/localstacks3:/tmp/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    command: awslocal s3 mb s3://testbucket
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "awslocal s3 ls" ]
+      interval: 5s
+      timeout: 10s
+      retries: 15
+  s3Bucket:
+    image: amazon/aws-cli
+    command: --no-sign-request --endpoint-url=http://localstack:4566 s3 mb s3://wet-toast-talk-radio
+    depends_on:
+      localstack:
+        condition: service_healthy
+
   ices:
     image: vimagick/ices
     volumes:
-      - ./data:/etc/ices
+      - ./ices/dev:/etc/ices
     links:
       - icecast
     restart: always
