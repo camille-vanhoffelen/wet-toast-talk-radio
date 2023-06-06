@@ -9,7 +9,7 @@ USER wettoast
 RUN pip install -U pip setuptools wheel
 
 COPY ./requirements.txt .
-RUN pip install --user -r requirements.txt
+RUN pip install --user -r --no-warn-script-location requirements.txt
 
 RUN wget https://downloads.xiph.org/releases/ices/ices-2.0.3.tar.gz
 
