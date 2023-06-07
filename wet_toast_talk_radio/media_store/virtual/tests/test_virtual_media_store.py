@@ -76,11 +76,12 @@ class TestVirtualMediaStore:
         d.mkdir()
         virtual_store = VirtualMediaStore()
         expected_content = "Toast is wet!"
-        virtual_store.upload_script_show(show_name="show666.txt", content=expected_content)
+        virtual_store.upload_script_show(
+            show_name="show666.txt", content=expected_content
+        )
         virtual_store.download_script_show(show_name="show666.txt", dir_output=d)
         actual_content = (d / "show666.txt").read_text()
         assert actual_content == expected_content
-
 
     def test_list_raw_shows(self):
         case = unittest.TestCase()
@@ -140,17 +141,19 @@ class TestVirtualMediaStore:
         case = unittest.TestCase()
         virtual_store = VirtualMediaStore()
 
-        case.assertCountEqual(
-            virtual_store.list_script_shows(), ["show1.txt"]
+        case.assertCountEqual(virtual_store.list_script_shows(), ["show1.txt"])
+        virtual_store.upload_script_show(
+            show_name="show666.txt", content="Toast is wet!"
         )
-        virtual_store.upload_script_show(show_name="show666.txt", content="Toast is wet!")
         case.assertCountEqual(
             virtual_store.list_script_shows(), ["show1.txt", "show666.txt"]
         )
 
         now = datetime.now()
         # upload new script show 'tomorrow'
-        virtual_store.upload_script_show(show_name="show999.txt", content="Toast is dry :(")
+        virtual_store.upload_script_show(
+            show_name="show999.txt", content="Toast is dry :("
+        )
         virtual_store._bucket[
             f"{ShowType.SCRIPT.value}/show999.txt"
         ].last_modified = now + timedelta(days=1)
