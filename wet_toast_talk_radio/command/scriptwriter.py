@@ -29,7 +29,7 @@ def run(ctx: dict, topic: str):
     with TOPIC the topic of The Great Debate show.
     """
     root_cfg = ctx.obj["root_cfg"]
-    sw_cfg = root_cfg.disc_jockey
+    sw_cfg = root_cfg.scriptwriter
     ms_cfg = root_cfg.media_store
 
     logger.info("Starting scriptwriter", cfg=root_cfg.scriptwriter)
