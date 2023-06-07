@@ -30,6 +30,13 @@ class TestVirtualMediaStore:
         virtual_store.upload_transcoded_show("show1.ogg", b"raw bytes")
         assert len(virtual_store.list_transcoded_shows()) == expected + 1
 
+    def test_upload_script_show(self):
+        virtual_store = VirtualMediaStore()
+        expected = 1
+        assert len(virtual_store.list_script_shows()) == expected
+        virtual_store.upload_script_show("show666.txt", "Toast is wet")
+        assert len(virtual_store.list_script_shows()) == expected + 1
+
     def test_upload_transcoded_shows(self, tmp_path: Generator[Path, None, None]):
         virtual_store = VirtualMediaStore()
         expected = 0
@@ -56,6 +63,25 @@ class TestVirtualMediaStore:
         virtual_store.download_raw_shows(wanted_shows, d)
         assert len(list(d.iterdir())) == len(wanted_shows)
 
+    def test_download_script_show(self, tmp_path: Generator[Path, None, None]):
+        # TODO maybe use tmpfile here
+        d = tmp_path / "temp"
+        d.mkdir()
+        virtual_store = VirtualMediaStore()
+        virtual_store.download_script_show(show_name="show1.txt", dir_output=d)
+        assert len(list(d.iterdir())) == 1
+
+    def test_script_show_encoding(self, tmp_path: Generator[Path, None, None]):
+        d = tmp_path / "temp"
+        d.mkdir()
+        virtual_store = VirtualMediaStore()
+        expected_content = "Toast is wet!"
+        virtual_store.upload_script_show(show_name="show666.txt", content=expected_content)
+        virtual_store.download_script_show(show_name="show666.txt", dir_output=d)
+        actual_content = (d / "show666.txt").read_text()
+        assert actual_content == expected_content
+
+
     def test_list_raw_shows(self):
         case = unittest.TestCase()
         virtual_store = VirtualMediaStore()
@@ -69,7 +95,7 @@ class TestVirtualMediaStore:
         )
 
         now = datetime.now()
-        # upload new transcoded show 'tomorrow'
+        # upload new raw show 'tomorrow'
         virtual_store.upload_raw_show("show4.wav", b"raw bytes3")
         virtual_store._bucket[
             f"{ShowType.RAW.value}/show4.wav"
@@ -108,4 +134,27 @@ class TestVirtualMediaStore:
 
         case.assertCountEqual(
             virtual_store.list_transcoded_shows(since=now), ["show3.ogg", "show4.ogg"]
+        )
+
+    def test_list_script_shows(self):
+        case = unittest.TestCase()
+        virtual_store = VirtualMediaStore()
+
+        case.assertCountEqual(
+            virtual_store.list_script_shows(), ["show1.txt"]
+        )
+        virtual_store.upload_script_show(show_name="show666.txt", content="Toast is wet!")
+        case.assertCountEqual(
+            virtual_store.list_script_shows(), ["show1.txt", "show666.txt"]
+        )
+
+        now = datetime.now()
+        # upload new script show 'tomorrow'
+        virtual_store.upload_script_show(show_name="show999.txt", content="Toast is dry :(")
+        virtual_store._bucket[
+            f"{ShowType.SCRIPT.value}/show999.txt"
+        ].last_modified = now + timedelta(days=1)
+
+        case.assertCountEqual(
+            virtual_store.list_script_shows(since=now), ["show999.txt"]
         )

@@ -29,16 +29,14 @@ class VirtualMediaStore(MediaStore):
 
         for file in self._src_path.iterdir():
             if file.is_file():
-                with file.open("rb") as data:
-                    show_type = ShowType.RAW
-                    key = f"{show_type.value}/{file.name}"
-                    new_object = VirtualObject(
-                        show_name=file.name,
-                        data=data.read(),
-                        last_modified=datetime.now(),
-                        show_type=show_type,
-                    )
-                    self._bucket[key] = new_object
+                if file.name.endswith(".wav"):
+                    with file.open("rb") as f:
+                        data = f.read()
+                    self.upload_raw_show(show_name=file.name, data=data)
+                if file.name.endswith(".txt"):
+                    with file.open("r") as f:
+                        content = f.read()
+                    self.upload_script_show(show_name=file.name, content=content)
 
     def upload_raw_show(self, show_name: str, data: bytes):
         if not show_name.endswith(".wav"):

@@ -17,7 +17,7 @@ def _reset():
     virtual_bucket.reset()
 
 
-class TestVirtulBucket:
+class TestVirtualBucket:
     def test_singleton(self):
         vb1 = VirtualBucket()
         vb2 = VirtualBucket()
