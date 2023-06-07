@@ -18,6 +18,7 @@ dependencies = [
     "tqdm>=4.65.0",
     "langchain>=0.0.191",
     "openai>=0.27.7",
+    "boto3>=1.26.146",
 ]
 requires-python = ">=3.10"
 readme = "README.md"
@@ -48,3 +49,8 @@ dev = []
 disc-jockey = "python -m wet_toast_talk_radio.main disc-jockey"
 audio-generator = "python -m wet_toast_talk_radio.main audio-generator"
 scriptwriter = "python -m wet_toast_talk_radio.main scriptwriter"
+
+[tool.pytest.ini_options]
+markers = [
+    "integration: mark test as an integration test",
+]
