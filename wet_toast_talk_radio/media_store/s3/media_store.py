@@ -37,6 +37,9 @@ class S3MediaStore(MediaStore):
         key = f"{_TRANSCODED_SHOWS_PREFIX}{show_name}"
         self._s3_client.put_object(Bucket=self._bucket_name, Key=key, Body=data)
 
+    def upload_script_show(self, show_name: str, content: str):
+        raise NotImplementedError()
+
     def upload_transcoded_shows(self, show_paths: list[Path]):
         def upload_file(show: Path, key: str):
             try:
@@ -85,11 +88,17 @@ class S3MediaStore(MediaStore):
 
             concurrent.futures.wait(futures)
 
+    def download_script_show(self, show_name: str, dir_output: Path):
+        raise NotImplementedError()
+
     def list_raw_shows(self, since: datetime | None = None) -> list[str]:
         return self._list_shows(_RAW_SHOWS_PREFIX, since)
 
     def list_transcoded_shows(self, since: datetime | None = None) -> list[str]:
         return self._list_shows(_TRANSCODED_SHOWS_PREFIX, since)
+
+    def list_script_shows(self, since: datetime | None = None) -> list[str]:
+        raise NotImplementedError()
 
     def _list_shows(self, prefix: str, since: datetime | None = None) -> list[str]:
         ret = []

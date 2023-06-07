@@ -14,6 +14,7 @@ from wet_toast_talk_radio.media_store.virtual.bucket import (
 
 logger = structlog.get_logger()
 _MAX_WORKERS = 3
+TXT_ENCODING = "utf-8"
 
 
 class VirtualMediaStore(MediaStore):
@@ -59,6 +60,17 @@ class VirtualMediaStore(MediaStore):
             show_type=ShowType.TRANSCODED,
         )
 
+    def upload_script_show(self, show_name: str, content: str):
+        if not show_name.endswith(".txt"):
+            raise ValueError("show_name must end with .txt")
+        data = content.encode(TXT_ENCODING)
+        self._bucket[f"{ShowType.SCRIPT.value}/{show_name}"] = VirtualObject(
+            show_name=show_name,
+            data=data,
+            last_modified=datetime.now(),
+            show_type=ShowType.SCRIPT,
+        )
+
     def upload_transcoded_shows(self, show_paths: list[Path]):
         def upload_file(show: Path, key: str):
             with show.open("rb") as f:
@@ -98,11 +110,21 @@ class VirtualMediaStore(MediaStore):
                 futures.append(executor.submit(download_file, show_name, dir_output))
             concurrent.futures.wait(futures)
 
+    def download_script_show(self, show_name: str, dir_output: Path):
+        obj = self._bucket.get(f"{ShowType.SCRIPT.value}/{show_name}", None)
+        content = obj.data.decode(TXT_ENCODING)
+        if obj:
+            with (dir_output / show_name).open("w") as f:
+                f.write(content)
+
     def list_raw_shows(self, since: datetime | None = None) -> list[str]:
         return self._list_shows(ShowType.RAW, since)
 
     def list_transcoded_shows(self, since: datetime | None = None) -> list[str]:
         return self._list_shows(ShowType.TRANSCODED, since)
+
+    def list_script_shows(self, since: datetime | None = None) -> list[str]:
+        return self._list_shows(ShowType.SCRIPT, since)
 
     def _list_shows(
         self, show_type: ShowType, since: datetime | None = None
