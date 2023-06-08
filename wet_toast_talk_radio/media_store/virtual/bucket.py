@@ -7,6 +7,7 @@ from enum import Enum
 class ShowType(Enum):
     RAW = "raw"
     TRANSCODED = "transcoded"
+    SCRIPT = "script"
 
 
 @dataclass
