@@ -31,10 +31,17 @@ def run(ctx: dict):
     audio_gen.run()
 
 
-@audio_generator.command(help="Benchmark audio_generator")
+@audio_generator.command()
 @click.pass_context
 def benchmark(ctx: dict):
-    """Benchmark command"""
+    """Benchmarks audio generation on standard script.
+
+    Calculates:
+    - run_time_in_s, the time it takes to generate the audio file
+    - duration_in_s, the duration of the audio file
+    - speed_ratio, the ratio between the duration and the run time
+    (real time = 1, slower than real time > 1, faster than real time < 1)
+    """
     root_cfg = ctx.obj["root_cfg"]
     cfg = root_cfg.audio_generator
 
