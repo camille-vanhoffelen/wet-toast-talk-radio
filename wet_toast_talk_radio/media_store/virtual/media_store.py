@@ -1,5 +1,4 @@
 import concurrent.futures
-import os
 import pathlib
 from datetime import datetime
 from pathlib import Path
@@ -27,14 +26,13 @@ class VirtualMediaStore(MediaStore):
         self._src_path = pathlib.Path(__file__).with_name("data")
         self._bucket = VirtualBucket()
 
-        for filename in os.listdir(self._src_path):
-            file = self._src_path.joinpath(filename)
+        for file in self._src_path.iterdir():
             if file.is_file():
                 with file.open("rb") as data:
                     show_type = ShowType.RAW
-                    key = f"{show_type.value}/{filename}"
+                    key = f"{show_type.value}/{file.name}"
                     new_object = VirtualObject(
-                        show_name=filename,
+                        show_name=file.name,
                         data=data.read(),
                         last_modified=datetime.now(),
                         show_type=show_type,
@@ -42,6 +40,8 @@ class VirtualMediaStore(MediaStore):
                     self._bucket[key] = new_object
 
     def upload_raw_show(self, show_name: str, data: bytes):
+        if not show_name.endswith(".wav"):
+            raise ValueError("show_name must end with .wav")
         self._bucket[f"{ShowType.RAW.value}/{show_name}"] = VirtualObject(
             show_name=show_name,
             data=data,
@@ -50,6 +50,8 @@ class VirtualMediaStore(MediaStore):
         )
 
     def upload_transcoded_show(self, show_name: str, data: bytes):
+        if not show_name.endswith(".ogg"):
+            raise ValueError("show_name must end with .wav")
         self._bucket[f"{ShowType.TRANSCODED.value}/{show_name}"] = VirtualObject(
             show_name=show_name,
             data=data,
