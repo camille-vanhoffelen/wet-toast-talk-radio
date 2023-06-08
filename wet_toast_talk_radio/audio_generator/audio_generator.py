@@ -18,7 +18,7 @@ class AudioGenerator:
 
     def __init__(self, cfg: AudioGeneratorConfig):
         self._cfg = cfg
-        nltk.download("popular")
+        nltk.download("punkt")
 
     def run(self) -> None:
         logger.warning("Not yet implemented")
@@ -29,12 +29,6 @@ class AudioGenerator:
         # download and load all models
         preload_models()
 
-        with Path("audio_generator/resources/noodle-nose.txt").open(
-            "r", encoding="utf-8"
-        ) as f:
-            script = f.read()
-
-        # TODO remove
         script = "Hey there! I'm a dog! Woof woof!"
 
         logger.info("Tokenizing script into sentences")
@@ -50,14 +44,22 @@ class AudioGenerator:
 
         pieces = []
         for sentence in sentences:
-            logger.info(f"Generating audio for: {sentence}")
+            logger.info(f"Generating audio for: {sentence}", sentence=sentence)
             audio_array = generate_audio(sentence, history_prompt=SPEAKER)
             pieces += [audio_array, silence.copy()]
 
         end = time.perf_counter()
-        logger.info(f"Audio generation took {end - start:0.3f} seconds")
+        run_time = end - start
+        logger.info(
+            f"Finished audio generation, run time: {run_time:.3f} s",
+            run_time_in_s=run_time,
+        )
 
         audio_array = np.concatenate(pieces)
 
         uuid_str = str(uuid.uuid4())[:4]
-        write_wav(f"bark_generation_{uuid_str}.wav", SAMPLE_RATE, audio_array)
+        write_wav(
+            Path.cwd() / "output" / f"bark_generation_{uuid_str}.wav",
+            SAMPLE_RATE,
+            audio_array,
+        )
