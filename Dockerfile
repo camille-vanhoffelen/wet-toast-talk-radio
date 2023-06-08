@@ -22,6 +22,10 @@ RUN apt-get update && apt-get -y upgrade && apt-get install -y \
     libavcodec-extra \
     libgomp1
 
+RUN apt-get install -y software-properties-common && \
+    add-apt-repository -y ppa:deadsnakes/ppa && \
+    apt install -y python3.10
+
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
@@ -36,9 +40,9 @@ COPY ices ./ices
 COPY wet_toast_talk_radio ./wet_toast_talk_radio
 
 # TODO remove this test when we are confident the dockers work everywhere
-RUN python -m wet_toast_talk_radio.main --help > /dev/null
+RUN python3.10 -m wet_toast_talk_radio.main --help > /dev/null
 
-ENTRYPOINT ["python", "-m", "wet_toast_talk_radio.main"]
+ENTRYPOINT ["python3.10", "-m", "wet_toast_talk_radio.main"]
 
 # Prod image
 FROM python:3.10.11-slim-bullseye AS prod
