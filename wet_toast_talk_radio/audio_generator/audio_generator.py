@@ -29,12 +29,6 @@ class AudioGenerator:
         # download and load all models
         preload_models()
 
-        with Path(
-            "wet_toast_talk_radio/audio_generator/resources/noodle-nose.txt"
-        ).open("r", encoding="utf-8") as f:
-            script = f.read()
-
-        # TODO remove
         script = "Hey there! I'm a dog! Woof woof!"
 
         logger.info("Tokenizing script into sentences")

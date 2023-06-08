@@ -64,7 +64,6 @@ class TestVirtualMediaStore:
         assert len(list(d.iterdir())) == len(wanted_shows)
 
     def test_download_script_show(self, tmp_path: Generator[Path, None, None]):
-        # TODO maybe use tmpfile here
         d = tmp_path / "temp"
         d.mkdir()
         virtual_store = VirtualMediaStore()
