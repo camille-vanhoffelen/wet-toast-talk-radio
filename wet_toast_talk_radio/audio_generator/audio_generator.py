@@ -18,6 +18,7 @@ class AudioGenerator:
 
     def __init__(self, cfg: AudioGeneratorConfig):
         self._cfg = cfg
+        nltk.download("popular")
 
     def run(self) -> None:
         logger.warning("Not yet implemented")

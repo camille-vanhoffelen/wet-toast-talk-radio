@@ -14,17 +14,21 @@ Generating content for Wet Toast Talk Radio
 
 ### Config
 
-You will likely want to create a config.yaml with these contents:
+You will likely want to create a config.yml with these contents:
 
 ```yaml
 media_store:
   virtual: true
+audio_generator:
+  foo: "bar"
+scriptwriter:
+  openai_api_key: "sk-....."
 ```
 
 ### Running
 
 ```bash
-pdm run main.py --help
+pdm run python -m wet_toast_talk_radio.main --help
 ```
 
 ### Docker-compose
