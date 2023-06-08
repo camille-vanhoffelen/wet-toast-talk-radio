@@ -40,26 +40,36 @@ class AudioGenerator:
         silence = np.zeros(int(0.25 * SAMPLE_RATE))  # quarter second of silence
 
         logger.info("Starting audio generation")
+        logger.debug("Script", script=script)
+
         start = time.perf_counter()
 
         pieces = []
         for sentence in sentences:
-            logger.info(f"Generating audio for: {sentence}", sentence=sentence)
+            logger.info("Generating audio for sentence", sentence=sentence)
             audio_array = generate_audio(sentence, history_prompt=SPEAKER)
             pieces += [audio_array, silence.copy()]
 
-        end = time.perf_counter()
-        run_time = end - start
-        logger.info(
-            f"Finished audio generation, run time: {run_time:.3f} s",
-            run_time_in_s=run_time,
-        )
-
         audio_array = np.concatenate(pieces)
 
+        end = time.perf_counter()
+        logger.info("Finished audio generation")
+
+        run_time_in_s = end - start
+        duration_in_s = len(audio_array) / SAMPLE_RATE
+        speed_ratio = run_time_in_s / duration_in_s
+        logger.info(
+            "Benchmark results",
+            run_time_in_s=round(run_time_in_s, 3),
+            duration_in_s=round(duration_in_s, 3),
+            speed_ratio=round(speed_ratio, 3),
+        )
+
         uuid_str = str(uuid.uuid4())[:4]
+        output_dir = Path.cwd() / "output"
+        output_dir.mkdir(exist_ok=True)
         write_wav(
-            Path.cwd() / "output" / f"bark_generation_{uuid_str}.wav",
+            output_dir / f"bark_generation_{uuid_str}.wav",
             SAMPLE_RATE,
             audio_array,
         )
