@@ -9,6 +9,7 @@ on:
 env:
   REGISTRY: 289115055556.dkr.ecr.us-east-1.amazonaws.com
   IMAGE_NAME: wet-toast-talk-radio
+  IMAGE_NAME_GPU: wet-toast-talk-radio-gpu
 
 jobs:
   docker-build-main:
@@ -45,6 +46,40 @@ jobs:
           docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:commit-$GITHUB_SHA ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 
+  gpu-docker-build-main:
+    name: GPU Docker Build main
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      packages: write
+      actions: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          lfs: true
+      - name: Turnstyle
+        uses: softprops/turnstyle@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: Docker Build
+        run: |
+          docker build --target=prod-gpu -t wettoast .
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::289115055556:role/GitHubActionsWetToastTalkRadio
+          aws-region: us-east-1
+      - name: Docker Push commit hash and latest to ECR
+        run: |
+          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ env.REGISTRY }}
+          docker tag wettoast:latest ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_GPU }}:commit-$GITHUB_SHA
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_GPU }}:commit-$GITHUB_SHA
+          docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_GPU }}:commit-$GITHUB_SHA ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_GPU }}:latest
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_GPU }}:latest
+
   release:
     name: Release Please
     runs-on: ubuntu-latest
@@ -77,6 +112,9 @@ jobs:
       packages: write
       actions: read
       id-token: write
+    strategy:
+      matrix:
+        image-name: [${{ env.IMAGE_NAME }}, ${{ env.IMAGE_NAME_GPU }}]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -110,13 +148,13 @@ jobs:
         
       - name: Docker Push
         run: |
-          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:commit-$GITHUB_SHA
+          docker pull ${{ env.REGISTRY }}/${{ matrix.image-name }}:commit-$GITHUB_SHA
 
-          docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:commit-$GITHUB_SHA ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.release.outputs.tag_name }}
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.release.outputs.tag_name }}
+          docker tag ${{ env.REGISTRY }}/${{ matrix.image-name }}:commit-$GITHUB_SHA ${{ env.REGISTRY }}/${{ matrix.image-name }}:${{ needs.release.outputs.tag_name }}
+          docker push ${{ env.REGISTRY }}/${{ matrix.image-name }}:${{ needs.release.outputs.tag_name }}
 
-          docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:commit-$GITHUB_SHA ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:v${{ needs.release.outputs.major }}
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:v${{ needs.release.outputs.major }}
+          docker tag ${{ env.REGISTRY }}/${{ matrix.image-name }}:commit-$GITHUB_SHA ${{ env.REGISTRY }}/${{ matrix.image-name }}:v${{ needs.release.outputs.major }}
+          docker push ${{ env.REGISTRY }}/${{ matrix.image-name }}:v${{ needs.release.outputs.major }}
 
-          docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:commit-$GITHUB_SHA ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:v${{ needs.release.outputs.major }}.${{ needs.release.outputs.minor }}
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:v${{ needs.release.outputs.major }}.${{ needs.release.outputs.minor }}
+          docker tag ${{ env.REGISTRY }}/${{ matrix.image-name }}:commit-$GITHUB_SHA ${{ env.REGISTRY }}/${{ matrix.image-name }}:v${{ needs.release.outputs.major }}.${{ needs.release.outputs.minor }}
+          docker push ${{ env.REGISTRY }}/${{ matrix.image-name }}:v${{ needs.release.outputs.major }}.${{ needs.release.outputs.minor }}
