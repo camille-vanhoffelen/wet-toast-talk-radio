@@ -75,7 +75,7 @@ jobs:
       - name: Docker Push commit hash and latest to ECR
         run: |
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ env.REGISTRY }}
-          docker tag wettoast:latest ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_GPU }}:commit-$GITHUB_SHA
+          docker tag wettoast-gpu:latest ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_GPU }}:commit-$GITHUB_SHA
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_GPU }}:commit-$GITHUB_SHA
           docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_GPU }}:commit-$GITHUB_SHA ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_GPU }}:latest
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_GPU }}:latest
