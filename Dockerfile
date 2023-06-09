@@ -15,7 +15,7 @@ RUN pip install --no-warn-script-location --user -r requirements.txt
 RUN wget https://downloads.xiph.org/releases/ices/ices-2.0.3.tar.gz
 
 # GPU prod image
-FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu20.04 AS prod-gpu
+FROM nvidia/cuda:11.7.1-cudnn8-runtime-ubuntu22.04 AS prod-gpu
 
 RUN apt-get update && apt-get -y upgrade && apt-get install -y \
     ffmpeg \
