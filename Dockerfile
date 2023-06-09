@@ -39,7 +39,6 @@ ENV PATH=/home/wettoast/.local/bin:$PATH
 COPY ices ./ices
 COPY wet_toast_talk_radio ./wet_toast_talk_radio
 
-# TODO remove this test when we are confident the dockers work everywhere
 RUN python3.10 -m wet_toast_talk_radio.main --help > /dev/null
 
 ENTRYPOINT ["python3.10", "-m", "wet_toast_talk_radio.main"]
@@ -65,7 +64,6 @@ ENV PATH=/home/wettoast/.local/bin:$PATH
 COPY ices ./ices
 COPY wet_toast_talk_radio ./wet_toast_talk_radio
 
-# TODO remove this test when we are confident the dockers work everywhere
 RUN python -m wet_toast_talk_radio.main --help > /dev/null
 
 ENTRYPOINT ["python", "-m", "wet_toast_talk_radio.main"]
