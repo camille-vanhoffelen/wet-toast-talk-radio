@@ -53,5 +53,5 @@ jobs:
       - name: Docker Push
         run: |
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 289115055556.dkr.ecr.us-east-1.amazonaws.com
-          docker tag wettoast:latest ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_GPU }}:${{  github.ref_name }}
+          docker tag wettoast-gpu:latest ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_GPU }}:${{  github.ref_name }}
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_GPU }}:${{  github.ref_name }}
