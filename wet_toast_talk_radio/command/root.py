@@ -6,7 +6,7 @@ import click
 import structlog
 import yaml
 
-from wet_toast_talk_radio.command.config import Config
+from wet_toast_talk_radio.command.config import RootConfig
 
 logger = structlog.get_logger()
 
@@ -30,12 +30,12 @@ def root_cmd(ctx: dict, verbose: bool, config: Optional[str]):  # noqa: FBT001
             wrapper_class=structlog.make_filtering_bound_logger(logging.INFO),
         )
 
-    root_cfg = Config()
+    root_cfg = RootConfig()
     config_path = Path(config)
     if config_path.is_file():
         with config_path.open("r", encoding="utf8") as file:
             cfg_obj = yaml.safe_load(file)
-            root_cfg = Config.parse_obj(cfg_obj)
+            root_cfg = RootConfig.parse_obj(cfg_obj)
             print(root_cfg)
 
     ctx.obj["root_cfg"] = root_cfg
