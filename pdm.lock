@@ -620,8 +620,8 @@ dependencies = [
 [metadata]
 lock_version = "4.2"
 cross_platform = true
-groups = ["default", "cpu", "dev", "lint", "test"]
-content_hash = "sha256:492635c2cc1892a62c145353eda905fa77034a875cdc97cd28836db6f59e0a77"
+groups = ["default", "dev", "lint", "test"]
+content_hash = "sha256:8064fa91e8a4373e77e86b05bf3759f96cf06a2289dbc259c56619fed56cb2ee"
 
 [metadata.files]
 "aiohttp 3.8.4" = [
