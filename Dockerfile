@@ -1,12 +1,7 @@
 # Install python dependencies
 FROM python:3.10.11-bullseye as builder
 
-RUN apt-get update && apt-get -y upgrade && apt-get install -y libshout-dev
-
-WORKDIR /opt
-RUN wget https://downloads.xiph.org/releases/ices/ices-2.0.3.tar.gz
-RUN tar -xvf ices-2.0.3.tar.gz
-RUN cd ices-2.0.3 && ./configure && make && make install
+RUN apt-get update && apt-get -y upgrade
 
 RUN useradd --create-home wettoast
 WORKDIR /home/wettoast
@@ -64,7 +59,6 @@ WORKDIR /home/wettoast
 USER wettoast
 
 COPY --from=builder /home/wettoast/.local /home/wettoast/.local
-COPY --from=builder /home/wettoast/ /home/wettoast/.local
 ENV PATH=/home/wettoast/.local/bin:$PATH
 
 COPY ices ./ices
