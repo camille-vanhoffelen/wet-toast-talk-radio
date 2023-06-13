@@ -48,7 +48,8 @@ FROM python:3.10.11-slim-bullseye AS prod
 RUN apt-get update && apt-get -y upgrade && apt-get install -y \
     ffmpeg \
     libavcodec-extra \
-    libgomp1
+    libgomp1 \
+    libshout3-dev
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1

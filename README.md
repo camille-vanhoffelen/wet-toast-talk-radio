@@ -11,6 +11,7 @@ Generating content for Wet Toast Talk Radio
 - [pdm](https://pdm.fming.dev/latest/)
 - python >= 3.10
 - [ffmpeg](https://github.com/jiaaro/pydub#getting-ffmpeg-set-up) `brew install ffmpeg`
+- [libshout] `brew install libshout`
 
 ### Config
 
