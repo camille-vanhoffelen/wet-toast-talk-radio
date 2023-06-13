@@ -10,7 +10,6 @@ from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.common.date import get_current_iso_utc_date
 from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.media_store.virtual.media_store import VirtualMediaStore
-from wet_toast_talk_radio.message_queue.message_queue import StreamShowMessage
 from wet_toast_talk_radio.message_queue.virtual.message_queue import VirtualMessageQueue
 
 
@@ -44,7 +43,7 @@ class TestShoutTranscoder:
         )
         prepare_process.start()
         assert stream_queue.empty()
-        message_queue.add_stream_shows([StreamShowMessage(show0, "receipt_handle")])
+        message_queue.add_stream_shows([show0])
         time.sleep(1)
         assert stream_queue.full()
         assert stream_queue.get() == ("foo", show0)
