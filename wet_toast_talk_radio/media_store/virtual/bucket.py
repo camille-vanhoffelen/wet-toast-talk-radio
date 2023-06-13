@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 
+from wet_toast_talk_radio.media_store.media_store import ShowId
+
 
 class ShowType(Enum):
     RAW = "raw"
@@ -11,7 +13,7 @@ class ShowType(Enum):
 
 @dataclass
 class VirtualObject:
-    show_id: str
+    show_id: ShowId
     data: bytes
     last_modified: datetime
     show_type: ShowType

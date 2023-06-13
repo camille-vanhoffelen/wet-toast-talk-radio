@@ -54,7 +54,6 @@ def init_shout(cfg: ShoutClientConfig) -> libshout.Shout:
     return shout
 
 
-# https://github.com/yomguy/python-shout/blob/master/example.py
 class ShoutClient:
     def __init__(
         self,
@@ -141,6 +140,7 @@ def _prepare(
 _SHOW_CHUNK_SIZE = 4096
 
 
+# https://github.com/yomguy/python-shout/blob/master/example.py
 def _stream(
     shout: libshout.Shout,
     stream_queue: multiprocessing.Queue,
@@ -163,8 +163,8 @@ def _stream(
             shout.get_connected()
             while not stream_queue.empty():
                 show_bytes, show_id = stream_queue.get()
-                stream_logger.info(f"Playing show {show_id}")
-                shout.set_metadata({"song": show_id})
+                stream_logger.info(f"Playing show {show_id.show_i}")
+                shout.set_metadata({"song": show_id.show_i})
                 for i in range(0, len(show_bytes), _SHOW_CHUNK_SIZE):
                     chunk = show_bytes[i : i + _SHOW_CHUNK_SIZE]
                     shout.send(chunk)
