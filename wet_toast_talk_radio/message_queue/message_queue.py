@@ -1,10 +1,12 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
+from wet_toast_talk_radio.media_store.media_store import ShowId
+
 
 @dataclass
 class StreamShowMessage:
-    show_id: str
+    show_id: ShowId
     receipt_handle: str
 
 
