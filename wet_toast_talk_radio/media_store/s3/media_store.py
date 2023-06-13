@@ -73,10 +73,18 @@ class S3MediaStore(MediaStore):
             concurrent.futures.wait(futures)
 
     def download_raw_shows(self, show_ids: list[ShowId], dir_output: Path):
+        self._download_shows(show_ids, dir_output, _RAW_SHOWS_PREFIX, "wav")
+
+    def download_script_show(self, show_id: ShowId, dir_output: Path):
+        self._download_shows([show_id], dir_output, _SCRIPT_SHOWS_PREFIX, "txt")
+
+    def _download_shows(
+        self, show_ids: list[ShowId], dir_output: Path, prefix: str, file_suffix: str
+    ):
         def download_file(show_id: ShowId, dir_output: Path):
             try:
-                key = f"{_RAW_SHOWS_PREFIX}/{show_id.store_key()}/show.wav"
-                file_output = dir_output / "show.wav"
+                key = f"{prefix}/{show_id.store_key()}/show.{file_suffix}"
+                file_output = dir_output / f"show.{file_suffix}"
                 new_s3_client(self._cfg.local).download_file(
                     self._bucket_name, key, file_output
                 )
@@ -94,9 +102,6 @@ class S3MediaStore(MediaStore):
                 futures.append(executor.submit(download_file, show_id, new_dir))
 
             concurrent.futures.wait(futures)
-
-    def download_script_show(self, show_id: ShowId, dir_output: Path):
-        raise NotImplementedError()
 
     def get_transcoded_show(self, show_id: ShowId) -> bytes:
         key = f"{_TRANSCODED_SHOWS_PREFIX}/{show_id.store_key()}/show.ogg"

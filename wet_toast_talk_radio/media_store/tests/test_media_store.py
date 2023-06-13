@@ -71,7 +71,6 @@ class TestMediaStore:
         assert len(media_store.list_raw_shows()) == expected + 1
 
     def test_put_transcoded_show(self, media_store, today):
-        media_store = VirtualMediaStore()
         expected = 0
         assert len(media_store.list_transcoded_shows()) == expected
         show_id = ShowId(1, today)
@@ -79,7 +78,6 @@ class TestMediaStore:
         assert len(media_store.list_transcoded_shows()) == expected + 1
 
     def test_put_script_show(self, media_store, today):
-        media_store = VirtualMediaStore()
         expected = 1
         assert len(media_store.list_script_shows()) == expected
         show_id = ShowId(666, today)
@@ -89,7 +87,6 @@ class TestMediaStore:
     def test_put_transcoded_shows(
         self, media_store, tmp_path: Generator[Path, None, None], today
     ):
-        media_store = VirtualMediaStore()
         expected = 0
         assert len(media_store.list_transcoded_shows()) == expected
 
@@ -113,7 +110,6 @@ class TestMediaStore:
     ):
         d = tmp_path / "temp"
         d.mkdir()
-        media_store = VirtualMediaStore()
         wanted_shows = [ShowId(0, today), ShowId(1, today)]
         media_store.download_raw_shows(wanted_shows, d)
         today_dir = d / today
@@ -124,19 +120,16 @@ class TestMediaStore:
     ):
         d = tmp_path / "temp"
         d.mkdir()
-        media_store = VirtualMediaStore()
         wanted_show = ShowId(0, today)
         media_store.download_script_show(show_id=wanted_show, dir_output=d)
-        assert len(list(d.iterdir())) == 1
-
-    # IAM HERE
+        today_dir = d / today
+        assert len(list(today_dir.iterdir())) == 1
 
     def test_script_show_encoding(
         self, media_store, tmp_path: Generator[Path, None, None], today
     ):
         d = tmp_path / "temp"
         d.mkdir()
-        media_store = VirtualMediaStore()
         expected_content = "Toast is wet!"
         show_id = ShowId(666, today)
         media_store.put_script_show(show_id=show_id, content=expected_content)
@@ -146,7 +139,6 @@ class TestMediaStore:
 
     def test_list_raw_shows(self, media_store, today, tomorrow):
         case = unittest.TestCase()
-        media_store = VirtualMediaStore()
 
         case.assertCountEqual(
             media_store.list_raw_shows(), [ShowId(0, today), ShowId(1, today)]
@@ -168,7 +160,6 @@ class TestMediaStore:
 
     def test_list_transcoded_shows(self, media_store, today, tomorrow):
         case = unittest.TestCase()
-        media_store = VirtualMediaStore()
         assert len(media_store.list_transcoded_shows()) == 0
 
         show0 = ShowId(0, today)
@@ -187,7 +178,6 @@ class TestMediaStore:
 
     def test_list_script_shows(self, media_store, today, tomorrow):
         case = unittest.TestCase()
-        media_store = VirtualMediaStore()
 
         show0 = ShowId(0, today)
         case.assertCountEqual(media_store.list_script_shows(), [show0])
