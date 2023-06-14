@@ -15,7 +15,7 @@ RUN pip install --no-warn-script-location --user -r requirements.txt
 
 
 # GPU prod image
-FROM nvidia/cuda:11.7.1-cudnn8-runtime-ubuntu22.04 AS prod-gpu
+FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04 AS prod-gpu
 
 RUN apt-get update && apt-get -y upgrade && apt-get install -y \
     ffmpeg \
@@ -35,6 +35,9 @@ USER wettoast
 
 COPY --from=builder /home/wettoast/.local /home/wettoast/.local
 ENV PATH=/home/wettoast/.local/bin:$PATH
+
+# overwrite pytorch w/ nightly GPU build
+RUN pip3 install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu121
 
 COPY wet_toast_talk_radio ./wet_toast_talk_radio
 
