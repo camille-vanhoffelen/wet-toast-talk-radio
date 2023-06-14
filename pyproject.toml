@@ -49,6 +49,7 @@ dev = []
 disc-jockey = "python -m wet_toast_talk_radio.main disc-jockey"
 audio-generator = "python -m wet_toast_talk_radio.main audio-generator"
 scriptwriter = "python -m wet_toast_talk_radio.main scriptwriter"
+local-setup = "python -m wet_toast_talk_radio.media_store.data.load_store"
 
 [tool.pytest.ini_options]
 markers = [

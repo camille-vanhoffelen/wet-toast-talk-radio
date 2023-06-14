@@ -6,7 +6,9 @@ import pytest
 from wet_toast_talk_radio.disc_jockey.config import MediaTranscoderConfig
 from wet_toast_talk_radio.disc_jockey.media_transcoder import MediaTranscoder
 from wet_toast_talk_radio.media_store import MediaStore, new_media_store
+from wet_toast_talk_radio.media_store.common.date import get_current_iso_utc_date
 from wet_toast_talk_radio.media_store.config import MediaStoreConfig
+from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.media_store.virtual.bucket import VirtualBucket
 
 
@@ -46,9 +48,11 @@ class TestMediaTranscoder:
     def test_find_new_raw_shows(
         self, media_transcoder: MediaTranscoder, media_store: MediaStore
     ):
-        media_store.upload_transcoded_show("show1.ogg", b"raw bytes")
+        today = get_current_iso_utc_date()
+        show0 = ShowId(0, today)
+        media_store.put_transcoded_show(show0, b"raw bytes")
         new_shows = media_transcoder._find_new_raw_shows()
-        assert new_shows == ["show2.wav"]
+        assert new_shows == [ShowId(1, today)]
 
     def test_transcode_raw_shows(
         self, media_transcoder: MediaTranscoder, media_store: MediaStore
@@ -57,9 +61,13 @@ class TestMediaTranscoder:
         assert len(new_shows) == len(media_store.list_raw_shows())
 
         media_transcoder._download_raw_shows(new_shows)
-        assert len(list(media_transcoder._raw_shows_dir.iterdir())) == len(new_shows)
+        today_raw_shows_dir = (
+            media_transcoder._raw_shows_dir / get_current_iso_utc_date()
+        )
+        assert len(list(today_raw_shows_dir.iterdir())) == len(new_shows)
 
         media_transcoder._transcode_downloaded_shows()
-        assert len(list(media_transcoder._transcoded_shows_dir.iterdir())) == len(
-            new_shows
+        today_transcoded_shows_dir = (
+            media_transcoder._raw_shows_dir / get_current_iso_utc_date()
         )
+        assert len(list(today_transcoded_shows_dir.iterdir())) == len(new_shows)

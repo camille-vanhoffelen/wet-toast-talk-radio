@@ -1,10 +1,13 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from datetime import timedelta
+
+from wet_toast_talk_radio.media_store.media_store import ShowId
 
 
 @dataclass
 class StreamShowMessage:
-    show_id: str
+    show_id: ShowId
     receipt_handle: str
 
 
@@ -22,5 +25,12 @@ class MessageQueue(ABC):
         This is needed to prevent the message from being reprocessed"""
 
     @abstractmethod
-    def add_stream_shows(self, shows: list[StreamShowMessage]):
+    def add_stream_shows(self, shows: list[ShowId]):
         """Add stream shows to the queue"""
+
+    @abstractmethod
+    def purge_stream_shows(self, total_time: timedelta, wait: timedelta):
+        """Delete stream shows from the queue, effectually reseting the playlist.
+        total_time: The total time to wait for queue to be purged
+        wait: The time to wait between each check to see if the queue is empty
+        """

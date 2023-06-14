@@ -1,7 +1,8 @@
 # Install python dependencies
 FROM python:3.10.11-bullseye as builder
 
-RUN apt-get update && apt-get -y upgrade
+RUN apt-get update && apt-get -y upgrade && apt-get install -y \
+    libshout3-dev
 
 RUN useradd --create-home wettoast
 WORKDIR /home/wettoast
@@ -38,7 +39,6 @@ ENV PATH=/home/wettoast/.local/bin:$PATH
 # overwrite pytorch w/ nightly GPU build
 RUN pip3 install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu121
 
-COPY ices ./ices
 COPY wet_toast_talk_radio ./wet_toast_talk_radio
 
 RUN python3.10 -m wet_toast_talk_radio.main --help > /dev/null
@@ -64,7 +64,6 @@ USER wettoast
 COPY --from=builder /home/wettoast/.local /home/wettoast/.local
 ENV PATH=/home/wettoast/.local/bin:$PATH
 
-COPY ices ./ices
 COPY wet_toast_talk_radio ./wet_toast_talk_radio
 
 RUN python -m wet_toast_talk_radio.main --help > /dev/null

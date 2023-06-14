@@ -2,10 +2,17 @@ import concurrent.futures
 import pathlib
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
 
 import structlog
 
-from wet_toast_talk_radio.media_store.media_store import MediaStore
+from wet_toast_talk_radio.media_store.common.date import get_current_iso_utc_date
+from wet_toast_talk_radio.media_store.media_store import (
+    _FALLBACK_KEY,
+    MediaStore,
+    ShowId,
+    ShowUploadInput,
+)
 from wet_toast_talk_radio.media_store.virtual.bucket import (
     ShowType,
     VirtualBucket,
@@ -24,56 +31,71 @@ class VirtualMediaStore(MediaStore):
     """
 
     def __init__(self):
-        self._src_path = pathlib.Path(__file__).with_name("data")
+        self._src_path = pathlib.Path(__file__).parent.with_name("data")
         self._bucket = VirtualBucket()
 
+        today = get_current_iso_utc_date()
+
+        raw_show_i = 0
+        default_show_i = 0
+        script_show_i = 0
         for file in self._src_path.iterdir():
             if file.is_file():
                 if file.name.endswith(".wav"):
                     with file.open("rb") as f:
                         data = f.read()
-                    self.upload_raw_show(show_id=file.name, data=data)
+                    show_id = ShowId(raw_show_i, today)
+                    self.put_raw_show(show_id=show_id, data=data)
+                    raw_show_i += 1
+                if file.name.endswith(".ogg"):
+                    with file.open("rb") as f:
+                        data = f.read()
+                    show_id = ShowId(default_show_i, _FALLBACK_KEY)
+                    self.put_transcoded_show(show_id=show_id, data=data)
+                    default_show_i += 1
                 if file.name.endswith(".txt"):
                     with file.open("r") as f:
                         content = f.read()
-                    self.upload_script_show(show_id=file.name, content=content)
+                    show_id = ShowId(script_show_i, today)
+                    self.put_script_show(show_id=show_id, content=content)
+                    script_show_i += 1
 
-    def upload_raw_show(self, show_id: str, data: bytes):
-        if not show_id.endswith(".wav"):
-            raise ValueError("show_id must end with .wav")
-        self._bucket[f"{ShowType.RAW.value}/{show_id}"] = VirtualObject(
+    def put_raw_show(self, show_id: ShowId, data: bytes):
+        self._bucket[
+            f"{ShowType.RAW.value}/{show_id.store_key()}/show.wav"
+        ] = VirtualObject(
             show_id=show_id,
             data=data,
             last_modified=datetime.now(),
             show_type=ShowType.RAW,
         )
 
-    def upload_transcoded_show(self, show_id: str, data: bytes):
-        if not show_id.endswith(".ogg"):
-            raise ValueError("show_id must end with .ogg")
-        self._bucket[f"{ShowType.TRANSCODED.value}/{show_id}"] = VirtualObject(
+    def put_transcoded_show(self, show_id: ShowId, data: bytes):
+        self._bucket[
+            f"{ShowType.TRANSCODED.value}/{show_id.store_key()}/show.ogg"
+        ] = VirtualObject(
             show_id=show_id,
             data=data,
             last_modified=datetime.now(),
             show_type=ShowType.TRANSCODED,
         )
 
-    def upload_script_show(self, show_id: str, content: str):
-        if not show_id.endswith(".txt"):
-            raise ValueError("show_id must end with .txt")
+    def put_script_show(self, show_id: ShowId, content: str):
         data = content.encode(TXT_ENCODING)
-        self._bucket[f"{ShowType.SCRIPT.value}/{show_id}"] = VirtualObject(
+        self._bucket[
+            f"{ShowType.SCRIPT.value}/{show_id.store_key()}/show.txt"
+        ] = VirtualObject(
             show_id=show_id,
             data=data,
             last_modified=datetime.now(),
             show_type=ShowType.SCRIPT,
         )
 
-    def upload_transcoded_shows(self, show_paths: list[Path]):
-        def upload_file(show: Path, key: str):
-            with show.open("rb") as f:
+    def upload_transcoded_shows(self, shows: list[ShowUploadInput]):
+        def upload_file(show: ShowUploadInput, key: str):
+            with show.path.open("rb") as f:
                 self._bucket[key] = VirtualObject(
-                    show_id=show.name,
+                    show_id=show.show_id,
                     data=f.read(),
                     last_modified=datetime.now(),
                     show_type=ShowType.TRANSCODED,
@@ -83,21 +105,26 @@ class VirtualMediaStore(MediaStore):
             max_workers=_MAX_WORKERS
         ) as executor:
             futures = []
-            for show in show_paths:
-                file_name = show.name
+            for show in shows:
+                file_name = show.path.name
                 if not file_name:
                     logger.warning(f"Skipping {show} because it has no file name")
                     continue
-                key = f"{ShowType.TRANSCODED.value}/{file_name}"
+                key = f"{ShowType.TRANSCODED.value}/{show.show_id.store_key()}/show.ogg"
                 futures.append(executor.submit(upload_file, show, key))
 
             concurrent.futures.wait(futures)
 
-    def download_raw_shows(self, show_ids: list[str], dir_output: Path):
-        def download_file(show_id: str, dir_output: Path):
-            obj = self._bucket.get(f"{ShowType.RAW.value}/{show_id}", None)
+    def download_raw_shows(self, show_ids: list[ShowId], dir_output: Path):
+        def download_file(show_id: ShowId, dir_output: Path):
+            obj = self._bucket.get(
+                f"{ShowType.RAW.value}/{show_id.store_key()}/show.wav", None
+            )
             if obj:
-                with (dir_output / show_id).open("wb") as f:
+                new_dir = dir_output / show_id.store_key()
+                if not new_dir.exists():
+                    new_dir.mkdir(parents=True)
+                with (new_dir / "show.wav").open("wb") as f:
                     f.write(obj.data)
 
         with concurrent.futures.ThreadPoolExecutor(
@@ -108,38 +135,53 @@ class VirtualMediaStore(MediaStore):
                 futures.append(executor.submit(download_file, show_id, dir_output))
             concurrent.futures.wait(futures)
 
-    def download_script_show(self, show_id: str, dir_output: Path):
-        obj = self._bucket.get(f"{ShowType.SCRIPT.value}/{show_id}", None)
+    def download_script_show(self, show_id: ShowId, dir_output: Path):
+        obj = self._bucket.get(
+            f"{ShowType.SCRIPT.value}/{show_id.store_key()}/show.txt", None
+        )
+        if not obj:
+            raise Exception(f"Show {show_id} not found")
+
         content = obj.data.decode(TXT_ENCODING)
-        if obj:
-            with (dir_output / show_id).open("w") as f:
-                f.write(content)
+        new_dir = dir_output / show_id.store_key()
+        if not new_dir.exists():
+            new_dir.mkdir(parents=True)
+        with (new_dir / "show.txt").open("w") as f:
+            f.write(content)
 
     def get_transcoded_show(self, show_id: str) -> bytes:
-        obj = self._bucket.get(f"{ShowType.TRANSCODED.value}/{show_id}", None)
+        obj = self._bucket.get(
+            f"{ShowType.TRANSCODED.value}/{show_id.store_key()}/show.ogg", None
+        )
         if obj:
             return obj.data
         return None
 
-    def list_raw_shows(self, since: datetime | None = None) -> list[str]:
-        return self._list_shows(ShowType.RAW, since)
+    def list_raw_shows(self, dates: Optional[set[str]] = None) -> list[ShowId]:
+        return self._list_shows(ShowType.RAW, dates)
 
-    def list_transcoded_shows(self, since: datetime | None = None) -> list[str]:
-        return self._list_shows(ShowType.TRANSCODED, since)
+    def list_transcoded_shows(self, dates: Optional[set[str]] = None) -> list[ShowId]:
+        return self._list_shows(ShowType.TRANSCODED, dates)
 
-    def list_script_shows(self, since: datetime | None = None) -> list[str]:
-        return self._list_shows(ShowType.SCRIPT, since)
-
-    def _list_shows(
-        self, show_type: ShowType, since: datetime | None = None
-    ) -> list[str]:
+    def list_fallback_transcoded_shows(self) -> list[ShowId]:
         ret = []
         for obj in self._bucket.values():
-            if obj.show_type == show_type:
-                if not since:
-                    ret.append(obj.show_id)
-                    continue
+            if obj.show_id.date == _FALLBACK_KEY:
+                ret.append(obj.show_id)
+        return ret
 
-                if obj.last_modified > since:
+    def list_script_shows(self, dates: Optional[set[str]] = None) -> list[ShowId]:
+        return self._list_shows(ShowType.SCRIPT, dates)
+
+    def _list_shows(
+        self, show_type: ShowType, dates: Optional[set[str]] = None
+    ) -> list[ShowId]:
+        ret = []
+        for obj in self._bucket.values():
+            if obj.show_type == show_type and obj.show_id.date != _FALLBACK_KEY:
+                if dates:
+                    if obj.show_id.date in dates:
+                        ret.append(obj.show_id)
+                else:
                     ret.append(obj.show_id)
         return ret

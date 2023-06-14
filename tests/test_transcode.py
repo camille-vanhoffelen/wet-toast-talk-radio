@@ -1,59 +1,28 @@
-from pathlib import Path
-
-import boto3
 import pytest
 
-from wet_toast_talk_radio.common.aws_clients import new_s3_client
+from tests.conftests import (
+    _clear_bucket,  # noqa: F401
+    _clear_sqs,  # noqa: F401
+    media_store,  # noqa: F401
+    setup_bucket,  # noqa: F401
+)
 from wet_toast_talk_radio.disc_jockey import DiscJockey
 from wet_toast_talk_radio.disc_jockey.config import (
     DiscJockeyConfig,
     MediaTranscoderConfig,
 )
-from wet_toast_talk_radio.media_store import new_media_store
-from wet_toast_talk_radio.media_store.config import MediaStoreConfig
-from wet_toast_talk_radio.media_store.s3.config import S3Config
-
-_BUCKET_NAME = "wet-toast-talk-radio"
-
-
-def _clear_bucket(s3_client: boto3.client):
-    response = s3_client.list_objects_v2(Bucket=_BUCKET_NAME)
-    if "Contents" in response:
-        objects_to_delete = [{"Key": obj["Key"]} for obj in response["Contents"]]
-        response = s3_client.delete_objects(
-            Bucket=_BUCKET_NAME, Delete={"Objects": objects_to_delete}
-        )
-
-
-def _setup_bucket() -> list[str]:
-    s3_client = new_s3_client(local=True)
-    _clear_bucket(s3_client)
-    data_dir = (
-        Path(__file__).parent.parent
-        / "wet_toast_talk_radio"
-        / "media_store"
-        / "virtual"
-        / "data"
-    )
-    ret = []
-    for file in data_dir.iterdir():
-        if file.is_file() and file.name.endswith(".wav"):
-            s3_client.upload_file(file, _BUCKET_NAME, f"raw/{file.name}")
-            ret.append(file.name)
-    return ret
+from wet_toast_talk_radio.media_store.media_store import ShowId
 
 
 class TestTranscode:
     @pytest.mark.integration()
-    def test_transcode(self):
-        raw_shows = _setup_bucket()
-        media_store = new_media_store(
-            MediaStoreConfig(s3=S3Config(bucket_name=_BUCKET_NAME, local=True))
-        )
+    def test_transcode(
+        self, media_store, setup_bucket: dict[str, list[ShowId]]  # noqa: F811
+    ):
+        raw_shows = setup_bucket["raw"]
+
         cfg = DiscJockeyConfig(
-            media_transcoder=MediaTranscoderConfig(
-                clean_tmp_dir=True,
-            )
+            media_transcoder=MediaTranscoderConfig(clean_tmp_dir=True)
         )
 
         dj = DiscJockey(cfg, media_store)
