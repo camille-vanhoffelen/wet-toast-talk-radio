@@ -36,7 +36,6 @@ USER wettoast
 COPY --from=builder /home/wettoast/.local /home/wettoast/.local
 ENV PATH=/home/wettoast/.local/bin:$PATH
 
-COPY ices ./ices
 COPY wet_toast_talk_radio ./wet_toast_talk_radio
 
 RUN python3.10 -m wet_toast_talk_radio.main --help > /dev/null
@@ -62,7 +61,6 @@ USER wettoast
 COPY --from=builder /home/wettoast/.local /home/wettoast/.local
 ENV PATH=/home/wettoast/.local/bin:$PATH
 
-COPY ices ./ices
 COPY wet_toast_talk_radio ./wet_toast_talk_radio
 
 RUN python -m wet_toast_talk_radio.main --help > /dev/null
