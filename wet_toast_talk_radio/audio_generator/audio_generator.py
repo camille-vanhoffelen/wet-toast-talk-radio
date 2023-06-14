@@ -9,6 +9,7 @@ from bark import SAMPLE_RATE, generate_audio, preload_models
 from scipy.io.wavfile import write as write_wav
 
 from wet_toast_talk_radio.audio_generator.config import AudioGeneratorConfig
+from wet_toast_talk_radio.audio_generator.model_cache import cache_is_present, download_model_cache
 
 logger = structlog.get_logger()
 
@@ -18,7 +19,7 @@ class AudioGenerator:
 
     def __init__(self, cfg: AudioGeneratorConfig):
         self._cfg = cfg
-        nltk.download("punkt")
+        self._init_models()
 
     def run(self) -> None:
         logger.warning("Not yet implemented")
@@ -73,3 +74,18 @@ class AudioGenerator:
             SAMPLE_RATE,
             audio_array,
         )
+
+    def _init_models(self):
+        """Download NLTK model from internet,
+        download huggingface hub models from S3 if no local cache"""
+        nltk.download("punkt")
+        if self._cfg.use_s3_model_cache:
+            if not cache_is_present():
+                try:
+                    download_model_cache()
+                except Exception as e:
+                    logger.error("Failed to download model cache, continuing", error=e)
+            else:
+                logger.info("Found local HF hub model cache")
+            assert cache_is_present(), "Cache must be complete"
+
