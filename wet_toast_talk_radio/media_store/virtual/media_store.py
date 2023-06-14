@@ -8,6 +8,7 @@ import structlog
 
 from wet_toast_talk_radio.media_store.common.date import get_current_iso_utc_date
 from wet_toast_talk_radio.media_store.media_store import (
+    _FALLBACK_KEY,
     MediaStore,
     ShowId,
     ShowUploadInput,
@@ -36,6 +37,7 @@ class VirtualMediaStore(MediaStore):
         today = get_current_iso_utc_date()
 
         raw_show_i = 0
+        default_show_i = 0
         script_show_i = 0
         for file in self._src_path.iterdir():
             if file.is_file():
@@ -45,6 +47,12 @@ class VirtualMediaStore(MediaStore):
                     show_id = ShowId(raw_show_i, today)
                     self.put_raw_show(show_id=show_id, data=data)
                     raw_show_i += 1
+                if file.name.endswith(".ogg"):
+                    with file.open("rb") as f:
+                        data = f.read()
+                    show_id = ShowId(default_show_i, _FALLBACK_KEY)
+                    self.put_transcoded_show(show_id=show_id, data=data)
+                    default_show_i += 1
                 if file.name.endswith(".txt"):
                     with file.open("r") as f:
                         content = f.read()
@@ -155,6 +163,13 @@ class VirtualMediaStore(MediaStore):
     def list_transcoded_shows(self, dates: Optional[set[str]] = None) -> list[ShowId]:
         return self._list_shows(ShowType.TRANSCODED, dates)
 
+    def list_fallback_transcoded_shows(self) -> list[ShowId]:
+        ret = []
+        for obj in self._bucket.values():
+            if obj.show_id.date == _FALLBACK_KEY:
+                ret.append(obj.show_id)
+        return ret
+
     def list_script_shows(self, dates: Optional[set[str]] = None) -> list[ShowId]:
         return self._list_shows(ShowType.SCRIPT, dates)
 
@@ -163,7 +178,7 @@ class VirtualMediaStore(MediaStore):
     ) -> list[ShowId]:
         ret = []
         for obj in self._bucket.values():
-            if obj.show_type == show_type:
+            if obj.show_type == show_type and obj.show_id.date != _FALLBACK_KEY:
                 if dates:
                     if obj.show_id.date in dates:
                         ret.append(obj.show_id)

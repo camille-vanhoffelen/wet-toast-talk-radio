@@ -36,6 +36,5 @@ def root_cmd(ctx: dict, verbose: bool, config: Optional[str]):  # noqa: FBT001
         with config_path.open("r", encoding="utf8") as file:
             cfg_obj = yaml.safe_load(file)
             root_cfg = RootConfig.parse_obj(cfg_obj)
-            print(root_cfg)
 
     ctx.obj["root_cfg"] = root_cfg

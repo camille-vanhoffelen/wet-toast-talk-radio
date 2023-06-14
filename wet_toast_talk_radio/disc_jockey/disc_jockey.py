@@ -26,9 +26,10 @@ class DiscJockey:
 
     def stream(self) -> None:
         """Stream the transcoded music to the VosCast server"""
-        shout_client = ShoutClient(self._cfg.shout_client, self._media_store)
+        shout_client = ShoutClient(
+            self._cfg.shout_client, self._media_store, self._message_queue
+        )
         shout_client.start()
-        shout_client.join()
 
     def transcode_latest_media(self):
         """Transcode the latest media files to .ogg and upload them to the Media Store"""
@@ -39,5 +40,5 @@ class DiscJockey:
 
     def create_playlist(self) -> None:
         """Create a playlist from the current day transcoded shows and upload them to the message queue"""
-        playlist = Playlist(self._media_store, self._message_queue)
+        playlist = Playlist(self._cfg.playlist, self._media_store, self._message_queue)
         playlist.start()

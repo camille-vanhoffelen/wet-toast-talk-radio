@@ -11,7 +11,11 @@ from wet_toast_talk_radio.media_store.common.date import (
     get_current_utc_date,
 )
 from wet_toast_talk_radio.media_store.config import MediaStoreConfig
-from wet_toast_talk_radio.media_store.media_store import ShowId, ShowUploadInput
+from wet_toast_talk_radio.media_store.media_store import (
+    _FALLBACK_KEY,
+    ShowId,
+    ShowUploadInput,
+)
 from wet_toast_talk_radio.media_store.new_media_store import new_media_store
 from wet_toast_talk_radio.media_store.s3.config import S3Config
 from wet_toast_talk_radio.media_store.s3.media_store import S3MediaStore
@@ -59,6 +63,8 @@ def _setup_bucket(media_store, today) -> list[str]:
 
     media_store.put_raw_show(ShowId(0, today), b"raw bytes")
     media_store.put_raw_show(ShowId(1, today), b"raw bytes")
+    media_store.put_transcoded_show(ShowId(0, _FALLBACK_KEY), b"raw bytes")
+    media_store.put_transcoded_show(ShowId(1, _FALLBACK_KEY), b"raw bytes")
     media_store.put_script_show(ShowId(0, today), "raw bytes")
 
 
@@ -175,6 +181,15 @@ class TestMediaStore:
         case.assertCountEqual(
             media_store.list_transcoded_shows(dates={tomorrow}), [show4, show5]
         )
+
+    def test_list_fallback_transcoded_shows(self, media_store):
+        case = unittest.TestCase()
+        show0 = ShowId(0, _FALLBACK_KEY)
+        show1 = ShowId(1, _FALLBACK_KEY)
+        expected = [show0, show1]
+        fallback_shows = media_store.list_fallback_transcoded_shows()
+        assert len(fallback_shows) == len(expected)
+        case.assertCountEqual(fallback_shows, expected)
 
     def test_list_script_shows(self, media_store, today, tomorrow):
         case = unittest.TestCase()

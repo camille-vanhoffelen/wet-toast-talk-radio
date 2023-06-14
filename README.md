@@ -18,12 +18,25 @@ Generating content for Wet Toast Talk Radio
 You will likely want to create a config.yml with these contents:
 
 ```yaml
+message_queue:
+  # virtual: true
+  sqs:
+    local: true
 media_store:
-  virtual: true
+  # virtual: true
+  s3:
+    local: true
+    bucket_name: "wet-toast-talk-radio"
 audio_generator:
   foo: "bar"
 scriptwriter:
   openai_api_key: "sk-....."
+disc_jockey:
+  media_transcoder:
+    clean_tmp_dir: false
+  shout_client:
+    password: "hackme"
+
 ```
 
 ### Running

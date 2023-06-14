@@ -70,7 +70,7 @@ class MediaTranscoder:
                 self._upload_tanscoded_shows()
                 self._cleanup_tmp_files()
                 batch = []
-            logger.info(f"{len(new_raw_shows)} shows left to process")
+                logger.info(f"{len(new_raw_shows)} shows left to process")
 
         logger.info("Media transcoder finished!")
 

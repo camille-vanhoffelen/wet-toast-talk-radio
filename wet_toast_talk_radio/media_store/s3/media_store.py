@@ -7,6 +7,7 @@ import structlog
 from wet_toast_talk_radio.common.aws_clients import new_s3_client
 from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.media_store import (
+    _FALLBACK_KEY,
     ShowId,
     ShowUploadInput,
     show_id_from_raw_key,
@@ -116,6 +117,33 @@ class S3MediaStore(MediaStore):
     def list_transcoded_shows(self, dates: Optional[set[str]] = None) -> list[ShowId]:
         return self._list_shows(_TRANSCODED_SHOWS_PREFIX, dates)
 
+    def list_fallback_transcoded_shows(self) -> list[ShowId]:
+        response = new_s3_client(self._cfg.local).list_objects_v2(
+            Bucket=self._bucket_name,
+            Prefix=f"{_TRANSCODED_SHOWS_PREFIX}/{_FALLBACK_KEY}",
+        )
+        ret = []
+        while True:
+            if "Contents" in response:
+                for obj in response["Contents"]:
+                    raw_show_id = obj["Key"].removeprefix(
+                        _TRANSCODED_SHOWS_PREFIX + "/"
+                    )
+                    show_id = show_id_from_raw_key(raw_show_id)
+                    ret.append(show_id)
+
+            if "NextContinuationToken" in response:
+                continuation_token = response["NextContinuationToken"]
+                response = new_s3_client(self._cfg.local).list_objects_v2(
+                    Bucket=self._bucket_name,
+                    Prefix=f"{_TRANSCODED_SHOWS_PREFIX}/fallback",
+                    ContinuationToken=continuation_token,
+                )
+            else:
+                break
+
+        return ret
+
     def list_script_shows(self, dates: Optional[set[str]] = None) -> list[ShowId]:
         return self._list_shows(_SCRIPT_SHOWS_PREFIX, dates)
 
@@ -132,11 +160,12 @@ class S3MediaStore(MediaStore):
                 for obj in response["Contents"]:
                     raw_show_id = obj["Key"].removeprefix(prefix + "/")
                     show_id = show_id_from_raw_key(raw_show_id)
-                    if dates:
-                        if show_id.date in dates:
+                    if show_id.date != _FALLBACK_KEY:
+                        if dates:
+                            if show_id.date in dates:
+                                ret.append(show_id)
+                        else:
                             ret.append(show_id)
-                    else:
-                        ret.append(show_id)
 
             if "NextContinuationToken" in response:
                 continuation_token = response["NextContinuationToken"]

@@ -17,7 +17,7 @@ class ShoutClientConfig(BaseModel):
     hostname: str = "localhost"
     port: int = 8000
     password: SecretVar[str]
-    mount: str = "/live.ogg"
+    mount: str = "/wettoast.ogg"
     bitrate: int = 128
     samplerate: int = 44100
     channels: int = 1
@@ -69,10 +69,9 @@ class ShoutClient:
 
     def start(self, wait_time: timedelta = timedelta(seconds=1)):
         stream_queue = multiprocessing.Queue(maxsize=1)
-        shout = init_shout(self._cfg)
 
         stream_process = multiprocessing.Process(
-            target=_stream, args=(shout, stream_queue)
+            target=_stream, args=(self._cfg, stream_queue)
         )
         stream_process.start()
 
@@ -82,21 +81,8 @@ class ShoutClient:
         )
         prepare_process.start()
 
-        self._processes = [stream_process, prepare_process]
-
-    def wait(self):
-        for p in self._processes:
-            if not p.is_alive():
-                time.sleep(0.1)
-
-    def join(self):
-        for p in self._processes:
-            p.join()
-
-    def stop(self):
-        for p in self._processes:
-            p.terminate()
-            p.join()
+        stream_process.join()
+        prepare_process.join()
 
 
 def _prepare(
@@ -142,11 +128,12 @@ _SHOW_CHUNK_SIZE = 4096
 
 # https://github.com/yomguy/python-shout/blob/master/example.py
 def _stream(
-    shout: libshout.Shout,
+    cfg: ShoutClientConfig,
     stream_queue: multiprocessing.Queue,
     wait_time: timedelta = timedelta(seconds=1),
 ):
     """Get show from internal stream stream_queue and send it to the shout server in batches."""
+    shout = init_shout(cfg)
     stream_logger = logger.bind(process="stream")
     stream_logger.info("Starting stream process")
 
@@ -163,8 +150,8 @@ def _stream(
             shout.get_connected()
             while not stream_queue.empty():
                 show_bytes, show_id = stream_queue.get()
-                stream_logger.info(f"Playing show {show_id.show_i}")
-                shout.set_metadata({"song": show_id.show_i})
+                stream_logger.info(f"Playing show {show_id.store_key()}")
+                shout.set_metadata({"song": show_id.store_key()})
                 for i in range(0, len(show_bytes), _SHOW_CHUNK_SIZE):
                     chunk = show_bytes[i : i + _SHOW_CHUNK_SIZE]
                     shout.send(chunk)

@@ -3,6 +3,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
+_FALLBACK_KEY = "fallback"
+
 
 @dataclass
 class ShowId:
@@ -73,6 +75,10 @@ class MediaStore(ABC):
     @abstractmethod
     def list_transcoded_shows(self, dates: Optional[set[str]] = None) -> list[ShowId]:
         """list transcoded shows ids from the media store"""
+
+    @abstractmethod
+    def list_fallback_transcoded_shows(self) -> list[ShowId]:
+        """list fallback transcoded shows ids from the media store"""
 
     @abstractmethod
     def list_script_shows(self, dates: Optional[set[str]] = None) -> list[ShowId]:

@@ -1,7 +1,8 @@
 # Install python dependencies
 FROM python:3.10.11-bullseye as builder
 
-RUN apt-get update && apt-get -y upgrade
+RUN apt-get update && apt-get -y upgrade && apt-get install -y \
+    libshout3-dev
 
 RUN useradd --create-home wettoast
 WORKDIR /home/wettoast
