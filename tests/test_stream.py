@@ -7,7 +7,9 @@ import pytest
 from wet_toast_talk_radio.common.aws_clients import new_s3_client, new_sqs_client
 from wet_toast_talk_radio.disc_jockey.shout_client import _prepare
 from wet_toast_talk_radio.media_store import new_media_store
+from wet_toast_talk_radio.media_store.common.date import get_current_iso_utc_date
 from wet_toast_talk_radio.media_store.config import MediaStoreConfig
+from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.media_store.s3.config import S3Config
 from wet_toast_talk_radio.message_queue.config import MessageQueueConfig
 from wet_toast_talk_radio.message_queue.message_queue import StreamShowMessage
@@ -58,9 +60,12 @@ class TestStream:
                 sqs=SQSConfig(local=True, receive_message_blocking_time=0.1)
             )
         )
+        today = get_current_iso_utc_date()
 
-        media_store.upload_transcoded_show("show1.ogg", "foo1")
-        media_store.upload_transcoded_show("show2.ogg", "foo2")
+        show0 = ShowId(0, today)
+        show1 = ShowId(1, today)
+        media_store.put_transcoded_show(show0, b"foo0")
+        media_store.put_transcoded_show(show1, b"foo1")
 
         stream_queue = multiprocessing.Queue(maxsize=1)
 
@@ -73,14 +78,14 @@ class TestStream:
 
         message_queue.add_stream_shows(
             [
-                StreamShowMessage("show1.ogg", "receipt_handle"),
-                StreamShowMessage("show2.ogg", "receipt_handle"),
+                StreamShowMessage(show0, "receipt_handle"),
+                StreamShowMessage(show1, "receipt_handle"),
             ]
         )
         time.sleep(2)
 
         assert stream_queue.full()
-        assert stream_queue.get() == (b"foo1", "show1.ogg")
-        assert stream_queue.get() == (b"foo2", "show2.ogg")
+        assert stream_queue.get() == (b"foo0", show0)
+        assert stream_queue.get() == (b"foo1", show1)
 
         prepare_process.kill()

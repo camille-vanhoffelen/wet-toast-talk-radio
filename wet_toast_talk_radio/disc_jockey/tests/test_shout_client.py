@@ -7,6 +7,8 @@ import pytest
 
 from wet_toast_talk_radio.disc_jockey.shout_client import _prepare
 from wet_toast_talk_radio.media_store import MediaStore
+from wet_toast_talk_radio.media_store.common.date import get_current_iso_utc_date
+from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.media_store.virtual.media_store import VirtualMediaStore
 from wet_toast_talk_radio.message_queue.message_queue import StreamShowMessage
 from wet_toast_talk_radio.message_queue.virtual.message_queue import VirtualMessageQueue
@@ -30,9 +32,11 @@ class TestShoutTranscoder:
     def test_prepare(self, virtual_manager: VirtualManager):
         media_store = virtual_manager.MediaStore()
         message_queue = virtual_manager.MessageQueue()
+        today = get_current_iso_utc_date()
 
         stream_queue = multiprocessing.Queue(maxsize=1)
-        media_store.upload_transcoded_show("show.ogg", "foo")
+        show0 = ShowId(0, today)
+        media_store.put_transcoded_show(show0, "foo")
 
         prepare_process = multiprocessing.Process(
             target=_prepare,
@@ -40,11 +44,9 @@ class TestShoutTranscoder:
         )
         prepare_process.start()
         assert stream_queue.empty()
-        message_queue.add_stream_shows(
-            [StreamShowMessage("show.ogg", "receipt_handle")]
-        )
+        message_queue.add_stream_shows([StreamShowMessage(show0, "receipt_handle")])
         time.sleep(1)
         assert stream_queue.full()
-        assert stream_queue.get() == ("foo", "show.ogg")
+        assert stream_queue.get() == ("foo", show0)
 
         prepare_process.kill()

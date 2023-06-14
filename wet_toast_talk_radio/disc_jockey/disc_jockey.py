@@ -2,6 +2,7 @@ import structlog
 
 from wet_toast_talk_radio.disc_jockey.config import DiscJockeyConfig, validate_config
 from wet_toast_talk_radio.disc_jockey.media_transcoder import MediaTranscoder
+from wet_toast_talk_radio.disc_jockey.playlist import Playlist
 from wet_toast_talk_radio.disc_jockey.shout_client import ShoutClient
 from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.message_queue.message_queue import MessageQueue
@@ -35,3 +36,8 @@ class DiscJockey:
             self._cfg.media_transcoder, self._media_store
         )
         media_transcoder.start()
+
+    def create_playlist(self) -> None:
+        """Create a playlist from the current day transcoded shows and upload them to the message queue"""
+        playlist = Playlist(self._media_store, self._message_queue)
+        playlist.start()

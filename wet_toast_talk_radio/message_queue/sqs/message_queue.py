@@ -1,7 +1,10 @@
+import dataclasses
+import json
 import time
 import uuid
 
 from wet_toast_talk_radio.common.aws_clients import new_sqs_client
+from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.message_queue.message_queue import (
     MessageQueue,
     StreamShowMessage,
@@ -29,8 +32,9 @@ class SQSMessageQueue(MessageQueue):
             )
             if "Messages" in response and len(response["Messages"]) > 0:
                 msg = response["Messages"][0]
+                show_id_dict = json.loads(msg["Body"])
                 return StreamShowMessage(
-                    show_id=msg["Body"],
+                    show_id=ShowId(**show_id_dict),
                     receipt_handle=msg["ReceiptHandle"],
                 )
 
@@ -43,9 +47,12 @@ class SQSMessageQueue(MessageQueue):
 
     def add_stream_shows(self, shows: list[StreamShowMessage]):
         for show in shows:
+            show_id_json = json.dumps(dataclasses.asdict(show.show_id))
             new_sqs_client(self._cfg.local).send_message(
                 QueueUrl=self._stream_queue_url,
-                MessageBody=show.show_id,
+                MessageBody=show_id_json,
                 MessageGroupId="stream_shows",
-                MessageDeduplicationId=show.show_id + "-" + str(uuid.uuid4()),
+                MessageDeduplicationId=show.show_id.store_key()
+                + "/"
+                + str(uuid.uuid4()),
             )
