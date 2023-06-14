@@ -17,9 +17,13 @@ logger = structlog.get_logger()
 class AudioGenerator:
     """Generate audio from text"""
 
-    def __init__(self, cfg: AudioGeneratorConfig):
+    def __init__(self, cfg: AudioGeneratorConfig, tmp_dir: Path = Path("tmp/")) -> None:
         self._cfg = cfg
         self._init_models()
+        self._tmp_dir = tmp_dir
+        self._raw_shows_dir = self._tmp_dir / "raw"
+        if not self._raw_shows_dir.exists():
+            self._raw_shows_dir.mkdir(parents=True)
 
     def run(self) -> None:
         logger.warning("Not yet implemented")
@@ -67,10 +71,8 @@ class AudioGenerator:
         )
 
         uuid_str = str(uuid.uuid4())[:4]
-        output_dir = Path.cwd() / "output"
-        output_dir.mkdir(exist_ok=True)
         write_wav(
-            output_dir / f"bark_generation_{uuid_str}.wav",
+            self._raw_shows_dir / f"bark_generation_{uuid_str}.wav",
             SAMPLE_RATE,
             audio_array,
         )
