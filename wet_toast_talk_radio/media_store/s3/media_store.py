@@ -2,9 +2,9 @@ import concurrent.futures
 from datetime import datetime, timezone
 from pathlib import Path
 
-import boto3
 import structlog
 
+from wet_toast_talk_radio.common.aws_clients import new_s3_client
 from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.s3.config import S3Config, validate_config
 
@@ -18,24 +18,26 @@ class S3MediaStore(MediaStore):
 
     def __init__(self, cfg: S3Config):
         validate_config(cfg)
-        self.cfg = cfg
+        self._cfg = cfg
         self._bucket_name = cfg.bucket_name
-        session = boto3.Session()
-        self._s3_client = session.client("s3", endpoint_url=cfg.local_endpoint)
 
     def upload_raw_show(self, show_name: str, data: bytes):
         if not show_name.endswith(".wav"):
             raise ValueError("show_name must end with .wav")
 
         key = f"{_RAW_SHOWS_PREFIX}{show_name}"
-        self._s3_client.put_object(Bucket=self._bucket_name, Key=key, Body=data)
+        new_s3_client(self._cfg.local).put_object(
+            Bucket=self._bucket_name, Key=key, Body=data
+        )
 
     def upload_transcoded_show(self, show_name: str, data: bytes):
         if not show_name.endswith(".ogg"):
             raise ValueError("show_name must end with .ogg")
 
         key = f"{_TRANSCODED_SHOWS_PREFIX}{show_name}"
-        self._s3_client.put_object(Bucket=self._bucket_name, Key=key, Body=data)
+        new_s3_client(self._cfg.local).put_object(
+            Bucket=self._bucket_name, Key=key, Body=data
+        )
 
     def upload_script_show(self, show_name: str, content: str):
         raise NotImplementedError()
@@ -43,12 +45,12 @@ class S3MediaStore(MediaStore):
     def upload_transcoded_shows(self, show_paths: list[Path]):
         def upload_file(show: Path, key: str):
             try:
-                self._s3_client.upload_file(show, self._bucket_name, key)
+                new_s3_client(self._cfg.local).upload_file(show, self._bucket_name, key)
             except Exception as e:
                 logger.error(f"Failed to upload file {show}: {e}")
 
         with concurrent.futures.ThreadPoolExecutor(
-            max_workers=self.cfg.max_workers
+            max_workers=self._cfg.max_workers
         ) as executor:
             futures = []
             for show in show_paths:
@@ -65,18 +67,20 @@ class S3MediaStore(MediaStore):
 
             concurrent.futures.wait(futures)
 
-    def download_raw_shows(self, show_names: list[str], dir_output: Path):
+    def download_raw_shows(self, show_ids: list[str], dir_output: Path):
         def download_file(key: str, file_output: Path):
             try:
-                self._s3_client.download_file(self._bucket_name, key, file_output)
+                new_s3_client(self._cfg.local).download_file(
+                    self._bucket_name, key, file_output
+                )
             except Exception as e:
                 logger.error(f"Failed to download {key} to {file_output}: {e}")
 
         with concurrent.futures.ThreadPoolExecutor(
-            max_workers=self.cfg.max_workers
+            max_workers=self._cfg.max_workers
         ) as executor:
             futures = []
-            for show_name in show_names:
+            for show_name in show_ids:
                 if not show_name.endswith(".wav"):
                     logger.warning(
                         f"Skipping {show_name} because it does not end with .wav"
@@ -91,6 +95,12 @@ class S3MediaStore(MediaStore):
     def download_script_show(self, show_name: str, dir_output: Path):
         raise NotImplementedError()
 
+    def get_transcoded_show(self, show_id: str) -> bytes:
+        response = new_s3_client(self._cfg.local).get_object(
+            Bucket=self._bucket_name, Key=f"{_TRANSCODED_SHOWS_PREFIX}{show_id}"
+        )
+        return response["Body"].read()
+
     def list_raw_shows(self, since: datetime | None = None) -> list[str]:
         return self._list_shows(_RAW_SHOWS_PREFIX, since)
 
@@ -102,7 +112,7 @@ class S3MediaStore(MediaStore):
 
     def _list_shows(self, prefix: str, since: datetime | None = None) -> list[str]:
         ret = []
-        response = self._s3_client.list_objects_v2(
+        response = new_s3_client(self._cfg.local).list_objects_v2(
             Bucket=self._bucket_name,
             Prefix=prefix,
         )
@@ -123,7 +133,7 @@ class S3MediaStore(MediaStore):
 
             if "NextContinuationToken" in response:
                 continuation_token = response["NextContinuationToken"]
-                response = self._s3_client.list_objects_v2(
+                response = new_s3_client(self._cfg.local).list_objects_v2(
                     Bucket=self._bucket_name,
                     Prefix=prefix,
                     ContinuationToken=continuation_token,

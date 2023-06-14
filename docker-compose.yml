@@ -1,4 +1,4 @@
-version: '3.7'
+version: "3.7"
 services:
   health-check:
     depends_on:
@@ -27,18 +27,20 @@ services:
       retries: 15
   s3Bucket:
     image: amazon/aws-cli
+    environment:
+      - AWS_DEFAULT_REGION=us-east-1
     command: --no-sign-request --endpoint-url=http://localstack:4566 s3 mb s3://wet-toast-talk-radio
     depends_on:
       localstack:
         condition: service_healthy
-
-  ices:
-    image: vimagick/ices
-    volumes:
-      - ./ices/dev:/etc/ices
-    links:
-      - icecast
-    restart: always
+  sqsQueue:
+    image: amazon/aws-cli
+    environment:
+      - AWS_DEFAULT_REGION=us-east-1
+    command: --no-sign-request --endpoint-url=http://localstack:4566 sqs create-queue --queue-name stream-shows.fifo --attributes FifoQueue=true
+    depends_on:
+      localstack:
+        condition: service_healthy
 
   icecast:
     image: vimagick/icecast

@@ -3,20 +3,34 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 import structlog
+from pydantic import BaseModel
 from pydub import AudioSegment
 
-from wet_toast_talk_radio.disc_jockey.config import MediaTranscoderConfig
 from wet_toast_talk_radio.media_store import MediaStore
 
 logger = structlog.get_logger()
+
+
+class MediaTranscoderConfig(BaseModel):
+    """media_converter config file"""
+
+    clean_tmp_dir: bool = True
+    max_transcode_workers: int = 3
+    batch_size: int = 4
 
 
 class MediaTranscoder:
     """MediaTranscoder converts .wav files from a folder to .ogg files and uploads them to the media store"""
 
     def __init__(
-        self, cfg: MediaTranscoderConfig, media_store: MediaStore, tmp_dir=Path("tmp/")
+        self,
+        cfg: MediaTranscoderConfig | None,
+        media_store: MediaStore,
+        tmp_dir=Path("tmp/"),
     ) -> None:
+        if cfg is None:
+            cfg = MediaTranscoderConfig()
+
         self._cfg = cfg
         self._media_store = media_store
         self._tmp_dir = tmp_dir
@@ -73,9 +87,9 @@ class MediaTranscoder:
         new_shows = list(set(raw_shows) - set(transcoded_shows))
         return [new_show + ".wav" for new_show in new_shows]
 
-    def _download_raw_shows(self, show_names: list[str]):
-        logger.info("Downloading raw shows ...", shows=show_names)
-        self._media_store.download_raw_shows(show_names, self._raw_shows_dir)
+    def _download_raw_shows(self, show_ids: list[str]):
+        logger.info("Downloading raw shows ...", shows=show_ids)
+        self._media_store.download_raw_shows(show_ids, self._raw_shows_dir)
 
     def _transcode_downloaded_shows(self):
         logger.info("Transcoding downloaded shows ...")

@@ -67,7 +67,7 @@ class TestVirtualMediaStore:
         d = tmp_path / "temp"
         d.mkdir()
         virtual_store = VirtualMediaStore()
-        virtual_store.download_script_show(show_name="show1.txt", dir_output=d)
+        virtual_store.download_script_show(show_id="show1.txt", dir_output=d)
         assert len(list(d.iterdir())) == 1
 
     def test_script_show_encoding(self, tmp_path: Generator[Path, None, None]):
@@ -76,9 +76,9 @@ class TestVirtualMediaStore:
         virtual_store = VirtualMediaStore()
         expected_content = "Toast is wet!"
         virtual_store.upload_script_show(
-            show_name="show666.txt", content=expected_content
+            show_id="show666.txt", content=expected_content
         )
-        virtual_store.download_script_show(show_name="show666.txt", dir_output=d)
+        virtual_store.download_script_show(show_id="show666.txt", dir_output=d)
         actual_content = (d / "show666.txt").read_text()
         assert actual_content == expected_content
 
@@ -141,9 +141,7 @@ class TestVirtualMediaStore:
         virtual_store = VirtualMediaStore()
 
         case.assertCountEqual(virtual_store.list_script_shows(), ["show1.txt"])
-        virtual_store.upload_script_show(
-            show_name="show666.txt", content="Toast is wet!"
-        )
+        virtual_store.upload_script_show(show_id="show666.txt", content="Toast is wet!")
         case.assertCountEqual(
             virtual_store.list_script_shows(), ["show1.txt", "show666.txt"]
         )
@@ -151,7 +149,7 @@ class TestVirtualMediaStore:
         now = datetime.now()
         # upload new script show 'tomorrow'
         virtual_store.upload_script_show(
-            show_name="show999.txt", content="Toast is dry :("
+            show_id="show999.txt", content="Toast is dry :("
         )
         virtual_store._bucket[
             f"{ShowType.SCRIPT.value}/show999.txt"
