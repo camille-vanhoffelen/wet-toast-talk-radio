@@ -37,7 +37,7 @@ COPY --from=builder /home/wettoast/.local /home/wettoast/.local
 ENV PATH=/home/wettoast/.local/bin:$PATH
 
 # overwrite pytorch w/ nightly GPU build
-RUN pip3 install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu121
+RUN pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu121
 
 COPY wet_toast_talk_radio ./wet_toast_talk_radio
 
