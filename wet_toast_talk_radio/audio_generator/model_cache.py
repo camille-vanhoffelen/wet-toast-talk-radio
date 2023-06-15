@@ -9,40 +9,48 @@ import structlog
 logger = structlog.get_logger()
 
 S3_MODEL_CACHE_BUCKET = "wet-toast-model-cache"
-S3_MODEL_CACHE_FILE = "model-cache-2023-06-11.tar.gz"
+S3_MODEL_CACHE_KEY = "model-cache-2023-06-11.tar.gz"
 LOCAL_MODEL_CACHE_FILE = ".cache.tar.gz"
 
 
-def cache_is_present() -> bool:
+def cache_is_present(cache_dir: str | Path | None = None) -> bool:
     """Check if huggingface hub model cache is present"""
     try:
-        cache_info = huggingface_hub.scan_cache_dir()
+        cache_info = huggingface_hub.scan_cache_dir(cache_dir=cache_dir)
         return bool(cache_info.repos)
     except huggingface_hub.CacheNotFound:
         return False
 
 
-def download_model_cache():
+def download_model_cache(
+    bucket: str = S3_MODEL_CACHE_BUCKET,
+    key: str = S3_MODEL_CACHE_KEY,
+    home_dir: Path | None = None,
+):
     """Download model cache from S3 and extract to $HOME/.cache"""
-    logger.info(f"Downloading model cache: {S3_MODEL_CACHE_FILE}")
-    home_dir = Path(huggingface_hub.constants.default_home).parent.absolute()
-    filename = home_dir / LOCAL_MODEL_CACHE_FILE
+    logger.info(f"Downloading model cache: {key}")
+    if not home_dir:
+        home_dir = Path(huggingface_hub.constants.default_home).parent.absolute()
+    model_cache_archive = home_dir / LOCAL_MODEL_CACHE_FILE
     # TODO creds
+    # TODO move client to global? or just outside?
     s3 = boto3.client("s3")
-    callback = ProgressPercentage(client=s3, bucket=S3_MODEL_CACHE_BUCKET, filename=S3_MODEL_CACHE_FILE)
-    s3.download_file(Bucket=S3_MODEL_CACHE_BUCKET, Key=S3_MODEL_CACHE_FILE, Filename=filename, Callback=callback)
+    callback = ProgressPercentage(client=s3, bucket=bucket, key=key)
+    s3.download_file(
+        Bucket=bucket, Key=key, Filename=model_cache_archive, Callback=callback
+    )
     logger.info("Finished downloading model cache")
     logger.info("Extracting model cache archive")
-    with tarfile.open(filename, "r:gz") as f:
+    with tarfile.open(model_cache_archive, "r:gz") as f:
         f.extractall(home_dir)
     logger.info("Removing model cache archive")
-    filename.unlink()
+    model_cache_archive.unlink()
 
 
 class ProgressPercentage(object):
-    def __init__(self, client, bucket, filename):
-        self._filename = filename
-        self._size = client.head_object(Bucket=bucket, Key=filename)["ContentLength"]
+    def __init__(self, client, bucket: str, key: str):
+        self._key = key
+        self._size = client.head_object(Bucket=bucket, Key=key)["ContentLength"]
         self._seen_so_far = 0
         self._lock = threading.Lock()
         self._last_percentage = 0
