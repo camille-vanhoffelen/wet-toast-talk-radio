@@ -66,6 +66,4 @@ ENV PATH=/home/wettoast/.local/bin:$PATH
 
 COPY wet_toast_talk_radio ./wet_toast_talk_radio
 
-RUN python -m wet_toast_talk_radio.main --help > /dev/null
-
 ENTRYPOINT ["python", "-m", "wet_toast_talk_radio.main"]
