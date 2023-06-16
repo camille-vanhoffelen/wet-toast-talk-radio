@@ -32,7 +32,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
       - name: Docker Build
         run: |
-          docker build -t wettoast .
+          docker build --target=prod -t wettoast .
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
