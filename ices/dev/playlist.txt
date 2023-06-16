@@ -1,2 +1,0 @@
-/etc/ices/show1.ogg
-/etc/ices/show2.ogg

@@ -30,15 +30,11 @@ def root_cmd(ctx: dict, verbose: bool, config: Optional[str]):  # noqa: FBT001
             wrapper_class=structlog.make_filtering_bound_logger(logging.INFO),
         )
 
-    ctx.obj["root_cfg"] = parse_config(config)
-
-
-def parse_config(config: str) -> RootConfig:
+    root_cfg = RootConfig()
     config_path = Path(config)
     if config_path.is_file():
         with config_path.open("r", encoding="utf8") as file:
             cfg_obj = yaml.safe_load(file)
             root_cfg = RootConfig.parse_obj(cfg_obj)
-            return root_cfg
-    else:
-        raise FileNotFoundError(f"Config file {config} not found")
+
+    ctx.obj["root_cfg"] = root_cfg

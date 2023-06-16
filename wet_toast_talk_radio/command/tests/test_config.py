@@ -1,13 +1,11 @@
 import os
-from typing import Any
 
 import pytest
 from botocore.stub import Stubber
-from pydantic import BaseSettings
+from pydantic import BaseModel, BaseSettings
 
 from wet_toast_talk_radio.command.config import RootConfig
-from wet_toast_talk_radio.command.secret_val import SecretVar, secrets_manager_client
-from wet_toast_talk_radio.disc_jockey.config import DiscJockeyConfig
+from wet_toast_talk_radio.common.secret_val import SecretVar, secrets_manager_client
 from wet_toast_talk_radio.media_store.config import MediaStoreConfig
 
 
@@ -29,7 +27,7 @@ class TestConfig:
                 {"WT_MEDIA_STORE__VIRTUAL": "true"},
                 RootConfig(
                     media_store=MediaStoreConfig(virtual=True),
-                    disc_jockey=DiscJockeyConfig(),
+                    disc_jockey=None,
                     audio_generator=None,
                 ),
             ),
@@ -51,17 +49,16 @@ class TestConfig:
             {"SecretId": "wet_toast_talk_radio/my_secret"},
         )
 
+        class SubConfig(BaseModel):
+            secret: SecretVar[str]
+
         class TestConfig(BaseSettings):
-            secret: SecretVar[str] | None = None
+            sub: SubConfig | None = None
 
             class Config:
-                @classmethod
-                def parse_env_var(cls, field_name: str, raw_val: str) -> Any:
-                    if field_name == "secret":
-                        return SecretVar[str](raw_val, field_name)
-                    return cls.json_loads(raw_val)
+                env_nested_delimiter = "__"
 
-        assert TestConfig().secret is None
+        assert TestConfig().sub is None
 
-        os.environ["SECRET"] = "sm:/wet_toast_talk_radio/my_secret"
-        assert TestConfig().secret.value() == "foo"
+        os.environ["SUB__SECRET"] = "sm:/wet_toast_talk_radio/my_secret"
+        assert TestConfig().sub.secret.value() == "foo"

@@ -3,9 +3,9 @@ Dockerfile
 .pylintrc
 aws/
 resources/
-
-# ice data
-data/
+scripts/
+**/tests/
+**/data/
 
 #ruf
 .ruff_cache/

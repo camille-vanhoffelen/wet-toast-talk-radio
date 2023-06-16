@@ -4,7 +4,9 @@ from typing import Generic, TypeVar
 import boto3
 import structlog
 from botocore.exceptions import ClientError
-from pydantic import ValidationError
+from pydantic import (
+    ValidationError,
+)
 from pydantic.fields import ModelField
 
 logger = structlog.get_logger()
@@ -41,15 +43,12 @@ class SecretVar(Generic[T]):
 
     @classmethod
     def validate(cls, v, field: ModelField):
-        if not isinstance(v, cls):
-            raise TypeError("Invalid value")
         if not field.sub_fields:
-            return v
+            raise TypeError("No generic type provided")
 
-        val_f = field.sub_fields[0]
-        valid_value, error = val_f.validate(v._val, {}, loc="val")  # noqa: SLF001
+        generic_type_field = field.sub_fields[0]
+        valid_value, error = generic_type_field.validate(v, {}, loc="val")
         if error:
             raise ValidationError(error, cls)
 
-        v._val = valid_value  # noqa: SLF001
-        return v
+        return cls(valid_value, field_name=field.name)

@@ -15,10 +15,10 @@ dependencies = [
     "pydantic>=1.10.8",
     "pydub>=0.25.1",
     "wave>=0.0.2",
-    "tqdm>=4.65.0",
     "langchain>=0.0.191",
     "openai>=0.27.7",
     "boto3>=1.26.146",
+    "python-shout>=0.2.8",
 ]
 requires-python = ">=3.10"
 readme = "README.md"
@@ -47,6 +47,7 @@ ide = ["setuptools>=67.8.0"]
 disc-jockey = "python -m wet_toast_talk_radio.main disc-jockey"
 audio-generator = "python -m wet_toast_talk_radio.main audio-generator"
 scriptwriter = "python -m wet_toast_talk_radio.main scriptwriter"
+local-setup = "python -m wet_toast_talk_radio.media_store.data.load_store"
 
 [tool.pytest.ini_options]
 markers = [

@@ -8,7 +8,10 @@ import structlog
 from bark import SAMPLE_RATE, generate_audio, preload_models
 from scipy.io.wavfile import write as write_wav
 
-from wet_toast_talk_radio.audio_generator.config import AudioGeneratorConfig
+from wet_toast_talk_radio.audio_generator.config import (
+    AudioGeneratorConfig,
+    validate_config,
+)
 from wet_toast_talk_radio.audio_generator.model_cache import (
     cache_is_present,
     download_model_cache,
@@ -21,6 +24,7 @@ class AudioGenerator:
     """Generate audio from text"""
 
     def __init__(self, cfg: AudioGeneratorConfig, tmp_dir: Path = Path("tmp/")) -> None:
+        validate_config(cfg)
         self._cfg = cfg
         self._init_models()
         self._tmp_dir = tmp_dir

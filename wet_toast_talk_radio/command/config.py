@@ -3,6 +3,7 @@ from pydantic import BaseSettings
 from wet_toast_talk_radio.audio_generator.config import AudioGeneratorConfig
 from wet_toast_talk_radio.disc_jockey.config import DiscJockeyConfig
 from wet_toast_talk_radio.media_store.config import MediaStoreConfig
+from wet_toast_talk_radio.message_queue.config import MessageQueueConfig
 from wet_toast_talk_radio.scriptwriter.config import ScriptwriterConfig
 
 
@@ -17,10 +18,11 @@ class RootConfig(BaseSettings):
       wet_toast_talk_radio/<my_secret>
     """
 
-    disc_jockey: DiscJockeyConfig = DiscJockeyConfig()
+    disc_jockey: DiscJockeyConfig | None = None
     audio_generator: AudioGeneratorConfig | None = None
     scriptwriter: ScriptwriterConfig | None = None
     media_store: MediaStoreConfig | None = None
+    message_queue: MessageQueueConfig | None = None
 
     class Config:
         env_prefix = "WT_"
