@@ -1,4 +1,4 @@
-name: Python
+name: CDK-Typescript
 
 on: push
 
@@ -20,5 +20,6 @@ jobs:
         run: |
           npm ci
       - name: Lint with eslint
+        working-directory: aws
         run: |
-          pm run lint 
+          npm run lint 
