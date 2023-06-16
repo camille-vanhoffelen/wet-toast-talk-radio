@@ -9,7 +9,10 @@ from bark import SAMPLE_RATE, generate_audio, preload_models
 from scipy.io.wavfile import write as write_wav
 
 from wet_toast_talk_radio.audio_generator.config import AudioGeneratorConfig
-from wet_toast_talk_radio.audio_generator.model_cache import cache_is_present, download_model_cache
+from wet_toast_talk_radio.audio_generator.model_cache import (
+    cache_is_present,
+    download_model_cache,
+)
 
 logger = structlog.get_logger()
 
@@ -90,4 +93,3 @@ class AudioGenerator:
             else:
                 logger.info("Found local HF hub model cache")
             assert cache_is_present(), "Cache must be complete"
-

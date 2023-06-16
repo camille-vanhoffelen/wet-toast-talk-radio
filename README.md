@@ -20,8 +20,10 @@ You will likely want to create a config.yml with these contents:
 media_store:
   virtual: true
 audio_generator:
-  foo: "bar"
+  # If HF Hub cache empty, download models from S3 instead of the internet
+  use_s3_model_cache: true
 scriptwriter:
+  # OpenAI API key used for text generation
   openai_api_key: "sk-....."
 ```
 
