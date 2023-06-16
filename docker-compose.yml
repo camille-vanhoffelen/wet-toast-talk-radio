@@ -29,7 +29,7 @@ services:
     image: amazon/aws-cli
     environment:
       - AWS_DEFAULT_REGION=us-east-1
-    command: --no-sign-request --endpoint-url=http://localstack:4566 s3 mb s3://wet-toast-talk-radio
+    command: --no-sign-request --endpoint-url=http://localstack:4566 s3 mb s3://media-store
     depends_on:
       localstack:
         condition: service_healthy

@@ -1,0 +1,25 @@
+name: CDK-Typescript
+
+on: push
+
+env: 
+  NODE_VERSION: 18
+
+jobs:
+  linting:
+    name: Linting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install NodeJS
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: npm Install
+        working-directory: aws
+        run: |
+          npm ci
+      - name: Lint with eslint
+        working-directory: aws
+        run: |
+          npm run lint 

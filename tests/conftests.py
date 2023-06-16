@@ -18,7 +18,7 @@ from wet_toast_talk_radio.message_queue.message_queue import MessageQueue
 from wet_toast_talk_radio.message_queue.new_message_queue import new_message_queue
 from wet_toast_talk_radio.message_queue.sqs.config import SQSConfig
 
-_BUCKET_NAME = "wet-toast-talk-radio"
+_BUCKET_NAME = "media-store"
 
 _QUEUE_NAME = "stream-shows.fifo"
 

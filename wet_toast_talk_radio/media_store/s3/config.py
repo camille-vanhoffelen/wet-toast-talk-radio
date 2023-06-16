@@ -5,7 +5,7 @@ class S3Config(BaseModel):
     # This will connect to localstack at `http://localhost:4566`
     local: bool = False
 
-    bucket_name: str | None = "wet-toast-talk-radio"
+    bucket_name: str | None = "media-store"
     max_workers: int = 10
 
 
