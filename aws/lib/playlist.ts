@@ -53,7 +53,7 @@ export class Playlist extends Construct {
             image: props.image,
             containerName: 'playlist',
             command: ['disc-jockey', 'create-playlist'],
-            memoryLimitMiB: 1024, // 1 GB
+            memoryLimitMiB: 900, // 1 GB
             cpu: 1024, // 1 vCPUs
             logging: ecs.LogDriver.awsLogs({ logGroup: props.logGroup, streamPrefix: Aws.STACK_NAME }),
             environment: {

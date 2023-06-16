@@ -65,6 +65,7 @@ export class Cluster extends Construct {
         this.ecsCluster.addDefaultCapacityProviderStrategy([
             {
                 capacityProvider: this.capacityProvider.capacityProviderName,
+                weight: 1,
             },
         ]);
     }

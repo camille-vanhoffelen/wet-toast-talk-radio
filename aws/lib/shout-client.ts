@@ -64,7 +64,7 @@ export class ShoutClient extends Construct {
             image: props.image,
             containerName: 'shout-client',
             command: ['disc-jockey', 'stream'],
-            memoryLimitMiB: 2048, // 2 GB
+            memoryLimitMiB: 1900, // 2 GB
             cpu: 2048, // 2 vCPUs
             logging: ecs.LogDriver.awsLogs({ logGroup: props.logGroup, streamPrefix: Aws.STACK_NAME }),
             environment: {
@@ -82,6 +82,12 @@ export class ShoutClient extends Construct {
             cluster: cluster.ecsCluster,
             taskDefinition: ecsTaskDefinition,
             desiredCount: 0,
+            capacityProviderStrategies: [
+                {
+                    capacityProvider: cluster.capacityProvider.capacityProviderName,
+                    weight: 1,
+                },
+            ],
         });
     }
 }

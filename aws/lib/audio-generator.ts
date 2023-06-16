@@ -70,7 +70,7 @@ export class AudioGenerator extends Construct {
             containerName: 'audio-generator',
             // command: ['audio-generator', 'run'],
             command: ['noop'],
-            memoryLimitMiB: 1024, // TBD
+            memoryLimitMiB: 900, // TBD
             cpu: 1024, // TBD
             logging: ecs.LogDriver.awsLogs({ logGroup: props.logGroup, streamPrefix: Aws.STACK_NAME }),
             environment: {
@@ -85,6 +85,12 @@ export class AudioGenerator extends Construct {
             cluster: cluster.ecsCluster,
             taskDefinition: ecsTaskDefinition,
             desiredCount: 0,
+            capacityProviderStrategies: [
+                {
+                    capacityProvider: cluster.capacityProvider.capacityProviderName,
+                    weight: 1,
+                },
+            ],
         });
 
         const scaling = service.autoScaleTaskCount({

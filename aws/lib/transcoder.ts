@@ -42,7 +42,7 @@ export class Transcoder extends Construct {
             image: props.image,
             containerName: 'transcoder',
             command: ['disc-jockey', 'transcode'],
-            memoryLimitMiB: 4096, // 4 GB
+            memoryLimitMiB: 3900, // 4 GB
             cpu: 2048, // 2 vCPUs
             logging: ecs.LogDriver.awsLogs({ logGroup: props.logGroup, streamPrefix: Aws.STACK_NAME }),
             environment: {
