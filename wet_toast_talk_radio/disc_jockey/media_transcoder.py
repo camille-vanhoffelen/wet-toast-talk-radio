@@ -17,7 +17,7 @@ class MediaTranscoderConfig(BaseModel):
     """media_converter config file"""
 
     clean_tmp_dir: bool = True
-    max_transcode_workers: int = 3
+    max_transcode_workers: int = 4
     batch_size: int = 4
 
 

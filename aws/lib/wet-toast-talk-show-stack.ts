@@ -1,18 +1,14 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { CfnParameters } from './cfn-parameters';
-import {
-    aws_ec2 as ec2,
-    aws_ssm as ssm,
-    Tags,
-    Aws,
-    aws_iam as iam,
-    aws_ecs as ecs,
-    aws_ecr as ecr,
-    aws_logs as logs,
-} from 'aws-cdk-lib';
-import { WetToastBucket } from './wet-toast-bucket';
-import { TranscodeService } from './transcode-service';
+import { aws_ec2 as ec2, Tags, Aws, aws_ecs as ecs, aws_ecr as ecr, aws_logs as logs } from 'aws-cdk-lib';
+import { MediaStore } from './media-store';
+import { Transcoder } from './transcoder';
+import { MessageQueue } from './message-queue';
+import { Playlist } from './playlist';
+import { ShoutClient } from './shout-client';
+import { ScriptWriter } from './script-writer';
+import { AudioGenerator } from './audio-generator';
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
 
 export class WetToastTalkShowStack extends cdk.Stack {
@@ -26,9 +22,9 @@ export class WetToastTalkShowStack extends cdk.Stack {
         });
         const vpc = new ec2.Vpc(this, 'VPC', {
             vpcName: 'VPC',
-            cidr: '10.0.0.0/16',
-            enableDnsHostnames: false,
-            enableDnsSupport: false,
+            ipAddresses: ec2.IpAddresses.cidr('10.0.0.0/16'),
+            enableDnsHostnames: true,
+            enableDnsSupport: true,
             maxAzs: 2,
             natGatewayProvider,
             natGateways: 1,
@@ -38,32 +34,65 @@ export class WetToastTalkShowStack extends cdk.Stack {
                     subnetType: ec2.SubnetType.PUBLIC,
                 },
                 {
-                    name: 'Privae',
+                    name: 'Private',
                     subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
                 },
             ],
         });
         Tags.of(vpc).add('Name', Aws.STACK_NAME);
 
-        const wetToastBucket = new WetToastBucket(this, 'WetToastBucket');
+        const mediaStore = new MediaStore(this, 'MediaStore');
+        const messageQueue = new MessageQueue(this, 'MessageQueue');
 
         const logGroup = new logs.LogGroup(this, 'LogGroup', {
             logGroupName: Aws.STACK_NAME,
         });
 
-        const cluster = new ecs.Cluster(this, 'Cluster', { vpc, clusterName: 'wet-toast-talk-radio' });
-
         const image = ecs.ContainerImage.fromEcrRepository(
             ecr.Repository.fromRepositoryName(this, 'ECRRepository', params.ecrRepositoryName.valueAsString),
             params.imageTag.valueAsString,
         );
-
-        new TranscodeService(this, 'TranscodeService', {
+        new ScriptWriter(this, 'ScriptWriter', {
             vpc,
-            wetToastBucket,
-            cluster,
+            mediaStore,
+            queue: messageQueue.audiogenQueue,
+            image,
+            instanceType: params.scriptWriterInstanceType,
+            logGroup,
+        });
+
+        new AudioGenerator(this, 'AudioGenerator', {
+            vpc,
+            mediaStore,
+            queue: messageQueue.audiogenQueue,
+            image,
+            instanceType: params.audioGeneratorInstanceType,
+            logGroup,
+        });
+
+        new Transcoder(this, 'Transcoder', {
+            vpc,
+            mediaStore,
             image,
             instanceType: params.transcoderInstanceType,
+            logGroup,
+        });
+
+        new Playlist(this, 'Playlist', {
+            vpc,
+            mediaStore,
+            queue: messageQueue.streamQueue,
+            image,
+            instanceType: params.playlistInstanceType,
+            logGroup,
+        });
+
+        new ShoutClient(this, 'ShoutClient', {
+            vpc,
+            mediaStore,
+            queue: messageQueue.streamQueue,
+            image,
+            instanceType: params.shoutClientInstanceType,
             logGroup,
         });
     }

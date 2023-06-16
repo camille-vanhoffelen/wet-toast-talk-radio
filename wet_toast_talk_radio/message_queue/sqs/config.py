@@ -6,6 +6,7 @@ class SQSConfig(BaseModel):
     local: bool = False
 
     stream_queue_name: str = "stream-shows.fifo"
+    audio_gen_queue_name: str = "audio-gen.fifo"
     receive_message_blocking_time: int = 10
 
 
