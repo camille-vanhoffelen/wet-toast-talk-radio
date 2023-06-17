@@ -29,7 +29,7 @@ RUN pip install --no-warn-script-location -U pip setuptools wheel
 COPY ./requirements.txt .
 
 # hack to force pytorch from nightly CUDA 12.1 build
-RUN pip install --no-warn-script-location --user --pre -r requirements.txt --index-url https://download.pytorch.org/whl/nightly/cu121 --extra-index-url --extra-index-url=https://pypi.org/simple
+RUN pip install --no-warn-script-location --user --pre -r requirements.txt --index-url https://download.pytorch.org/whl/nightly/cu121 --extra-index-url --extra-index-url https://pypi.org/simple
 
 # GPU prod image
 FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04 AS prod-gpu
