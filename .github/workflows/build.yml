@@ -8,6 +8,7 @@ env:
   REGISTRY: 289115055556.dkr.ecr.us-east-1.amazonaws.com
   IMAGE_NAME: wet-toast-talk-radio
   IMAGE_NAME_GPU: wet-toast-talk-radio-gpu
+  DOCKER_BUILDKIT: 1
 
 jobs:
   build:
