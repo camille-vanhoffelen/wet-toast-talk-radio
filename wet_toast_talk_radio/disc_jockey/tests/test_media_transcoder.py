@@ -10,12 +10,20 @@ from wet_toast_talk_radio.media_store.common.date import get_current_iso_utc_dat
 from wet_toast_talk_radio.media_store.config import MediaStoreConfig
 from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.media_store.virtual.bucket import VirtualBucket
+from wet_toast_talk_radio.radio_operator.config import RadioOperatorConfig
+from wet_toast_talk_radio.radio_operator.radio_operator import RadioOperator
 
 
 @pytest.fixture()
 def media_store() -> MediaStore:
     media_store = new_media_store(MediaStoreConfig(virtual=True))
     return media_store
+
+
+@pytest.fixture()
+def radio_operator() -> RadioOperator:
+    radio_operator = RadioOperator(RadioOperatorConfig())
+    return radio_operator
 
 
 @pytest.fixture(autouse=True)
@@ -25,13 +33,14 @@ def _reset():
 
 @pytest.fixture()
 def media_transcoder(
-    tmp_path: Generator[Path, None, None], media_store: MediaStore
+    tmp_path: Generator[Path, None, None], media_store: MediaStore, radio_operator
 ) -> MediaTranscoder:
     d = tmp_path / "tmp"
     d.mkdir()
     media_transcoder = MediaTranscoder(
         MediaTranscoderConfig(batch_size=3, max_transcode_workers=2),
         media_store,
+        radio_operator,
         tmp_dir=d,
     )
     return media_transcoder

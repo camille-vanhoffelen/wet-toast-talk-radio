@@ -17,6 +17,8 @@ from wet_toast_talk_radio.message_queue.config import MessageQueueConfig
 from wet_toast_talk_radio.message_queue.message_queue import MessageQueue
 from wet_toast_talk_radio.message_queue.new_message_queue import new_message_queue
 from wet_toast_talk_radio.message_queue.sqs.config import SQSConfig
+from wet_toast_talk_radio.radio_operator.config import RadioOperatorConfig
+from wet_toast_talk_radio.radio_operator.radio_operator import RadioOperator
 
 _BUCKET_NAME = "media-store"
 
@@ -93,3 +95,9 @@ def message_queue() -> MessageQueue:
     return new_message_queue(
         MessageQueueConfig(sqs=SQSConfig(local=True, receive_message_blocking_time=0.1))
     )
+
+
+@pytest.fixture()
+def radio_operator() -> RadioOperator:
+    radio_operator = RadioOperator(RadioOperatorConfig())
+    return radio_operator

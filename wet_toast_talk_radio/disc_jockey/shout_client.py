@@ -7,8 +7,10 @@ import structlog
 from pydantic import BaseModel
 
 from wet_toast_talk_radio.common.secret_val import SecretVar
+from wet_toast_talk_radio.common.task_log_ctx import task_log_ctx
 from wet_toast_talk_radio.media_store.media_store import MediaStore
 from wet_toast_talk_radio.message_queue.message_queue import MessageQueue
+from wet_toast_talk_radio.radio_operator.radio_operator import RadioOperator
 
 logger = structlog.get_logger()
 
@@ -54,18 +56,21 @@ def init_shout(cfg: ShoutClientConfig) -> libshout.Shout:
     return shout
 
 
+@task_log_ctx("shout_client")
 class ShoutClient:
     def __init__(
         self,
         cfg: ShoutClientConfig | None,
         media_store: MediaStore,
         message_queue: MessageQueue,
+        radio_operator: RadioOperator,
     ):
         validate_config(cfg)
         self._cfg = cfg
         self._media_store = media_store
         self._message_queue = message_queue
         self._processes = []
+        self._radio_operator = radio_operator
 
     def start(self, wait_time: timedelta = timedelta(seconds=1)):
         stream_queue = multiprocessing.Queue(maxsize=1)

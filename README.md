@@ -18,6 +18,10 @@ Generating content for Wet Toast Talk Radio
 You will likely want to create a config.yml with these contents:
 
 ```yaml
+emergency_alert_system:
+  web_hook_url: sm:/wet-toast-talk-show/emergency-alert-system/slack-web-hook-url
+radio_operator:
+  web_hook_url: sm:/wet-toast-talk-show/radio-operator/slack-web-hook-url
 message_queue:
   # virtual: true
   sqs:
@@ -26,7 +30,7 @@ media_store:
   # virtual: true
   s3:
     local: true
-    bucket_name: "wet-toast-talk-radio"
+    bucket_name: "media-store"
 audio_generator:
   # If HF Hub cache empty, download models from S3 instead of the internet
   use_s3_model_cache: true
@@ -38,7 +42,6 @@ disc_jockey:
     clean_tmp_dir: false
   shout_client:
     password: "hackme"
-
 ```
 
 ### Running
