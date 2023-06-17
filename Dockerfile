@@ -37,7 +37,8 @@ FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04 AS prod-gpu
 RUN apt-get update && apt-get -y upgrade && apt-get install -y \
     ffmpeg \
     libavcodec-extra \
-    libgomp1
+    libgomp1 \
+    libshout3-dev
 
 RUN apt-get install -y software-properties-common && \
     add-apt-repository -y ppa:deadsnakes/ppa && \
