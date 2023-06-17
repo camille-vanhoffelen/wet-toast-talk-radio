@@ -23,9 +23,6 @@ dependencies = [
 requires-python = ">=3.10"
 readme = "README.md"
 license = { text = "MIT" }
-[project.optional-dependencies]
-ide = ["setuptools>=67.8.0"]
-
 
 [build-system]
 requires = ["setuptools>=61", "wheel"]
@@ -44,6 +41,7 @@ test = [
     "hypothesis>=6.76.0",
 ]
 dev = []
+ide = ["setuptools>=67.8.0"]
 
 [tool.pdm.scripts]
 disc-jockey = "python -m wet_toast_talk_radio.main disc-jockey"

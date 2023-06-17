@@ -28,8 +28,10 @@ media_store:
     local: true
     bucket_name: "wet-toast-talk-radio"
 audio_generator:
-  foo: "bar"
+  # If HF Hub cache empty, download models from S3 instead of the internet
+  use_s3_model_cache: true
 scriptwriter:
+  # OpenAI API key used for text generation
   openai_api_key: "sk-....."
 disc_jockey:
   media_transcoder:
