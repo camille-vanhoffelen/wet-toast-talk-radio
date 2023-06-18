@@ -33,7 +33,10 @@ COPY ./requirements.txt .
 RUN pip install --no-warn-script-location --user --pre -r requirements.txt --index-url https://download.pytorch.org/whl/cu117 --extra-index-url https://pypi.org/simple
 
 # GPU prod image
-FROM nvidia/cuda:11.7.1-cudnn8-runtime-ubuntu18.04 AS prod-gpu
+FROM nvidia/cuda:11.7.1-cudnn8-runtime-ubuntu20.04 AS prod-gpu
+
+# Needed to avoid geography questions on apt-get install
+ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get -y upgrade && apt-get install -y \
     ffmpeg \
@@ -43,7 +46,7 @@ RUN apt-get update && apt-get -y upgrade && apt-get install -y \
 
 RUN apt-get install -y software-properties-common && \
     add-apt-repository -y ppa:deadsnakes/ppa && \
-    DEBIAN_FRONTEND=noninteractive apt install -y python3.10
+    apt-get install -y python3.10
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
