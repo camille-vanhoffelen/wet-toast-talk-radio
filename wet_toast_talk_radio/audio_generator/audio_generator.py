@@ -41,7 +41,6 @@ class AudioGenerator:
         # download and load all models
         preload_models()
 
-
         logger.info("Tokenizing text into sentences")
         # Need to download punkt tokenizer prior w/ nltk.download()
         sentences = nltk.sent_tokenize(text)

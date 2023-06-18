@@ -32,7 +32,9 @@ def run(ctx: dict):
 
 @audio_generator.command()
 @click.pass_context
-@click.option("-s", "--script", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option(
+    "-s", "--script", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
 def benchmark(ctx: dict, script: Path):
     """Benchmarks audio generation on standard script.
 
