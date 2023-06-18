@@ -35,7 +35,7 @@ jobs:
         docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{  github.ref_name }}
 
   build-gpu:
-    name: ECR Build
+    name: ECR Build GPU
     runs-on: ubuntu-latest
     permissions:
       id-token: write
