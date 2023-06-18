@@ -64,8 +64,8 @@ sympy==1.12
 tenacity==8.2.2
 tokenizers==0.13.3
 tomli==2.0.1
-torch==2.1.0.dev20230616
-torchaudio==2.1.0.dev20230616
+torch==2.0.1
+torchaudio==2.0.2
 tqdm==4.65.0
 transformers==4.29.2
 typing-extensions==4.6.3
@@ -73,4 +73,3 @@ typing-inspect==0.9.0
 urllib3==1.26.16
 wave==0.0.2
 yarl==1.9.2
---extra-index-url https://download.pytorch.org/whl/nightly/cpu

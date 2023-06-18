@@ -19,8 +19,8 @@ dependencies = [
     "openai>=0.27.7",
     "boto3>=1.26.146",
     "python-shout>=0.2.8",
-    "torch==2.1.0.dev20230616",
-    "torchaudio==2.1.0.dev20230616",
+    "torch>=2.0.1",
+    "torchaudio>=2.0.2",
 ]
 requires-python = ">=3.10"
 readme = "README.md"
@@ -32,12 +32,6 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 py-modules = ["wet_toast_talk_radio"]
-
-[[tool.pdm.source]]
-name = "pytorchnightly"
-url = "https://download.pytorch.org/whl/nightly/cpu"
-verify_ssl = true
-
 
 [tool.pdm.dev-dependencies]
 lint = [
