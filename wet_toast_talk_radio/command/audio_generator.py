@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import click
 import structlog
 
@@ -30,7 +32,8 @@ def run(ctx: dict):
 
 @audio_generator.command()
 @click.pass_context
-def benchmark(ctx: dict):
+@click.option("-s", "--script", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+def benchmark(ctx: dict, script: Path):
     """Benchmarks audio generation on standard script.
 
     Calculates:
@@ -45,4 +48,5 @@ def benchmark(ctx: dict):
     logger.info("Starting audio_generator", cfg=root_cfg.audio_generator)
     audio_gen = AudioGenerator(cfg)
 
-    audio_gen.benchmark()
+    text = script.read_text() if script else "Hey there! I'm a dog! Woof woof!"
+    audio_gen.benchmark(text=text)

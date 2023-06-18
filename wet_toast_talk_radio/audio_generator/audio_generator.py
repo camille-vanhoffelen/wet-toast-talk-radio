@@ -36,23 +36,22 @@ class AudioGenerator:
         logger.warning("Not yet implemented")
         pass
 
-    def benchmark(self) -> None:
+    def benchmark(self, text: str) -> None:
         """Run audio_generator"""
         # download and load all models
         preload_models()
 
-        script = "Hey there! I'm a dog! Woof woof!"
 
-        logger.info("Tokenizing script into sentences")
+        logger.info("Tokenizing text into sentences")
         # Need to download punkt tokenizer prior w/ nltk.download()
-        sentences = nltk.sent_tokenize(script)
+        sentences = nltk.sent_tokenize(text)
 
         # save audio to disk
         SPEAKER = "v2/en_speaker_6"
         silence = np.zeros(int(0.25 * SAMPLE_RATE))  # quarter second of silence
 
         logger.info("Starting audio generation")
-        logger.debug("Script", script=script)
+        logger.debug("Text", text=text)
 
         start = time.perf_counter()
 
