@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from wet_toast_talk_radio.media_store.common.date import get_current_iso_utc_date
 from wet_toast_talk_radio.media_store.media_store import MediaStore, ShowId
-from wet_toast_talk_radio.message_queue.message_queue import MessageQueue
+from wet_toast_talk_radio.message_queue.message_queue import StreamMessageQueue
 
 logger = structlog.get_logger()
 
@@ -21,7 +21,7 @@ class Playlist:
         self,
         cfg: Optional[PlaylistConfig],
         media_store: MediaStore,
-        message_queue: MessageQueue,
+        message_queue: StreamMessageQueue,
     ) -> None:
         if cfg is None:
             cfg = PlaylistConfig()

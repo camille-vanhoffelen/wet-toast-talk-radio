@@ -1,21 +1,21 @@
 import structlog
 
 from wet_toast_talk_radio.message_queue.config import (
-    MessageQueueConfig,
+    StreamMQConfig,
     validate_config,
 )
-from wet_toast_talk_radio.message_queue.message_queue import MessageQueue
-from wet_toast_talk_radio.message_queue.sqs.message_queue import SQSMessageQueue
-from wet_toast_talk_radio.message_queue.virtual.message_queue import VirtualMessageQueue
+from wet_toast_talk_radio.message_queue.message_queue import StreamMessageQueue
+from wet_toast_talk_radio.message_queue.sqs.message_queue import SQSStreamMessageQueue
+from wet_toast_talk_radio.message_queue.virtual.message_queue import VirtualStreamMessageQueue
 
 logger = structlog.get_logger()
 
 
-def new_message_queue(cfg: MessageQueueConfig) -> MessageQueue:
+def new_stream_message_queue(cfg: StreamMQConfig) -> StreamMessageQueue:
     validate_config(cfg)
-    logger.debug("Creating new message queue", cfg=cfg)
+    logger.debug("Creating new stream message queue", cfg=cfg)
 
     if cfg.virtual:
-        return VirtualMessageQueue()
+        return VirtualStreamMessageQueue()
 
-    return SQSMessageQueue(cfg.sqs)
+    return SQSStreamMessageQueue(cfg.sqs)

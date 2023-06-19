@@ -4,12 +4,12 @@ from queue import Empty
 
 from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.message_queue.message_queue import (
-    MessageQueue,
+    StreamMessageQueue,
     StreamShowMessage,
 )
 
 
-class VirtualMessageQueue(MessageQueue):
+class VirtualStreamMessageQueue(StreamMessageQueue):
     def __init__(self):
         self._queues = {"stream": multiprocessing.Queue()}
 

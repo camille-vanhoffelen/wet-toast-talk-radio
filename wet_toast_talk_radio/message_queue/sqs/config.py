@@ -5,8 +5,7 @@ class SQSConfig(BaseModel):
     # This will connect to localstack at `http://localhost:4566`
     local: bool = False
 
-    stream_queue_name: str = "stream-shows.fifo"
-    audio_gen_queue_name: str = "audio-gen.fifo"
+    message_queue_name: str = "stream-shows.fifo"
     receive_message_blocking_time: int = 10
 
 

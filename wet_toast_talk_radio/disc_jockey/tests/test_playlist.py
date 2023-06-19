@@ -3,15 +3,15 @@ from wet_toast_talk_radio.media_store.common.date import get_current_iso_utc_dat
 from wet_toast_talk_radio.media_store.config import MediaStoreConfig
 from wet_toast_talk_radio.media_store.media_store import _FALLBACK_KEY, ShowId
 from wet_toast_talk_radio.media_store.new_media_store import new_media_store
-from wet_toast_talk_radio.message_queue.config import MessageQueueConfig
-from wet_toast_talk_radio.message_queue.new_message_queue import new_message_queue
+from wet_toast_talk_radio.message_queue.config import StreamMQConfig
+from wet_toast_talk_radio.message_queue.new_message_queue import new_stream_message_queue
 
 
 class TestPlaylist:
     def test_playlist(self):
         today = get_current_iso_utc_date()
         media_store = new_media_store(MediaStoreConfig(virtual=True))
-        message_queue = new_message_queue(MessageQueueConfig(virtual=True))
+        message_queue = new_stream_message_queue(StreamMQConfig(virtual=True))
 
         show0 = ShowId(0, today)
         show1 = ShowId(1, today)
@@ -27,7 +27,7 @@ class TestPlaylist:
 
     def test_fallback_playlist(self):
         media_store = new_media_store(MediaStoreConfig(virtual=True))
-        message_queue = new_message_queue(MessageQueueConfig(virtual=True))
+        message_queue = new_stream_message_queue(StreamMQConfig(virtual=True))
 
         playlist = Playlist(PlaylistConfig(), media_store, message_queue)
         playlist.start()

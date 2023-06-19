@@ -10,7 +10,7 @@ from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.common.date import get_current_iso_utc_date
 from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.media_store.virtual.media_store import VirtualMediaStore
-from wet_toast_talk_radio.message_queue.virtual.message_queue import VirtualMessageQueue
+from wet_toast_talk_radio.message_queue.virtual.message_queue import VirtualStreamMessageQueue
 
 
 class VirtualManager(BaseManager):
@@ -18,7 +18,7 @@ class VirtualManager(BaseManager):
 
 
 VirtualManager.register("MediaStore", VirtualMediaStore)
-VirtualManager.register("MessageQueue", VirtualMessageQueue)
+VirtualManager.register("StreamMessageQueue", VirtualStreamMessageQueue)
 
 
 @pytest.fixture()
@@ -30,7 +30,7 @@ def virtual_manager() -> MediaStore:
 class TestShoutTranscoder:
     def test_prepare(self, virtual_manager: VirtualManager):
         media_store = virtual_manager.MediaStore()
-        message_queue = virtual_manager.MessageQueue()
+        message_queue = virtual_manager.StreamMessageQueue()
         today = get_current_iso_utc_date()
 
         stream_queue = multiprocessing.Queue(maxsize=1)

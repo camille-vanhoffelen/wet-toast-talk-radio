@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from wet_toast_talk_radio.common.aws_clients import new_sqs_client
 from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.message_queue.message_queue import (
-    MessageQueue,
+    StreamMessageQueue,
     StreamShowMessage,
 )
 from wet_toast_talk_radio.message_queue.sqs.config import (
@@ -16,12 +16,12 @@ from wet_toast_talk_radio.message_queue.sqs.config import (
 )
 
 
-class SQSMessageQueue(MessageQueue):
+class SQSStreamMessageQueue(StreamMessageQueue):
     def __init__(self, cfg: SQSConfig):
         validate_config(cfg)
         self._cfg = cfg
         resp = new_sqs_client(self._cfg.local).get_queue_url(
-            QueueName=cfg.stream_queue_name
+            QueueName=cfg.message_queue_name
         )
         self._stream_queue_url = resp["QueueUrl"]
 
