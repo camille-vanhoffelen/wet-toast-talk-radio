@@ -10,7 +10,7 @@ from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.common.date import get_current_iso_utc_date
 from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.media_store.virtual.media_store import VirtualMediaStore
-from wet_toast_talk_radio.message_queue.virtual.message_queue import VirtualStreamMessageQueue
+from wet_toast_talk_radio.message_queue.virtual.message_queue import VirtualStreamMQ
 
 
 class VirtualManager(BaseManager):
@@ -18,7 +18,7 @@ class VirtualManager(BaseManager):
 
 
 VirtualManager.register("MediaStore", VirtualMediaStore)
-VirtualManager.register("StreamMessageQueue", VirtualStreamMessageQueue)
+VirtualManager.register("StreamMessageQueue", VirtualStreamMQ)
 
 
 @pytest.fixture()

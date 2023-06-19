@@ -5,7 +5,7 @@ from wet_toast_talk_radio.disc_jockey.media_transcoder import MediaTranscoder
 from wet_toast_talk_radio.disc_jockey.playlist import Playlist
 from wet_toast_talk_radio.disc_jockey.shout_client import ShoutClient
 from wet_toast_talk_radio.media_store import MediaStore
-from wet_toast_talk_radio.message_queue.message_queue import StreamMessageQueue
+from wet_toast_talk_radio.message_queue.message_queue import StreamMQ
 
 logger = structlog.get_logger()
 
@@ -17,7 +17,7 @@ class DiscJockey:
         self,
         cfg: DiscJockeyConfig | None,
         media_store: MediaStore | None = None,
-        message_queue: StreamMessageQueue | None = None,
+        message_queue: StreamMQ | None = None,
     ):
         validate_config(cfg)
         self._cfg = cfg

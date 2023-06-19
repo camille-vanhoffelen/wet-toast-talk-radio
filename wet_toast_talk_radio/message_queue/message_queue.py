@@ -11,7 +11,7 @@ class StreamShowMessage:
     receipt_handle: str
 
 
-class StreamMessageQueue(ABC):
+class StreamMQ(ABC):
     """Interface class to interact with the stream message queue"""
 
     @abstractmethod
@@ -42,7 +42,7 @@ class ScriptMessage:
     receipt_handle: str
 
 
-class ScriptMessageQueue(ABC):
+class ScriptMQ(ABC):
     """Interface class to interact with the script message queue"""
 
     @abstractmethod

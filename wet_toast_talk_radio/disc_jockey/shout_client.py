@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 from wet_toast_talk_radio.common.secret_val import SecretVar
 from wet_toast_talk_radio.media_store.media_store import MediaStore
-from wet_toast_talk_radio.message_queue.message_queue import StreamMessageQueue
+from wet_toast_talk_radio.message_queue.message_queue import StreamMQ
 
 logger = structlog.get_logger()
 
@@ -59,7 +59,7 @@ class ShoutClient:
         self,
         cfg: ShoutClientConfig | None,
         media_store: MediaStore,
-        message_queue: StreamMessageQueue,
+        message_queue: StreamMQ,
     ):
         validate_config(cfg)
         self._cfg = cfg
@@ -86,7 +86,7 @@ class ShoutClient:
 
 
 def _prepare(
-    message_queue: StreamMessageQueue,
+    message_queue: StreamMQ,
     media_store: MediaStore,
     stream_queue: multiprocessing.Queue,
     wait_time: timedelta = timedelta(seconds=1),
