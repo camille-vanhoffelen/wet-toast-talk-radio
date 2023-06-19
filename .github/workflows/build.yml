@@ -8,6 +8,7 @@ env:
   REGISTRY: 289115055556.dkr.ecr.us-east-1.amazonaws.com
   IMAGE_NAME: wet-toast-talk-radio
   IMAGE_NAME_GPU: wet-toast-talk-radio-gpu
+  DOCKER_BUILDKIT: 1
 
 jobs:
   build:
@@ -21,7 +22,7 @@ jobs:
       uses: actions/checkout@v3
     - name: Docker Build
       run: |
-        docker build -t wettoast .
+        docker build --target=prod -t wettoast .
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v2
       with:
@@ -34,7 +35,7 @@ jobs:
         docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{  github.ref_name }}
 
   build-gpu:
-    name: ECR Build
+    name: ECR Build GPU
     runs-on: ubuntu-latest
     permissions:
       id-token: write

@@ -19,6 +19,8 @@ dependencies = [
     "openai>=0.27.7",
     "boto3>=1.26.146",
     "python-shout>=0.2.8",
+    "torch>=2.0.1",
+    "torchaudio>=2.0.2",
 ]
 requires-python = ">=3.10"
 readme = "README.md"
