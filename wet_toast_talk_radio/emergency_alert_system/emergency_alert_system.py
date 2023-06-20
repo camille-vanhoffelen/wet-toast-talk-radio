@@ -19,7 +19,6 @@ class EmergencyAlertSystem:
 _MAX_SLACK_TEXT_BLOCK_LEN = 3000
 
 
-# FIX ME
 def emergency_alert_system_process(_logger, log_method, event_dict):
     if log_method == "error":
         ctx_vars = structlog.contextvars.get_contextvars()

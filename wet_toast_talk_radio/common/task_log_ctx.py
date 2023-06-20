@@ -7,6 +7,10 @@ from structlog.contextvars import (
 
 
 def task_log_ctx(task_name: str):
+    """task_log_ctx is a class decorator that binds a task name to the logger contextvars.
+    This makes every log message from the task include the task name as {task=<taskName>}
+    """
+
     def decorator_task_ctx(func):
         @functools.wraps(func)
         def wrapper_repeat(*args, **kwargs):
