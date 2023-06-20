@@ -62,7 +62,8 @@ class AudioGenerator:
             audio_array = generate_audio(sentence, history_prompt=SPEAKER)
             pieces += [audio_array, silence.copy()]
 
-        audio_array = np.concatenate(pieces)
+        # np.int32 is needed in order for the wav file to end up begin 32bit width
+        audio_array = np.concatenate(pieces).astype(np.int32)
 
         end = time.perf_counter()
         logger.info("Finished audio generation")
