@@ -8,7 +8,7 @@ from tests.conftests import (
     _clear_bucket,  # noqa: F401
     _clear_sqs,  # noqa: F401
     media_store,  # noqa: F401
-    message_queue,  # noqa: F401
+    stream_message_queue,  # noqa: F401
 )
 from wet_toast_talk_radio.disc_jockey.shout_client import _prepare
 from wet_toast_talk_radio.media_store.common.date import get_current_iso_utc_date
@@ -18,7 +18,7 @@ from wet_toast_talk_radio.media_store.media_store import ShowId
 class TestStream:
     @pytest.mark.integration()
     def test_prepare(
-        self, _clear_bucket, _clear_sqs, media_store, message_queue  # noqa: PT019, F811
+        self, _clear_bucket, _clear_sqs, media_store, stream_message_queue  # noqa: PT019, F811
     ):
         today = get_current_iso_utc_date()
 
@@ -31,12 +31,12 @@ class TestStream:
 
         prepare_process = multiprocessing.Process(
             target=_prepare,
-            args=(message_queue, media_store, stream_queue, timedelta(microseconds=1)),
+            args=(stream_message_queue, media_store, stream_queue, timedelta(microseconds=1)),
         )
         prepare_process.start()
         assert stream_queue.empty()
 
-        message_queue.add_stream_shows([show0, show1])
+        stream_message_queue.add_stream_shows([show0, show1])
         time.sleep(2)
 
         assert stream_queue.full()

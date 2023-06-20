@@ -89,7 +89,7 @@ def media_store() -> MediaStore:
 
 
 @pytest.fixture()
-def message_queue() -> StreamMQ:
+def stream_message_queue() -> StreamMQ:
     return new_stream_message_queue(
         StreamMQConfig(sqs=SQSConfig(local=True, receive_message_blocking_time=0.1))
     )
