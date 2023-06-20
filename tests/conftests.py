@@ -15,7 +15,9 @@ from wet_toast_talk_radio.media_store.new_media_store import new_media_store
 from wet_toast_talk_radio.media_store.s3.config import S3Config
 from wet_toast_talk_radio.message_queue.config import StreamMQConfig
 from wet_toast_talk_radio.message_queue.message_queue import StreamMQ
-from wet_toast_talk_radio.message_queue.new_message_queue import new_stream_message_queue
+from wet_toast_talk_radio.message_queue.new_message_queue import (
+    new_stream_message_queue,
+)
 from wet_toast_talk_radio.message_queue.sqs.config import SQSConfig
 
 _BUCKET_NAME = "media-store"
