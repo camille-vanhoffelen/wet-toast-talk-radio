@@ -7,6 +7,9 @@ import structlog
 import yaml
 
 from wet_toast_talk_radio.command.config import RootConfig
+from wet_toast_talk_radio.emergency_alert_system.emergency_alert_system import (
+    EmergencyAlertSystem,
+)
 
 logger = structlog.get_logger()
 
@@ -36,5 +39,10 @@ def root_cmd(ctx: dict, verbose: bool, config: Optional[str]):  # noqa: FBT001
         with config_path.open("r", encoding="utf8") as file:
             cfg_obj = yaml.safe_load(file)
             root_cfg = RootConfig.parse_obj(cfg_obj)
+
+    if root_cfg.emergency_alert_system is not None:
+        EmergencyAlertSystem.web_hook_url = (
+            root_cfg.emergency_alert_system.web_hook_url.value()
+        )
 
     ctx.obj["root_cfg"] = root_cfg

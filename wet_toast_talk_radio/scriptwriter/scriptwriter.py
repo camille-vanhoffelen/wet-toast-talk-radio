@@ -3,6 +3,7 @@ import uuid
 import structlog
 from langchain.chat_models import ChatOpenAI
 
+from wet_toast_talk_radio.common.task_log_ctx import task_log_ctx
 from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.scriptwriter.config import ScriptwriterConfig
 from wet_toast_talk_radio.scriptwriter.the_great_debate import TheGreatDebateChain
@@ -10,6 +11,7 @@ from wet_toast_talk_radio.scriptwriter.the_great_debate import TheGreatDebateCha
 logger = structlog.get_logger()
 
 
+@task_log_ctx("script_writer")
 class Scriptwriter:
     """Generate radio scripts for WTTR shows"""
 

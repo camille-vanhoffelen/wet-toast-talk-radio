@@ -16,10 +16,12 @@ from wet_toast_talk_radio.audio_generator.model_cache import (
     cache_is_present,
     download_model_cache,
 )
+from wet_toast_talk_radio.common.task_log_ctx import task_log_ctx
 
 logger = structlog.get_logger()
 
 
+@task_log_ctx("audio_generator")
 class AudioGenerator:
     """Generate audio from text"""
 

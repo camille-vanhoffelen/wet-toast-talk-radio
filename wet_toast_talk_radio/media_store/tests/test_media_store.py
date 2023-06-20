@@ -43,7 +43,7 @@ pytestmark = pytest.mark.parametrize(
     ],
 )
 
-_BUCKET_NAME = "wet-toast-talk-radio"
+_BUCKET_NAME = "media-store"
 
 
 @pytest.fixture(autouse=True)

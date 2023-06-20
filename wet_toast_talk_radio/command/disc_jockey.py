@@ -6,6 +6,7 @@ from wet_toast_talk_radio.command.root import root_cmd
 from wet_toast_talk_radio.disc_jockey import DiscJockey
 from wet_toast_talk_radio.media_store import new_media_store
 from wet_toast_talk_radio.message_queue.new_message_queue import new_message_queue
+from wet_toast_talk_radio.radio_operator.radio_operator import RadioOperator
 
 logger = structlog.get_logger()
 
@@ -41,9 +42,15 @@ def transcode(ctx: dict):
     root_cfg = ctx.obj["root_cfg"]
     dj_cfg = root_cfg.disc_jockey
     ms_cfg = root_cfg.media_store
+    ro_cfg = root_cfg.radio_operator
 
     media_store = new_media_store(ms_cfg)
-    dj = DiscJockey(dj_cfg, media_store)
+    radio_operator = RadioOperator(ro_cfg)
+    dj = DiscJockey(
+        dj_cfg,
+        radio_operator,
+        media_store,
+    )
     dj.transcode_latest_media()
 
 
@@ -56,8 +63,10 @@ def create_playlist(ctx: dict):
     dj_cfg = root_cfg.disc_jockey
     ms_cfg = root_cfg.media_store
     mq_cfg = root_cfg.message_queue
+    ro_cfg = root_cfg.radio_operator
 
     media_store = new_media_store(ms_cfg)
     message_queue = new_message_queue(mq_cfg)
-    dj = DiscJockey(dj_cfg, media_store, message_queue)
+    radio_operator = RadioOperator(ro_cfg)
+    dj = DiscJockey(dj_cfg, radio_operator, media_store, message_queue)
     dj.create_playlist()

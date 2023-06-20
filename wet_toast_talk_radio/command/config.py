@@ -1,9 +1,15 @@
+from typing import Optional
+
 from pydantic import BaseSettings
 
 from wet_toast_talk_radio.audio_generator.config import AudioGeneratorConfig
 from wet_toast_talk_radio.disc_jockey.config import DiscJockeyConfig
+from wet_toast_talk_radio.emergency_alert_system.config import (
+    EmergencyAlertSystemConfig,
+)
 from wet_toast_talk_radio.media_store.config import MediaStoreConfig
 from wet_toast_talk_radio.message_queue.config import MessageQueueConfig
+from wet_toast_talk_radio.radio_operator.config import RadioOperatorConfig
 from wet_toast_talk_radio.scriptwriter.config import ScriptwriterConfig
 
 
@@ -18,11 +24,13 @@ class RootConfig(BaseSettings):
       wet_toast_talk_radio/<my_secret>
     """
 
-    disc_jockey: DiscJockeyConfig | None = None
-    audio_generator: AudioGeneratorConfig | None = None
-    scriptwriter: ScriptwriterConfig | None = None
-    media_store: MediaStoreConfig | None = None
-    message_queue: MessageQueueConfig | None = None
+    disc_jockey: Optional[DiscJockeyConfig] = None
+    audio_generator: Optional[AudioGeneratorConfig] = None
+    scriptwriter: Optional[ScriptwriterConfig] = None
+    media_store: Optional[MediaStoreConfig] = None
+    message_queue: Optional[MessageQueueConfig] = None
+    radio_operator: Optional[RadioOperatorConfig] = None
+    emergency_alert_system: Optional[EmergencyAlertSystemConfig] = None
 
     class Config:
         env_prefix = "WT_"

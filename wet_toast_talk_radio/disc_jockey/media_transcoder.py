@@ -6,9 +6,11 @@ import structlog
 from pydantic import BaseModel
 from pydub import AudioSegment
 
+from wet_toast_talk_radio.common.task_log_ctx import task_log_ctx
 from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.common.date import get_current_utc_date
 from wet_toast_talk_radio.media_store.media_store import ShowId, ShowUploadInput
+from wet_toast_talk_radio.radio_operator.radio_operator import RadioOperator
 
 logger = structlog.get_logger()
 
@@ -21,6 +23,7 @@ class MediaTranscoderConfig(BaseModel):
     batch_size: int = 4
 
 
+@task_log_ctx("media_transcoder")
 class MediaTranscoder:
     """MediaTranscoder converts .wav files from a folder to .ogg files and uploads them to the media store"""
 
@@ -28,6 +31,7 @@ class MediaTranscoder:
         self,
         cfg: MediaTranscoderConfig | None,
         media_store: MediaStore,
+        radio_operator: RadioOperator,
         tmp_dir=Path("tmp/"),
     ) -> None:
         if cfg is None:
@@ -35,6 +39,7 @@ class MediaTranscoder:
 
         self._cfg = cfg
         self._media_store = media_store
+        self._radio_operator = radio_operator
         self._tmp_dir = tmp_dir
         self._raw_shows_dir = self._tmp_dir / "raw"
         self._transcoded_shows_dir = self._tmp_dir / "transcoded"
