@@ -21,6 +21,8 @@ from wet_toast_talk_radio.media_store import MediaStore
 
 logger = structlog.get_logger()
 
+SPEAKER = "v2/en_speaker_6"
+
 
 @task_log_ctx("audio_generator")
 class AudioGenerator:
@@ -35,28 +37,49 @@ class AudioGenerator:
         validate_config(cfg)
         self._cfg = cfg
         self._media_store = media_store
-        # TODO do i still need tmp_dir?
+
         self._tmp_dir = tmp_dir
+        self._script_shows_dir = self._tmp_dir / "script"
         self._raw_shows_dir = self._tmp_dir / "raw"
-        if not self._raw_shows_dir.exists():
-            self._raw_shows_dir.mkdir(parents=True)
+        self._script_shows_dir.mkdir(parents=True, exist_ok=True)
+        self._raw_shows_dir.mkdir(parents=True, exist_ok=True)
+
         self._init_models()
 
-    def run(self) -> None:
-        logger.warning("Not yet implemented")
-        pass
+    def run(
+        self,
+    ) -> None:
+        """Run audio_generator on all scripts found in media store"""
+        # TODO use_small_models in config instead of env var
+        logger.info("Starting audio generator...")
+        assert (
+            self._media_store is not None
+        ), "MediaStore must be provided to run AudioGenerator"
+        script_show_ids = self._media_store.list_script_shows()
+        logger.info(
+            f"Generating audio for {len(script_show_ids)} shows",
+            count=len(script_show_ids),
+            shows=script_show_ids,
+        )
+        for show_id in script_show_ids:
+            self._media_store.download_script_show(show_id=show_id, dir_output=self._script_shows_dir)
+            path = self._generate_audio()
+            self._media_store.put_raw_show(show_id=show_id, data=data)
+        logger.info("Audio generator finished!")
 
     def benchmark(self, text: str) -> None:
-        """Run audio_generator"""
+        """Benchmark audio_generator speed"""
         # download and load all models
-        preload_models()
 
+
+
+
+
+    def _generate_audio(self, text: str) -> Path:
         logger.info("Tokenizing text into sentences")
-        # Need to download punkt tokenizer prior w/ nltk.download()
         sentences = nltk.sent_tokenize(text)
+        logger.info(f"Tokenized {len(sentences)} sentences", count=len(sentences))
 
-        # save audio to disk
-        SPEAKER = "v2/en_speaker_6"
         silence = np.zeros(int(0.25 * SAMPLE_RATE))  # quarter second of silence
 
         logger.info("Starting audio generation")
@@ -71,10 +94,18 @@ class AudioGenerator:
             pieces += [audio_array, silence.copy()]
 
         audio_array = np.concatenate(pieces)
+        # np.int32 is needed in order for the wav file to end up begin 32bit width
+        # https://docs.scipy.org/doc/scipy/reference/generated/scipy.io.wavfile.write.html#scipy-io-wavfile-write
+        audio_array = self._to_pcm(audio_array)
+        uuid_str = str(uuid.uuid4())[:4]
+        path = self._raw_shows_dir / f"audio-generator-{uuid_str}.wav"
+        write_wav(
+            filename=path,
+            rate=SAMPLE_RATE,
+            data=audio_array,
+            )
 
         end = time.perf_counter()
-        logger.info("Finished audio generation")
-
         run_time_in_s = end - start
         duration_in_s = len(audio_array) / SAMPLE_RATE
         speed_ratio = run_time_in_s / duration_in_s
@@ -85,16 +116,6 @@ class AudioGenerator:
             speed_ratio=round(speed_ratio, 3),
         )
 
-        # np.int32 is needed in order for the wav file to end up begin 32bit width
-        # https://docs.scipy.org/doc/scipy/reference/generated/scipy.io.wavfile.write.html#scipy-io-wavfile-write
-        audio_array = self._to_pcm(audio_array)
-
-        uuid_str = str(uuid.uuid4())[:4]
-        write_wav(
-            self._raw_shows_dir / f"bark_generation_{uuid_str}.wav",
-            SAMPLE_RATE,
-            audio_array,
-        )
 
     def _to_pcm(self, sig, dtype="int32") -> np.ndarray:
         """Convert floating point signal with a range from -1 to 1 to PCM.
@@ -129,3 +150,4 @@ class AudioGenerator:
             else:
                 logger.info("Found local HF hub model cache")
             assert cache_is_present(), "Cache must be complete"
+        preload_models()
