@@ -27,7 +27,7 @@ def stream(ctx: dict):
     root_cfg = ctx.obj["root_cfg"]
     dj_cfg = root_cfg.disc_jockey
     ms_cfg = root_cfg.media_store
-    mq_cfg = root_cfg.message_queue
+    mq_cfg = root_cfg.stream_message_queue
 
     media_store = new_media_store(ms_cfg)
     message_queue = new_stream_message_queue(mq_cfg)

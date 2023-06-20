@@ -18,7 +18,7 @@ Generating content for Wet Toast Talk Radio
 You will likely want to create a config.yml with these contents:
 
 ```yaml
-message_queue:
+stream_message_queue:
   # virtual: true
   sqs:
     local: true
