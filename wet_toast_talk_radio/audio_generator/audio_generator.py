@@ -63,6 +63,7 @@ class AudioGenerator:
             pieces += [audio_array, silence.copy()]
 
         # np.int32 is needed in order for the wav file to end up begin 32bit width
+        # https://docs.scipy.org/doc/scipy/reference/generated/scipy.io.wavfile.write.html#scipy-io-wavfile-write
         audio_array = np.concatenate(pieces).astype(np.int32)
 
         end = time.perf_counter()
