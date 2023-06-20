@@ -18,7 +18,11 @@ from wet_toast_talk_radio.media_store.media_store import ShowId
 class TestStream:
     @pytest.mark.integration()
     def test_prepare(
-        self, _clear_bucket, _clear_sqs, media_store, stream_message_queue  # noqa: PT019, F811
+        self,
+        _clear_bucket,
+        _clear_sqs,
+        media_store,
+        stream_message_queue,  # noqa: F811
     ):
         today = get_current_iso_utc_date()
 
@@ -31,7 +35,12 @@ class TestStream:
 
         prepare_process = multiprocessing.Process(
             target=_prepare,
-            args=(stream_message_queue, media_store, stream_queue, timedelta(microseconds=1)),
+            args=(
+                stream_message_queue,
+                media_store,
+                stream_queue,
+                timedelta(microseconds=1),
+            ),
         )
         prepare_process.start()
         assert stream_queue.empty()
