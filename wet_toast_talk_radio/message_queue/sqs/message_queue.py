@@ -6,7 +6,12 @@ from datetime import datetime, timedelta
 
 from wet_toast_talk_radio.common.aws_clients import new_sqs_client
 from wet_toast_talk_radio.media_store.media_store import ShowId
-from wet_toast_talk_radio.message_queue.message_queue import (ScriptMQ, ScriptMessage, StreamMQ, StreamShowMessage)
+from wet_toast_talk_radio.message_queue.message_queue import (
+    ScriptMessage,
+    ScriptMQ,
+    StreamMQ,
+    StreamShowMessage,
+)
 from wet_toast_talk_radio.message_queue.sqs.config import (
     SQSConfig,
     validate_config,
@@ -79,40 +84,13 @@ class SQSStreamMQ(StreamMQ):
 
 class SQSScriptMQ(ScriptMQ):
     def __init__(self, cfg: SQSConfig):
-        validate_config(cfg)
-        self._cfg = cfg
-        resp = new_sqs_client(self._cfg.local).get_queue_url(
-            QueueName=cfg.message_queue_name
-        )
-        self._stream_queue_url = resp["QueueUrl"]
+        pass
 
     def get_next_script(self) -> ScriptMessage:
-        while True:
-            response = new_sqs_client(self._cfg.local).receive_message(
-                QueueUrl=self._stream_queue_url,
-                MaxNumberOfMessages=1,
-            )
-            if "Messages" in response and len(response["Messages"]) > 0:
-                msg = response["Messages"][0]
-                show_id_dict = json.loads(msg["Body"])
-                return ScriptMessage(
-                    show_id=ShowId(**show_id_dict),
-                    receipt_handle=msg["ReceiptHandle"],
-                )
-
-            time.sleep(self._cfg.receive_message_blocking_time)
+        raise NotImplementedError
 
     def delete_script(self, receipt_handle: str):
-        new_sqs_client(self._cfg.local).delete_message(
-            QueueUrl=self._stream_queue_url, ReceiptHandle=receipt_handle
-        )
+        raise NotImplementedError
 
     def add_scripts(self, shows: list[ShowId]):
-        for show in shows:
-            show_id_json = json.dumps(dataclasses.asdict(show))
-            new_sqs_client(self._cfg.local).send_message(
-                QueueUrl=self._stream_queue_url,
-                MessageBody=show_id_json,
-                MessageGroupId="stream_shows",
-                MessageDeduplicationId=show.store_key() + "/" + str(uuid.uuid4()),
-            )
+        raise NotImplementedError

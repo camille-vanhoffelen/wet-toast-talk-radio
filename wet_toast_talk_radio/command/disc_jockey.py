@@ -5,7 +5,9 @@ from wet_toast_talk_radio.command.print_banner import print_banner
 from wet_toast_talk_radio.command.root import root_cmd
 from wet_toast_talk_radio.disc_jockey import DiscJockey
 from wet_toast_talk_radio.media_store import new_media_store
-from wet_toast_talk_radio.message_queue.new_message_queue import new_stream_message_queue
+from wet_toast_talk_radio.message_queue.new_message_queue import (
+    new_stream_message_queue,
+)
 
 logger = structlog.get_logger()
 

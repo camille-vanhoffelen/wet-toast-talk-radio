@@ -4,7 +4,9 @@ from wet_toast_talk_radio.media_store.config import MediaStoreConfig
 from wet_toast_talk_radio.media_store.media_store import _FALLBACK_KEY, ShowId
 from wet_toast_talk_radio.media_store.new_media_store import new_media_store
 from wet_toast_talk_radio.message_queue.config import StreamMQConfig
-from wet_toast_talk_radio.message_queue.new_message_queue import new_stream_message_queue
+from wet_toast_talk_radio.message_queue.new_message_queue import (
+    new_stream_message_queue,
+)
 
 
 class TestPlaylist:
