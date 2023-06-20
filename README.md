@@ -22,6 +22,8 @@ stream_message_queue:
   # virtual: true
   sqs:
     local: true
+    message_queue_name: "stream-shows.fifo"
+    receive_message_blocking_time: 10
 media_store:
   # virtual: true
   s3:
