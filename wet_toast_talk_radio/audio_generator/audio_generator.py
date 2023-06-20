@@ -17,6 +17,7 @@ from wet_toast_talk_radio.audio_generator.model_cache import (
     download_model_cache,
 )
 from wet_toast_talk_radio.common.task_log_ctx import task_log_ctx
+from wet_toast_talk_radio.media_store import MediaStore
 
 logger = structlog.get_logger()
 
@@ -25,14 +26,21 @@ logger = structlog.get_logger()
 class AudioGenerator:
     """Generate audio from text"""
 
-    def __init__(self, cfg: AudioGeneratorConfig, tmp_dir: Path = Path("tmp/")) -> None:
+    def __init__(
+        self,
+        cfg: AudioGeneratorConfig,
+        media_store: MediaStore | None = None,
+        tmp_dir: Path = Path("tmp/"),
+    ) -> None:
         validate_config(cfg)
         self._cfg = cfg
-        self._init_models()
+        self._media_store = media_store
+        # TODO do i still need tmp_dir?
         self._tmp_dir = tmp_dir
         self._raw_shows_dir = self._tmp_dir / "raw"
         if not self._raw_shows_dir.exists():
             self._raw_shows_dir.mkdir(parents=True)
+        self._init_models()
 
     def run(self) -> None:
         logger.warning("Not yet implemented")

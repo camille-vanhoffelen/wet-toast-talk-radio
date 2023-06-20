@@ -12,5 +12,7 @@ class TestAudioGenerator:
 
         cfg = AudioGeneratorConfig(use_s3_model_cache=False)
 
-        audio_generator = AudioGenerator(cfg)
+        audio_generator = AudioGenerator(cfg=cfg, media_store=media_store)
         audio_generator.run()
+        
+        assert len(media_store.list_raw_shows()) == len(scripts)

@@ -45,24 +45,34 @@ def setup_bucket(_clear_bucket) -> dict[str, list[ShowId]]:
         Path(__file__).parent.parent / "wet_toast_talk_radio" / "media_store" / "data"
     )
     today = get_current_iso_utc_date()
-    ret = {"raw": [], "fallback": []}
+    ret = {"raw": [], "fallback": [], "script": []}
+
     raw_i = 0
     fallback_i = 0
+    script_i = 0
+
     for file in data_dir.iterdir():
-        if file.is_file() and file.name.endswith(".wav"):
-            show = ShowId(raw_i, today)
+        if file.is_file() and file.suffix == ".wav":
+            show = ShowId(show_i=raw_i, date=today)
             with file.open("rb") as f:
                 data = f.read()
                 media_store.put_raw_show(show, data)
             ret["raw"].append(show)
             raw_i += 1
-        if file.is_file() and file.name.endswith(".ogg"):
-            show = ShowId(fallback_i, _FALLBACK_KEY)
+        if file.is_file() and file.suffix == ".ogg":
+            show = ShowId(show_i=fallback_i, date=_FALLBACK_KEY)
             with file.open("rb") as f:
                 data = f.read()
                 media_store.put_transcoded_show(show, data)
             ret["fallback"].append(show)
             fallback_i += 1
+        if file.is_file() and file.suffix == "txt":
+            show = ShowId(show_i=script_i, date=today)
+            text = file.read_text()
+            media_store.put_script_show(show_id=show, content=text)
+            ret["script"].append(show)
+            script_i += 1
+
     return ret
 
 
