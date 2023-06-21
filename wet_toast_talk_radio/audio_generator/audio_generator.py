@@ -77,12 +77,36 @@ class AudioGenerator:
             speed_ratio=round(speed_ratio, 3),
         )
 
+        # np.int32 is needed in order for the wav file to end up begin 32bit width
+        # https://docs.scipy.org/doc/scipy/reference/generated/scipy.io.wavfile.write.html#scipy-io-wavfile-write
+        audio_array = self._to_pcm(audio_array)
+
         uuid_str = str(uuid.uuid4())[:4]
         write_wav(
             self._raw_shows_dir / f"bark_generation_{uuid_str}.wav",
             SAMPLE_RATE,
             audio_array,
         )
+
+    def _to_pcm(self, sig, dtype="int32") -> np.ndarray:
+        """Convert floating point signal with a range from -1 to 1 to PCM.
+        Any signal values outside the interval [-1.0, 1.0) are clipped.
+        No dithering is used.
+        Note that there are different possibilities for scaling floating
+        point numbers to PCM numbers, this function implements just one of
+        them.  For an overview of alternatives see
+        http://blog.bjornroche.com/2009/12/int-float-int-its-jungle-out-there.html
+        """
+
+        if sig.dtype.kind != "f":
+            raise TypeError("'sig' must be a float array")
+        if dtype.kind not in "iu":
+            raise TypeError("'dtype' must be an integer type")
+
+        i = np.iinfo(dtype)
+        abs_max = 2 ** (i.bits - 1)
+        offset = i.min + abs_max
+        return (sig * abs_max + offset).clip(i.min, i.max).astype(dtype)
 
     def _init_models(self):
         """Download NLTK model from internet,
