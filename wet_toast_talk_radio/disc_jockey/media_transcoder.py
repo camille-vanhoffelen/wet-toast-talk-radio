@@ -111,7 +111,7 @@ class MediaTranscoder:
 
         def transcode_show(show_path: Path, out: Path):
             try:
-                song = AudioSegment.from_mp3(show_path)
+                song = AudioSegment.from_wav(show_path)
                 song.export(out, format="ogg")
             except Exception as e:
                 logger.error("could not transcode show", error=e)
