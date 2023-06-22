@@ -36,7 +36,7 @@ class VirtualMessageQueue(MessageQueue):
         except Empty:
             return
 
-    def get_next_script_show(self) -> ScriptShowMessage:
+    def poll_script_show(self) -> ScriptShowMessage:
         show_id = self._queues["script"].get(block=True)
         return ScriptShowMessage(show_id, receipt_handle="foo")
 

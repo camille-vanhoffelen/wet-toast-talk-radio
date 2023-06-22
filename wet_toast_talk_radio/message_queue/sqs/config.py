@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, StrictInt
 
 
 class SQSConfig(BaseModel):
@@ -7,7 +7,7 @@ class SQSConfig(BaseModel):
 
     stream_queue_name: str = "stream-shows.fifo"
     script_queue_name: str = "script-shows.fifo"
-    receive_message_blocking_time: int = 10
+    receive_message_wait_time_in_s: StrictInt = 10
 
 
 def validate_config(cfg: SQSConfig):

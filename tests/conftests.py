@@ -114,7 +114,7 @@ def media_store() -> MediaStore:
 @pytest.fixture()
 def message_queue() -> MessageQueue:
     return new_message_queue(
-        MessageQueueConfig(sqs=SQSConfig(local=True, receive_message_blocking_time=0.1))
+        MessageQueueConfig(sqs=SQSConfig(local=True, receive_message_wait_time_in_s=1))
     )
 
 

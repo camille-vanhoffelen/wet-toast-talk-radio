@@ -44,9 +44,9 @@ class MessageQueue(ABC):
 
     # Script shows #
     @abstractmethod
-    def get_next_script_show(self) -> ScriptShowMessage:
-        """Get the next script show from the queue, this method should block until a message is available.
-        You should call delete_script_show processing the message"""
+    def poll_script_show(self) -> ScriptShowMessage:
+        """Polls script show queue. This method is blocking.
+        You should call delete_script_show after processing the message"""
 
     @abstractmethod
     def delete_script_show(self, _receipt_handle: str):

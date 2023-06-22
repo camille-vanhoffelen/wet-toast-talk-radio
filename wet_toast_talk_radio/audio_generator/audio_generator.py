@@ -58,7 +58,8 @@ class AudioGenerator:
         assert (
             self._media_store is not None
         ), "MediaStore must be provided to run AudioGenerator"
-        while script_show_message := self._message_queue.get_next_script_show():
+        # TODO careful this is blocking... maybe use a thread?
+        while script_show_message := self._message_queue.poll_script_show():
             show_id = script_show_message.show_id
             receipt_handle = script_show_message.receipt_handle
             logger.info("Generating audio for script show", show_id=show_id)
@@ -74,6 +75,8 @@ class AudioGenerator:
             logger.info(
                 "Show deleted from message_queue", show_id=show_id
             )
+        # TODO need to check several times if no more messages
+        # https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/confirm-queue-is-empty.html
         logger.info("Script shows queue empty, Audio Generator exiting")
 
     # TODO pass on text in benchmark command

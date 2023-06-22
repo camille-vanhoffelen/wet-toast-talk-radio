@@ -18,7 +18,7 @@ class TestAudioGenerator:
         self, _clear_bucket, _clear_sqs, media_store, message_queue  # noqa: PT019, F811
     ):
         shows = _init_bucket(media_store)
-        message_queue.add_stream_shows(shows)
+        message_queue.add_script_shows(shows)
 
         cfg = AudioGeneratorConfig(use_s3_model_cache=False, use_small_models=True)
         audio_generator = AudioGenerator(
@@ -38,7 +38,6 @@ class TestAudioGenerator:
         audio_generator = AudioGenerator(
             cfg=cfg, media_store=media_store, message_queue=message_queue
         )
-        # TODO should exit
         audio_generator.run()
 
         assert not media_store.list_raw_shows()

@@ -31,12 +31,13 @@ class SQSMessageQueue(MessageQueue):
         self._script_queue_url = script_resp["QueueUrl"]
 
     def get_next_stream_show(self) -> StreamShowMessage:
+        # TODO implement long polling
         while True:
             response = new_sqs_client(self._cfg.local).receive_message(
                 QueueUrl=self._stream_queue_url,
                 MaxNumberOfMessages=1,
             )
-            if "Messages" in response and len(response["Messages"]) > 0:
+            if _has_message(response):
                 msg = response["Messages"][0]
                 show_id_dict = json.loads(msg["Body"])
                 return StreamShowMessage(
@@ -44,7 +45,7 @@ class SQSMessageQueue(MessageQueue):
                     receipt_handle=msg["ReceiptHandle"],
                 )
 
-            time.sleep(self._cfg.receive_message_blocking_time)
+            time.sleep(self._cfg.receive_message_wait_time_in_s)
 
     def delete_stream_show(self, receipt_handle: str):
         new_sqs_client(self._cfg.local).delete_message(
@@ -84,11 +85,48 @@ class SQSMessageQueue(MessageQueue):
                 f"Unable to purge queue in time, total_time={total_time}, wait={wait}"
             )
 
-    def get_next_script_show(self) -> ScriptShowMessage:
-        raise NotImplementedError
+    def poll_script_show(self) -> ScriptShowMessage | None:
+        # TODO set visibility timeout to a high value (1 hour? max possible audio generation time)
+        # TODO or implement hearbeat
+        # https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-visibility-timeout.html
+        # https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/working-with-messages.html
+        # TODO Enable content-based deduplication for the queue (each of your messages has a unique body)
+        # TODO check retry behaviour
+        # https://boto3.amazonaws.com/v1/documentation/api/latest/guide/retries.html
+        response = new_sqs_client(self._cfg.local).receive_message(
+            QueueUrl=self._script_queue_url,
+            MaxNumberOfMessages=1,
+            WaitTimeSeconds=self._cfg.receive_message_wait_time_in_s,
+        )
+        if _has_message(response):
+            return _response_to_script_show_message(response)
+        else:
+            return None
 
     def delete_script_show(self, receipt_handle: str):
-        raise NotImplementedError
+        new_sqs_client(self._cfg.local).delete_message(
+            QueueUrl=self._script_queue_url, ReceiptHandle=receipt_handle
+        )
 
     def add_script_shows(self, shows: list[ShowId]):
-        raise NotImplementedError
+        for show in shows:
+            show_id_json = json.dumps(dataclasses.asdict(show))
+            new_sqs_client(self._cfg.local).send_message(
+                QueueUrl=self._script_queue_url,
+                MessageBody=show_id_json,
+                MessageGroupId="script_shows",
+                MessageDeduplicationId=show.store_key() + "/" + str(uuid.uuid4()),
+            )
+
+
+def _has_message(response: dict) -> bool:
+    return "Messages" in response and len(response["Messages"]) > 0
+
+
+def _response_to_script_show_message(response: dict) -> ScriptShowMessage:
+    msg = response["Messages"][0]
+    show_id_dict = json.loads(msg["Body"])
+    return ScriptShowMessage(
+        show_id=ShowId(**show_id_dict),
+        receipt_handle=msg["ReceiptHandle"],
+    )
