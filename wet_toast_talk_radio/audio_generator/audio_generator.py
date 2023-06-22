@@ -2,6 +2,7 @@ import time
 import uuid
 from io import BytesIO
 from pathlib import Path
+from typing import Callable
 
 import nltk
 import numpy as np
@@ -58,10 +59,8 @@ class AudioGenerator:
         assert (
             self._media_store is not None
         ), "MediaStore must be provided to run AudioGenerator"
-        # TODO careful this is blocking... maybe use a thread?
         while script_show_message := self._message_queue.poll_script_show():
             show_id = script_show_message.show_id
-            receipt_handle = script_show_message.receipt_handle
             logger.info("Generating audio for script show", show_id=show_id)
             self._media_store.download_script_show(
                 show_id=show_id, dir_output=self._script_shows_dir
@@ -69,14 +68,16 @@ class AudioGenerator:
             text = (
                 self._script_shows_dir / show_id.store_key() / "show.txt"
             ).read_text()
-            data = self._generate_audio(text)
+
+            def heartbeat():
+                # TODO configure heartbeat interval
+                self._message_queue.change_message_visibility_timeout(
+                    receipt_handle=script_show_message.receipt_handle, timeout_in_s=30
+                )
+            data = self._generate_audio(text, sentence_callbacks=[heartbeat])
             self._media_store.put_raw_show(show_id=show_id, data=data)
-            self._message_queue.delete_script_show(receipt_handle)
-            logger.info(
-                "Show deleted from message_queue", show_id=show_id
-            )
-        # TODO need to check several times if no more messages
-        # https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/confirm-queue-is-empty.html
+            self._message_queue.delete_script_show(script_show_message.receipt_handle)
+            logger.info("Show deleted from message_queue", show_id=show_id)
         logger.info("Script shows queue empty, Audio Generator exiting")
 
     # TODO pass on text in benchmark command
@@ -91,7 +92,9 @@ class AudioGenerator:
             f.write(data)
         logger.info("Audio generator benchmark finished!")
 
-    def _generate_audio(self, text: str) -> bytes:
+    def _generate_audio(
+        self, text: str, sentence_callbacks: list[Callable] | None
+    ) -> bytes:
         logger.info("Tokenizing text into sentences")
         sentences = nltk.sent_tokenize(text)
         logger.info(f"Tokenized {len(sentences)} sentences", count=len(sentences))
@@ -108,6 +111,8 @@ class AudioGenerator:
             logger.info("Generating audio for sentence", sentence=sentence)
             audio_array = generate_audio(sentence, history_prompt=SPEAKER)
             pieces += [audio_array, silence.copy()]
+            if sentence_callbacks:
+                [c() for c in sentence_callbacks]
 
         logger.info("Concatenating audio pieces")
         audio_array = np.concatenate(pieces)

@@ -48,6 +48,6 @@ class VirtualMessageQueue(MessageQueue):
         for show in shows:
             self._queues["script"].put(show)
 
-    def change_message_visibility_timeout(self, receipt_handle: str, timeout: int):
+    def change_message_visibility_timeout(self, receipt_handle: str, timeout_in_s: int):
         # not needed for virtual message queue
         pass

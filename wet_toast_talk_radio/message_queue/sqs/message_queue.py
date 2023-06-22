@@ -118,11 +118,11 @@ class SQSMessageQueue(MessageQueue):
                 MessageDeduplicationId=show.store_key() + "/" + str(uuid.uuid4()),
             )
 
-    def change_message_visibility_timeout(self, receipt_handle: str, timeout: int):
+    def change_message_visibility_timeout(self, receipt_handle: str, timeout_in_s: int):
         new_sqs_client(self._cfg.local).change_message_visibility(
             QueueUrl=self._script_queue_url,
             ReceiptHandle=receipt_handle,
-            VisibilityTimeout=timeout,
+            VisibilityTimeout=timeout_in_s,
         )
 
 

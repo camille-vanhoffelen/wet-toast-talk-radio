@@ -58,7 +58,7 @@ class MessageQueue(ABC):
         """Add script shows to the queue"""
 
     @abstractmethod
-    def change_message_visibility_timeout(self, receipt_handle: str, timeout: int):
+    def change_message_visibility_timeout(self, receipt_handle: str, timeout_in_s: int):
         """Change the visibility timeout of a message
         Allows to implement a heartbeat to keep the message from being reprocessed, see:
         https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-visibility-timeout.html"""
