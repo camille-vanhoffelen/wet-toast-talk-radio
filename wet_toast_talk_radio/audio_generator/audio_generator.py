@@ -1,5 +1,6 @@
 import time
 import uuid
+from io import BytesIO
 from pathlib import Path
 
 import nltk
@@ -62,20 +63,29 @@ class AudioGenerator:
             shows=script_show_ids,
         )
         for show_id in script_show_ids:
-            self._media_store.download_script_show(show_id=show_id, dir_output=self._script_shows_dir)
-            path = self._generate_audio()
+            self._media_store.download_script_show(
+                show_id=show_id, dir_output=self._script_shows_dir
+            )
+            text = (
+                self._script_shows_dir / show_id.store_key() / "show.txt"
+            ).read_text()
+            data = self._generate_audio(text)
             self._media_store.put_raw_show(show_id=show_id, data=data)
         logger.info("Audio generator finished!")
 
+    # TODO pass on text in benchmark command
     def benchmark(self, text: str) -> None:
         """Benchmark audio_generator speed"""
-        # download and load all models
+        logger.info("Starting audio generator benchmark...")
+        data = self._generate_audio(text)
+        uuid_str = str(uuid.uuid4())[:4]
+        path = self._raw_shows_dir / f"audio-generator-benchmark-{uuid_str}.wav"
+        logger.info("Writing audio to file", path=path)
+        with path.open("wb") as f:
+            f.write(data)
+        logger.info("Audio generator benchmark finished!")
 
-
-
-
-
-    def _generate_audio(self, text: str) -> Path:
+    def _generate_audio(self, text: str) -> bytes:
         logger.info("Tokenizing text into sentences")
         sentences = nltk.sent_tokenize(text)
         logger.info(f"Tokenized {len(sentences)} sentences", count=len(sentences))
@@ -94,16 +104,17 @@ class AudioGenerator:
             pieces += [audio_array, silence.copy()]
 
         audio_array = np.concatenate(pieces)
+
         # np.int32 is needed in order for the wav file to end up begin 32bit width
         # https://docs.scipy.org/doc/scipy/reference/generated/scipy.io.wavfile.write.html#scipy-io-wavfile-write
         audio_array = self._to_pcm(audio_array)
-        uuid_str = str(uuid.uuid4())[:4]
-        path = self._raw_shows_dir / f"audio-generator-{uuid_str}.wav"
+
+        buffer = BytesIO()
         write_wav(
-            filename=path,
+            filename=buffer,
             rate=SAMPLE_RATE,
             data=audio_array,
-            )
+        )
 
         end = time.perf_counter()
         run_time_in_s = end - start
@@ -116,6 +127,7 @@ class AudioGenerator:
             speed_ratio=round(speed_ratio, 3),
         )
 
+        return buffer.getvalue()
 
     def _to_pcm(self, sig, dtype="int32") -> np.ndarray:
         """Convert floating point signal with a range from -1 to 1 to PCM.
