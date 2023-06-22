@@ -81,7 +81,6 @@ class AudioGenerator:
             logger.info("Show deleted from message_queue", show_id=show_id)
         logger.info("Script shows queue empty, Audio Generator exiting")
 
-    # TODO pass on text in benchmark command
     def benchmark(self, text: str) -> None:
         """Benchmark audio_generator speed"""
         logger.info("Starting audio generator benchmark...")

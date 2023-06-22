@@ -90,13 +90,6 @@ class SQSMessageQueue(MessageQueue):
             )
 
     def poll_script_show(self) -> ScriptShowMessage | None:
-        # TODO set visibility timeout to a high value (1 hour? max possible audio generation time)
-        # TODO or implement hearbeat
-        # https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-visibility-timeout.html
-        # https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/working-with-messages.html
-        # TODO Enable content-based deduplication for the queue (each of your messages has a unique body)
-        # TODO check retry behaviour
-        # https://boto3.amazonaws.com/v1/documentation/api/latest/guide/retries.html
         response = new_sqs_client(self._cfg.local).receive_message(
             QueueUrl=self._script_queue_url,
             MaxNumberOfMessages=1,
