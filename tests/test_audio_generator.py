@@ -14,13 +14,16 @@ from wet_toast_talk_radio.media_store.media_store import ShowId
 
 class TestAudioGenerator:
     @pytest.mark.integration()
-    def test_transcode(self, media_store, setup_bucket: dict[str, list[ShowId]]):
+    def test_transcode(
+        self,
+        media_store,  # noqa: F811
+        setup_bucket: dict[str, list[ShowId]],  # noqa: F811
+    ):
         scripts = setup_bucket["script"]
-        initial_raw_shows = setup_bucket["raw"]
 
-        cfg = AudioGeneratorConfig(use_s3_model_cache=False)
-
+        cfg = AudioGeneratorConfig(use_s3_model_cache=False, use_small_models=True)
         audio_generator = AudioGenerator(cfg=cfg, media_store=media_store)
         audio_generator.run()
 
-        assert len(media_store.list_raw_shows()) - len(initial_raw_shows) == len(scripts)
+        for s in scripts:
+            assert s in media_store.list_raw_shows()

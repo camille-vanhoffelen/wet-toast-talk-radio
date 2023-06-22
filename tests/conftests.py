@@ -1,3 +1,4 @@
+import re
 import time
 from pathlib import Path
 
@@ -7,7 +8,11 @@ import structlog
 from wet_toast_talk_radio.common.aws_clients import new_s3_client, new_sqs_client
 from wet_toast_talk_radio.media_store.common.date import get_current_iso_utc_date
 from wet_toast_talk_radio.media_store.config import MediaStoreConfig
-from wet_toast_talk_radio.media_store.media_store import (MediaStore, ShowId, _FALLBACK_KEY)
+from wet_toast_talk_radio.media_store.media_store import (
+    _FALLBACK_KEY,
+    MediaStore,
+    ShowId,
+)
 from wet_toast_talk_radio.media_store.new_media_store import new_media_store
 from wet_toast_talk_radio.media_store.s3.config import S3Config
 from wet_toast_talk_radio.message_queue.config import MessageQueueConfig
@@ -43,39 +48,43 @@ def setup_bucket(_clear_bucket) -> dict[str, list[ShowId]]:
     data_dir = (
         Path(__file__).parent.parent / "wet_toast_talk_radio" / "media_store" / "data"
     )
+    logger.debug("Setting up test bucket based on data dir", data_dir=data_dir)
     today = get_current_iso_utc_date()
     ret = {"raw": [], "fallback": [], "script": []}
 
-    raw_i = 0
-    fallback_i = 0
-    script_i = 0
-
     for file in data_dir.iterdir():
         if file.is_file() and file.suffix == ".wav":
-            show = ShowId(show_i=raw_i, date=today)
+            show_i = _parse_show_id(file.name)
+            show = ShowId(show_i=show_i, date=today)
             with file.open("rb") as f:
                 data = f.read()
                 media_store.put_raw_show(show, data)
             ret["raw"].append(show)
-            logger.debug("Loaded raw show", show_id = show)
-            raw_i += 1
         if file.is_file() and file.suffix == ".ogg":
-            show = ShowId(show_i=fallback_i, date=_FALLBACK_KEY)
+            show_i = _parse_show_id(file.name)
+            show = ShowId(show_i=show_i, date=_FALLBACK_KEY)
             with file.open("rb") as f:
                 data = f.read()
                 media_store.put_transcoded_show(show, data)
             ret["fallback"].append(show)
-            logger.debug("Loaded transcoded show", show_id = show)
-            fallback_i += 1
         if file.is_file() and file.suffix == ".txt":
-            show = ShowId(show_i=script_i, date=today)
+            show_i = _parse_show_id(file.name)
+            show = ShowId(show_i=show_i, date=today)
             text = file.read_text()
             media_store.put_script_show(show_id=show, content=text)
             ret["script"].append(show)
-            logger.debug("Loaded script show", show_id = show)
-            script_i += 1
 
     return ret
+
+
+def _parse_show_id(filename: str) -> int:
+    """Parse show id from filename in the format: show<show_id>.<ext>"""
+    pattern = r"show(\d+)\.(ogg|txt|wav)"
+    match = re.search(pattern, filename)
+    if match:
+        return int(match.group(1))
+    else:
+        raise ValueError(f"Could not parse show id from filename {filename}")
 
 
 @pytest.fixture()

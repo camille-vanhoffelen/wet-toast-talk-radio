@@ -103,6 +103,7 @@ class AudioGenerator:
             audio_array = generate_audio(sentence, history_prompt=SPEAKER)
             pieces += [audio_array, silence.copy()]
 
+        logger.info("Concatenating audio pieces")
         audio_array = np.concatenate(pieces)
 
         # np.int32 is needed in order for the wav file to end up begin 32bit width
@@ -129,7 +130,7 @@ class AudioGenerator:
 
         return buffer.getvalue()
 
-    def _to_pcm(self, sig, dtype="int32") -> np.ndarray:
+    def _to_pcm(self, sig, dtype: str = "int32") -> np.ndarray:
         """Convert floating point signal with a range from -1 to 1 to PCM.
         Any signal values outside the interval [-1.0, 1.0) are clipped.
         No dithering is used.
@@ -138,7 +139,8 @@ class AudioGenerator:
         them.  For an overview of alternatives see
         http://blog.bjornroche.com/2009/12/int-float-int-its-jungle-out-there.html
         """
-
+        logger.info("Converting to audio to PCM", dtype=dtype)
+        dtype = np.dtype(dtype)
         if sig.dtype.kind != "f":
             raise TypeError("'sig' must be a float array")
         if dtype.kind not in "iu":
@@ -162,4 +164,11 @@ class AudioGenerator:
             else:
                 logger.info("Found local HF hub model cache")
             assert cache_is_present(), "Cache must be complete"
-        preload_models()
+        logger.info(
+            "Preloading bark models", use_small_models=self._cfg.use_small_models
+        )
+        preload_models(
+            text_use_small=self._cfg.use_small_models,
+            coarse_use_small=self._cfg.use_small_models,
+            fine_use_small=self._cfg.use_small_models,
+        )
