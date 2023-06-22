@@ -4,6 +4,8 @@ import time
 import uuid
 from datetime import datetime, timedelta
 
+import structlog
+
 from wet_toast_talk_radio.common.aws_clients import new_sqs_client
 from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.message_queue.message_queue import (
@@ -15,6 +17,8 @@ from wet_toast_talk_radio.message_queue.sqs.config import (
     SQSConfig,
     validate_config,
 )
+
+logger = structlog.get_logger()
 
 
 class SQSMessageQueue(MessageQueue):
@@ -119,6 +123,11 @@ class SQSMessageQueue(MessageQueue):
             )
 
     def change_message_visibility_timeout(self, receipt_handle: str, timeout_in_s: int):
+        logger.info(
+            "Changing message visibility timeout",
+            receipt_handle=receipt_handle,
+            timeout_in_s=timeout_in_s,
+        )
         new_sqs_client(self._cfg.local).change_message_visibility(
             QueueUrl=self._script_queue_url,
             ReceiptHandle=receipt_handle,

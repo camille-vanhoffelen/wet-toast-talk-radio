@@ -70,10 +70,11 @@ class AudioGenerator:
             ).read_text()
 
             def heartbeat():
-                # TODO configure heartbeat interval
                 self._message_queue.change_message_visibility_timeout(
-                    receipt_handle=script_show_message.receipt_handle, timeout_in_s=30
+                    receipt_handle=script_show_message.receipt_handle,
+                    timeout_in_s=self._cfg.heartbeat_interval_in_s,
                 )
+
             data = self._generate_audio(text, sentence_callbacks=[heartbeat])
             self._media_store.put_raw_show(show_id=show_id, data=data)
             self._message_queue.delete_script_show(script_show_message.receipt_handle)
@@ -93,7 +94,7 @@ class AudioGenerator:
         logger.info("Audio generator benchmark finished!")
 
     def _generate_audio(
-        self, text: str, sentence_callbacks: list[Callable] | None
+        self, text: str, sentence_callbacks: list[Callable] | None = None
     ) -> bytes:
         logger.info("Tokenizing text into sentences")
         sentences = nltk.sent_tokenize(text)
