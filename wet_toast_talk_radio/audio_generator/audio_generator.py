@@ -53,19 +53,15 @@ class AudioGenerator:
     def run(
         self,
     ) -> None:
-        """Run audio_generator on all scripts found in media store"""
-        # TODO use_small_models in config instead of env var
+        """Reads script shows from message_queue, generates audio, and uploads to media_store"""
         logger.info("Starting audio generator...")
         assert (
             self._media_store is not None
         ), "MediaStore must be provided to run AudioGenerator"
-        script_show_ids = self._media_store.list_script_shows()
-        logger.info(
-            f"Generating audio for {len(script_show_ids)} shows",
-            count=len(script_show_ids),
-            shows=script_show_ids,
-        )
-        for show_id in script_show_ids:
+        while script_show_message := self._message_queue.get_next_script_show():
+            show_id = script_show_message.show_id
+            receipt_handle = script_show_message.receipt_handle
+            logger.info("Generating audio for script show", show_id=show_id)
             self._media_store.download_script_show(
                 show_id=show_id, dir_output=self._script_shows_dir
             )
@@ -74,7 +70,11 @@ class AudioGenerator:
             ).read_text()
             data = self._generate_audio(text)
             self._media_store.put_raw_show(show_id=show_id, data=data)
-        logger.info("Audio generator finished!")
+            self._message_queue.delete_script_show(receipt_handle)
+            logger.info(
+                "Show deleted from message_queue", show_id=show_id
+            )
+        logger.info("Script shows queue empty, Audio Generator exiting")
 
     # TODO pass on text in benchmark command
     def benchmark(self, text: str) -> None:
