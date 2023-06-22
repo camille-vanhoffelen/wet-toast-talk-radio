@@ -2,15 +2,12 @@ import time
 from pathlib import Path
 
 import pytest
+import structlog
 
 from wet_toast_talk_radio.common.aws_clients import new_s3_client, new_sqs_client
 from wet_toast_talk_radio.media_store.common.date import get_current_iso_utc_date
 from wet_toast_talk_radio.media_store.config import MediaStoreConfig
-from wet_toast_talk_radio.media_store.media_store import (
-    _FALLBACK_KEY,
-    MediaStore,
-    ShowId,
-)
+from wet_toast_talk_radio.media_store.media_store import (MediaStore, ShowId, _FALLBACK_KEY)
 from wet_toast_talk_radio.media_store.new_media_store import new_media_store
 from wet_toast_talk_radio.media_store.s3.config import S3Config
 from wet_toast_talk_radio.message_queue.config import MessageQueueConfig
@@ -19,6 +16,8 @@ from wet_toast_talk_radio.message_queue.new_message_queue import new_message_que
 from wet_toast_talk_radio.message_queue.sqs.config import SQSConfig
 from wet_toast_talk_radio.radio_operator.config import RadioOperatorConfig
 from wet_toast_talk_radio.radio_operator.radio_operator import RadioOperator
+
+logger = structlog.get_logger()
 
 _BUCKET_NAME = "media-store"
 
@@ -58,6 +57,7 @@ def setup_bucket(_clear_bucket) -> dict[str, list[ShowId]]:
                 data = f.read()
                 media_store.put_raw_show(show, data)
             ret["raw"].append(show)
+            logger.debug("Loaded raw show", show_id = show)
             raw_i += 1
         if file.is_file() and file.suffix == ".ogg":
             show = ShowId(show_i=fallback_i, date=_FALLBACK_KEY)
@@ -65,12 +65,14 @@ def setup_bucket(_clear_bucket) -> dict[str, list[ShowId]]:
                 data = f.read()
                 media_store.put_transcoded_show(show, data)
             ret["fallback"].append(show)
+            logger.debug("Loaded transcoded show", show_id = show)
             fallback_i += 1
-        if file.is_file() and file.suffix == "txt":
+        if file.is_file() and file.suffix == ".txt":
             show = ShowId(show_i=script_i, date=today)
             text = file.read_text()
             media_store.put_script_show(show_id=show, content=text)
             ret["script"].append(show)
+            logger.debug("Loaded script show", show_id = show)
             script_i += 1
 
     return ret
