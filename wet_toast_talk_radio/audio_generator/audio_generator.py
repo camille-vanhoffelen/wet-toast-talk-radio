@@ -19,6 +19,7 @@ from wet_toast_talk_radio.audio_generator.model_cache import (
 )
 from wet_toast_talk_radio.common.task_log_ctx import task_log_ctx
 from wet_toast_talk_radio.media_store import MediaStore
+from wet_toast_talk_radio.message_queue.message_queue import MessageQueue
 
 logger = structlog.get_logger()
 
@@ -33,11 +34,13 @@ class AudioGenerator:
         self,
         cfg: AudioGeneratorConfig,
         media_store: MediaStore | None = None,
+        message_queue: MessageQueue | None = None,
         tmp_dir: Path = Path("tmp/"),
     ) -> None:
         validate_config(cfg)
         self._cfg = cfg
         self._media_store = media_store
+        self._message_queue = message_queue
 
         self._tmp_dir = tmp_dir
         self._script_shows_dir = self._tmp_dir / "script"
