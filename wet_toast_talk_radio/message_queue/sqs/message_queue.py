@@ -35,21 +35,14 @@ class SQSMessageQueue(MessageQueue):
         self._script_queue_url = script_resp["QueueUrl"]
 
     def get_next_stream_show(self) -> StreamShowMessage:
-        # TODO implement long polling
         while True:
             response = new_sqs_client(self._cfg.local).receive_message(
                 QueueUrl=self._stream_queue_url,
                 MaxNumberOfMessages=1,
+                WaitTimeSeconds=self._cfg.receive_message_wait_time_in_s,
             )
             if _has_message(response):
-                msg = response["Messages"][0]
-                show_id_dict = json.loads(msg["Body"])
-                return StreamShowMessage(
-                    show_id=ShowId(**show_id_dict),
-                    receipt_handle=msg["ReceiptHandle"],
-                )
-
-            time.sleep(self._cfg.receive_message_wait_time_in_s)
+                return _response_to_stream_show_message(response)
 
     def delete_stream_show(self, receipt_handle: str):
         new_sqs_client(self._cfg.local).delete_message(
@@ -136,6 +129,15 @@ def _response_to_script_show_message(response: dict) -> ScriptShowMessage:
     msg = response["Messages"][0]
     show_id_dict = json.loads(msg["Body"])
     return ScriptShowMessage(
+        show_id=ShowId(**show_id_dict),
+        receipt_handle=msg["ReceiptHandle"],
+    )
+
+
+def _response_to_stream_show_message(response: dict) -> StreamShowMessage:
+    msg = response["Messages"][0]
+    show_id_dict = json.loads(msg["Body"])
+    return StreamShowMessage(
         show_id=ShowId(**show_id_dict),
         receipt_handle=msg["ReceiptHandle"],
     )
