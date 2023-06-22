@@ -37,7 +37,7 @@ class MessageQueue(ABC):
 
     @abstractmethod
     def purge_stream_shows(self, total_time: timedelta, wait: timedelta):
-        """Delete stream shows from the queue, effectually reseting the playlist.
+        """Delete stream shows from the queue, effectually resetting the playlist.
         total_time: The total time to wait for queue to be purged
         wait: The time to wait between each check to see if the queue is empty
         """
