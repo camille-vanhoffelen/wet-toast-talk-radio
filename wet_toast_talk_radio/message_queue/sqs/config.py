@@ -7,6 +7,7 @@ class SQSConfig(BaseModel):
 
     stream_queue_name: str = "stream-shows.fifo"
     script_queue_name: str = "script-shows.fifo"
+    # AWS SDK only accepts ints, and don't want to silently cast 0.1 to 0
     receive_message_wait_time_in_s: StrictInt = 10
 
 
