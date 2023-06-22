@@ -8,6 +8,7 @@ from wet_toast_talk_radio.common.aws_clients import new_sqs_client
 from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.message_queue.message_queue import (
     MessageQueue,
+    ScriptShowMessage,
     StreamShowMessage,
 )
 from wet_toast_talk_radio.message_queue.sqs.config import (
@@ -20,10 +21,14 @@ class SQSMessageQueue(MessageQueue):
     def __init__(self, cfg: SQSConfig):
         validate_config(cfg)
         self._cfg = cfg
-        resp = new_sqs_client(self._cfg.local).get_queue_url(
+        stream_resp = new_sqs_client(self._cfg.local).get_queue_url(
             QueueName=cfg.stream_queue_name
         )
-        self._stream_queue_url = resp["QueueUrl"]
+        self._stream_queue_url = stream_resp["QueueUrl"]
+        script_resp = new_sqs_client(self._cfg.local).get_queue_url(
+            QueueName=cfg.script_queue_name
+        )
+        self._script_queue_url = script_resp["QueueUrl"]
 
     def get_next_stream_show(self) -> StreamShowMessage:
         while True:
@@ -78,3 +83,12 @@ class SQSMessageQueue(MessageQueue):
             raise Exception(
                 f"Unable to purge queue in time, total_time={total_time}, wait={wait}"
             )
+
+    def get_next_script_show(self) -> ScriptShowMessage:
+        raise NotImplementedError
+
+    def delete_script_show(self, receipt_handle: str):
+        raise NotImplementedError
+
+    def add_script_shows(self, shows: list[ShowId]):
+        raise NotImplementedError
