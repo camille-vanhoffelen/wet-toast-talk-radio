@@ -132,6 +132,9 @@ def radio_operator() -> RadioOperator:
 
 @pytest.fixture()
 def llm_config() -> LLMConfig:
+    in_favor_guest = "Meet Alice. Alice loves toilet paper."
+    against_guest = "Meet Bob. Bob hates toilet paper."
+    script = "Alice: I love toilet paper.\n\nBob: I hate toilet paper.\n\nAlice: Let's agree to disagree."
     return LLMConfig(
-        virtual=True, fake_responses=["hello", "world", "how", "are", "you"]
+        virtual=True, fake_responses=[in_favor_guest, against_guest, script]
     )
