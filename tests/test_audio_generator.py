@@ -43,10 +43,10 @@ class TestAudioGenerator:
         assert not media_store.list_raw_shows()
 
 
-def _init_bucket(media_store: MediaStore) -> list[ShowId]:
+def _init_bucket(store: MediaStore) -> list[ShowId]:
     today = "2012-12-21"
     show0 = ShowId(59, today)
     show1 = ShowId(60, today)
-    media_store.put_script_show(show0, "John: Toast is wet!")
-    media_store.put_script_show(show1, "Anna: No, it's not.")
+    store.put_script_show(show0, "John: Toast is wet!")
+    store.put_script_show(show1, "Anna: No, it's not.")
     return [show0, show1]
