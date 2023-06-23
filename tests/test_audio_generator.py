@@ -15,7 +15,12 @@ from wet_toast_talk_radio.media_store.media_store import ShowId
 class TestAudioGenerator:
     @pytest.mark.integration()
     def test_audio_generator(
-        self, mocker, _clear_bucket, _clear_sqs, media_store, message_queue  # noqa: PT019, F811
+        self,
+        mocker,
+        _clear_bucket,  # noqa: PT019, F811
+        _clear_sqs,  # noqa: PT019, F811
+        media_store,  # noqa: F811
+        message_queue,  # noqa: F811
     ):
         # TODO fix failure when just started docker-compose, no bucket found
         delete_spy = mocker.spy(message_queue, "delete_script_show")
@@ -33,7 +38,6 @@ class TestAudioGenerator:
         assert delete_spy.call_count == len(shows)
         assert message_queue.poll_script_show() is None
 
-
     @pytest.mark.integration()
     def test_empty_queue(
         self, _clear_bucket, _clear_sqs, media_store, message_queue  # noqa: PT019, F811
@@ -49,7 +53,12 @@ class TestAudioGenerator:
 
     @pytest.mark.integration()
     def test_heartbeat(
-        self, mocker, _clear_bucket, _clear_sqs, media_store, message_queue  # noqa: PT019, F811
+        self,
+        mocker,
+        _clear_bucket,  # noqa: PT019, F811
+        _clear_sqs,  # noqa: PT019, F811
+        media_store,  # noqa: F811
+        message_queue,  # noqa: F811
     ):
         heartbeat_spy = mocker.spy(message_queue, "change_message_visibility_timeout")
         today = "2012-12-21"
