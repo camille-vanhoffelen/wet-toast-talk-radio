@@ -10,6 +10,8 @@ import {
 import { Construct } from 'constructs';
 import { MediaStore } from './media-store';
 import { Cluster } from './cluster';
+import { VoscastServer } from './voscast-server';
+import { SlackBots } from './slack-bots';
 
 interface ShoutClientProps {
     readonly vpc: ec2.Vpc;
@@ -18,6 +20,8 @@ interface ShoutClientProps {
     readonly image: ecs.EcrImage;
     readonly instanceType: CfnParameter;
     readonly logGroup: logs.LogGroup;
+    readonly slackBots: SlackBots;
+    readonly voscastServer: VoscastServer;
 }
 
 export class ShoutClient extends Construct {
@@ -53,11 +57,23 @@ export class ShoutClient extends Construct {
         });
         props.mediaStore.bucket.grantReadWrite(taskRole);
         props.queue.grantConsumeMessages(taskRole);
+        props.slackBots.grantReadSlackBotSecrets(taskRole);
+        props.voscastServer.grantReadPasswordSecret(taskRole);
 
         const ecsTaskDefinition = new ecs.Ec2TaskDefinition(this, 'EcsTaskDefinition', {
             family: 'wet-toast-shout-client',
             taskRole: taskRole,
         });
+
+        const environment = {
+            ...props.slackBots.envVars(),
+            AWS_REGION: Aws.REGION,
+            WT_MEDIA_STORE__S3__BUCKET_NAME: props.mediaStore.bucket.bucketName,
+            WT_MESSAGE_QUEUE__SQS__STREAM_QUEUE_NAME: props.queue.queueName,
+            WT_DISC_JOCKEY__SHOUT_CLIENT__PASSWORD: props.voscastServer.password(),
+            WT_DISC_JOCKEY__SHOUT_CLIENT__HOSTNAME: props.voscastServer.hostname(),
+            WT_DISC_JOCKEY__SHOUT_CLIENT__PORT: props.voscastServer.port(),
+        };
 
         // t3.small : 2 vCPU, 2 GiB
         ecsTaskDefinition.addContainer('Container', {
@@ -67,14 +83,7 @@ export class ShoutClient extends Construct {
             memoryLimitMiB: 1900, // 2 GB
             cpu: 2048, // 2 vCPUs
             logging: ecs.LogDriver.awsLogs({ logGroup: props.logGroup, streamPrefix: Aws.STACK_NAME }),
-            environment: {
-                AWS_REGION: Aws.REGION,
-                WT_MEDIA_STORE__S3__BUCKET_NAME: props.mediaStore.bucket.bucketName,
-                WT_MESSAGE_QUEUE__SQS__STREAM_QUEUE_NAME: props.queue.queueName,
-                WT_DISC_JOCKEY__SHOUT_CLIENT__PASSWORD: 'sm:/wet-toast-talk-radio/voscast-password',
-                WT_DISC_JOCKEY__SHOUT_CLIENT__HOSTNAME: 's3.voscast.com',
-                WT_DISC_JOCKEY__SHOUT_CLIENT__PORT: '11052',
-            },
+            environment,
         });
 
         new ecs.Ec2Service(this, 'Service', {

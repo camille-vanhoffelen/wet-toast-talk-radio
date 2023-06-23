@@ -9,7 +9,8 @@ import { Playlist } from './playlist';
 import { ShoutClient } from './shout-client';
 import { ScriptWriter } from './script-writer';
 import { AudioGenerator } from './audio-generator';
-// import * as sqs from 'aws-cdk-lib/aws-sqs';
+import { VoscastServer } from './voscast-server';
+import { SlackBots } from './slack-bots';
 
 export class WetToastTalkShowStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -44,6 +45,16 @@ export class WetToastTalkShowStack extends cdk.Stack {
         const mediaStore = new MediaStore(this, 'MediaStore');
         const messageQueue = new MessageQueue(this, 'MessageQueue');
 
+        const slackBots = new SlackBots(this, 'SlackBots', {
+            emergencyAlertSystemUrl: params.emergencyAlertSystemUrl,
+            radioOperatorUrl: params.radioOperatorUrl,
+        });
+        const voscastServer = new VoscastServer(this, 'VoscastServer', {
+            voscastServerHostname: params.voscastHostname,
+            voscastServerPort: params.voscastPort,
+            voscastPassword: params.voscastPassword,
+        });
+
         const logGroup = new logs.LogGroup(this, 'LogGroup', {
             logGroupName: Aws.STACK_NAME,
         });
@@ -59,6 +70,7 @@ export class WetToastTalkShowStack extends cdk.Stack {
             image,
             instanceType: params.scriptWriterInstanceType,
             logGroup,
+            slackBots,
         });
 
         new AudioGenerator(this, 'AudioGenerator', {
@@ -68,6 +80,7 @@ export class WetToastTalkShowStack extends cdk.Stack {
             image,
             instanceType: params.audioGeneratorInstanceType,
             logGroup,
+            slackBots,
         });
 
         new Transcoder(this, 'Transcoder', {
@@ -76,6 +89,7 @@ export class WetToastTalkShowStack extends cdk.Stack {
             image,
             instanceType: params.transcoderInstanceType,
             logGroup,
+            slackBots,
         });
 
         new Playlist(this, 'Playlist', {
@@ -85,6 +99,7 @@ export class WetToastTalkShowStack extends cdk.Stack {
             image,
             instanceType: params.playlistInstanceType,
             logGroup,
+            slackBots,
         });
 
         new ShoutClient(this, 'ShoutClient', {
@@ -94,6 +109,8 @@ export class WetToastTalkShowStack extends cdk.Stack {
             image,
             instanceType: params.shoutClientInstanceType,
             logGroup,
+            slackBots,
+            voscastServer,
         });
     }
 }
