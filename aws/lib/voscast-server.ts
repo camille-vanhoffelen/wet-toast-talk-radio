@@ -5,6 +5,7 @@ interface VoscastServerProps {
     readonly voscastServerHostname: CfnParameter;
     readonly voscastServerPort: CfnParameter;
     readonly voscastPassword: CfnParameter;
+    readonly voscastAutoDjKey: CfnParameter;
 }
 
 export class VoscastServer extends Construct {
@@ -12,6 +13,8 @@ export class VoscastServer extends Construct {
     private readonly voscastServerHostname: CfnParameter;
     private readonly voscastServerPort: CfnParameter;
     private readonly voscastPassword: CfnParameter;
+    private readonly voscastAutoDjKeySecret: secretmanager.ISecret;
+    private readonly voscastAutoDjKey: CfnParameter;
 
     constructor(scope: Construct, id: string, props: VoscastServerProps) {
         super(scope, id);
@@ -24,6 +27,14 @@ export class VoscastServer extends Construct {
         this.voscastServerHostname = props.voscastServerHostname;
         this.voscastServerPort = props.voscastServerPort;
         this.voscastPassword = props.voscastPassword;
+
+        this.voscastAutoDjKeySecret = secretmanager.Secret.fromSecretNameV2(
+            this,
+            'VoscastPasswordSecret',
+            'wet-toast-talk-radio/voscast-autodj-key',
+        );
+
+        this.voscastAutoDjKey = props.voscastAutoDjKey;
     }
 
     hostname(): string {
@@ -40,5 +51,13 @@ export class VoscastServer extends Construct {
 
     grantReadPasswordSecret(grantee: iam.IGrantable) {
         this.voscastPasswordSecret.grantRead(grantee);
+    }
+
+    autoDjKey(): string {
+        return this.voscastAutoDjKey.valueAsString;
+    }
+
+    grantReadAutoDjKeySecret(grantee: iam.IGrantable) {
+        this.voscastAutoDjKeySecret.grantRead(grantee);
     }
 }

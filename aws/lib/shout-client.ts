@@ -59,6 +59,7 @@ export class ShoutClient extends Construct {
         props.queue.grantConsumeMessages(taskRole);
         props.slackBots.grantReadSlackBotSecrets(taskRole);
         props.voscastServer.grantReadPasswordSecret(taskRole);
+        props.voscastServer.grantReadAutoDjKeySecret(taskRole);
 
         const ecsTaskDefinition = new ecs.Ec2TaskDefinition(this, 'EcsTaskDefinition', {
             family: 'wet-toast-shout-client',
@@ -73,6 +74,7 @@ export class ShoutClient extends Construct {
             WT_DISC_JOCKEY__SHOUT_CLIENT__PASSWORD: props.voscastServer.password(),
             WT_DISC_JOCKEY__SHOUT_CLIENT__HOSTNAME: props.voscastServer.hostname(),
             WT_DISC_JOCKEY__SHOUT_CLIENT__PORT: props.voscastServer.port(),
+            WT_DISC_JOCKEY__SHOUT_CLIENT__AUTODJ_KEY: props.voscastServer.autoDjKey(),
         };
 
         // t3.small : 2 vCPU, 2 GiB

@@ -27,19 +27,28 @@ def virtual_manager() -> MediaStore:
         yield manager
 
 
-class TestShoutTranscoder:
+class TestShoutClient:
     def test_prepare(self, virtual_manager: VirtualManager):
         media_store = virtual_manager.MediaStore()
         message_queue = virtual_manager.MessageQueue()
         today = get_current_iso_utc_date()
 
-        stream_queue = multiprocessing.Queue(maxsize=1)
+        m = multiprocessing.Manager()
+        stream_queue = m.Queue(maxsize=1)
+        cancel_event = m.Event()
+
         show0 = ShowId(0, today)
         media_store.put_transcoded_show(show0, "foo")
 
         prepare_process = multiprocessing.Process(
             target=_prepare,
-            args=(message_queue, media_store, stream_queue, timedelta(microseconds=1)),
+            args=(
+                cancel_event,
+                message_queue,
+                media_store,
+                stream_queue,
+                timedelta(microseconds=1),
+            ),
         )
         prepare_process.start()
         assert stream_queue.empty()
