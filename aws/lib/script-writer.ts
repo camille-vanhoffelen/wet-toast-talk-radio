@@ -10,6 +10,7 @@ import {
 import { Construct } from 'constructs';
 import { MediaStore } from './media-store';
 import { Cluster } from './cluster';
+import { SlackBots } from './slack-bots';
 
 interface ScriptWriterProps {
     readonly vpc: ec2.Vpc;
@@ -18,6 +19,7 @@ interface ScriptWriterProps {
     readonly image: ecs.EcrImage;
     readonly instanceType: CfnParameter;
     readonly logGroup: logs.LogGroup;
+    readonly slackBots: SlackBots;
 }
 
 export class ScriptWriter extends Construct {
@@ -42,11 +44,19 @@ export class ScriptWriter extends Construct {
         props.mediaStore.bucket.grantReadWrite(taskRole);
         props.queue.grantSendMessages(taskRole);
         props.queue.grantPurge(taskRole);
+        props.slackBots.grantReadSlackBotSecrets(taskRole);
 
         const ecsTaskDefinition = new ecs.Ec2TaskDefinition(this, 'EcsTaskDefinition', {
             family: 'wet-toast-script-writer',
             taskRole: taskRole,
         });
+
+        const environment = {
+            ...props.slackBots.envVars(),
+            AWS_REGION: Aws.REGION,
+            WT_MEDIA_STORE__S3__BUCKET_NAME: props.mediaStore.bucket.bucketName,
+            WT_MESSAGE_QUEUE__SQS__STREAM_QUEUE_NAME: props.queue.queueName,
+        };
 
         // t2.micro: 1 vCPU, 1 GiB
         ecsTaskDefinition.addContainer('Container', {
@@ -56,11 +66,7 @@ export class ScriptWriter extends Construct {
             memoryLimitMiB: 900, // 1 GB
             cpu: 1024, // 1 vCPUs
             logging: ecs.LogDriver.awsLogs({ logGroup: props.logGroup, streamPrefix: Aws.STACK_NAME }),
-            environment: {
-                AWS_REGION: Aws.REGION,
-                WT_MEDIA_STORE__S3__BUCKET_NAME: props.mediaStore.bucket.bucketName,
-                WT_MESSAGE_QUEUE__SQS__STREAM_QUEUE_NAME: props.queue.queueName,
-            },
+            environment,
         });
 
         // CRON  TBD

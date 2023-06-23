@@ -1,9 +1,10 @@
+from typing import Optional
+
 import requests
 
 from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.radio_operator.config import (
     RadioOperatorConfig,
-    validate_config,
 )
 
 
@@ -11,11 +12,9 @@ from wet_toast_talk_radio.radio_operator.config import (
 class RadioOperator:
     """Radio operator allows you to send message to slack"""
 
-    def __init__(self, cfg: RadioOperatorConfig) -> None:
-        validate_config(cfg)
+    def __init__(self, cfg: Optional[RadioOperatorConfig]) -> None:
         self._enabled = False
-
-        if cfg.web_hook_url is not None:
+        if cfg is not None and cfg.web_hook_url is not None:
             self._enabled = True
             self._web_hook_url = cfg.web_hook_url.value()
 

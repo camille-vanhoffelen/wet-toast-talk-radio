@@ -32,7 +32,10 @@ class DiscJockey:
     def stream(self) -> None:
         """Stream the transcoded music to the VosCast server"""
         shout_client = ShoutClient(
-            self._cfg.shout_client, self._media_store, self._message_queue
+            self._cfg.shout_client,
+            self._media_store,
+            self._message_queue,
+            self._radio_operator,
         )
         shout_client.start()
 

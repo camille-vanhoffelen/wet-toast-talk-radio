@@ -12,6 +12,7 @@ import {
 import { Construct } from 'constructs';
 import { MediaStore } from './media-store';
 import { Cluster } from './cluster';
+import { SlackBots } from './slack-bots';
 
 interface AudioGeneratorProps {
     readonly vpc: ec2.Vpc;
@@ -20,6 +21,7 @@ interface AudioGeneratorProps {
     readonly image: ecs.EcrImage;
     readonly instanceType: CfnParameter;
     readonly logGroup: logs.LogGroup;
+    readonly slackBots: SlackBots;
 }
 
 export class AudioGenerator extends Construct {
@@ -58,11 +60,19 @@ export class AudioGenerator extends Construct {
         });
         props.mediaStore.bucket.grantReadWrite(taskRole);
         props.queue.grantConsumeMessages(taskRole);
+        props.slackBots.grantReadSlackBotSecrets(taskRole);
 
         const ecsTaskDefinition = new ecs.Ec2TaskDefinition(this, 'EcsTaskDefinition', {
             family: 'wet-toast-audio-generator',
             taskRole: taskRole,
         });
+
+        const environment = {
+            ...props.slackBots.envVars(),
+            AWS_REGION: Aws.REGION,
+            WT_MEDIA_STORE__S3__BUCKET_NAME: props.mediaStore.bucket.bucketName,
+            WT_MESSAGE_QUEUE__SQS__STREAM_QUEUE_NAME: props.queue.queueName,
+        };
 
         // t2.micro: 1 vCPU, 1 GiB
         ecsTaskDefinition.addContainer('Container', {
@@ -73,11 +83,7 @@ export class AudioGenerator extends Construct {
             memoryLimitMiB: 900, // TBD
             cpu: 1024, // TBD
             logging: ecs.LogDriver.awsLogs({ logGroup: props.logGroup, streamPrefix: Aws.STACK_NAME }),
-            environment: {
-                AWS_REGION: Aws.REGION,
-                WT_MEDIA_STORE__S3__BUCKET_NAME: props.mediaStore.bucket.bucketName,
-                WT_MESSAGE_QUEUE__SQS__STREAM_QUEUE_NAME: props.queue.queueName,
-            },
+            environment,
         });
 
         const service = new ecs.Ec2Service(this, 'Service', {

@@ -27,10 +27,12 @@ def stream(ctx: dict):
     dj_cfg = root_cfg.disc_jockey
     ms_cfg = root_cfg.media_store
     mq_cfg = root_cfg.message_queue
+    ro_cfg = root_cfg.radio_operator
+    radio_operator = RadioOperator(ro_cfg)
 
     media_store = new_media_store(ms_cfg)
     message_queue = new_message_queue(mq_cfg)
-    dj = DiscJockey(dj_cfg, media_store, message_queue)
+    dj = DiscJockey(dj_cfg, radio_operator, media_store, message_queue)
     dj.stream()
 
 

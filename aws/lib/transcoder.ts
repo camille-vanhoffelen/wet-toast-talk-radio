@@ -2,6 +2,7 @@ import { aws_ec2 as ec2, aws_iam as iam, CfnParameter, aws_ecs as ecs, aws_logs 
 import { Construct } from 'constructs';
 import { MediaStore } from './media-store';
 import { Cluster } from './cluster';
+import { SlackBots } from './slack-bots';
 
 interface TranscoderProps {
     readonly vpc: ec2.Vpc;
@@ -9,6 +10,7 @@ interface TranscoderProps {
     readonly image: ecs.EcrImage;
     readonly instanceType: CfnParameter;
     readonly logGroup: logs.LogGroup;
+    readonly slackBots: SlackBots;
 }
 
 export class Transcoder extends Construct {
@@ -31,11 +33,18 @@ export class Transcoder extends Construct {
             assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
         });
         props.mediaStore.bucket.grantReadWrite(taskRole);
+        props.slackBots.grantReadSlackBotSecrets(taskRole);
 
         const ecsTaskDefinition = new ecs.Ec2TaskDefinition(this, 'EcsTaskDefinition', {
             family: 'wet-toast-transcoder',
             taskRole: taskRole,
         });
+
+        const environment = {
+            ...props.slackBots.envVars(),
+            AWS_REGION: Aws.REGION,
+            WT_MEDIA_STORE__S3__BUCKET_NAME: props.mediaStore.bucket.bucketName,
+        };
 
         // t3.medium: 2 vCPU, 4 GiB
         ecsTaskDefinition.addContainer('Container', {
@@ -45,10 +54,7 @@ export class Transcoder extends Construct {
             memoryLimitMiB: 3900, // 4 GB
             cpu: 2048, // 2 vCPUs
             logging: ecs.LogDriver.awsLogs({ logGroup: props.logGroup, streamPrefix: Aws.STACK_NAME }),
-            environment: {
-                AWS_REGION: Aws.REGION,
-                WT_MEDIA_STORE__S3__BUCKET_NAME: props.mediaStore.bucket.bucketName,
-            },
+            environment,
         });
 
         // Cron job twice a day at 1:00 AM and 1:00 PM UTC

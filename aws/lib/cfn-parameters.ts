@@ -13,6 +13,13 @@ export class CfnParameters {
     readonly scriptWriterInstanceType: CfnParameter;
     readonly audioGeneratorInstanceType: CfnParameter;
 
+    readonly emergencyAlertSystemUrl: CfnParameter;
+    readonly radioOperatorUrl: CfnParameter;
+
+    readonly voscastPassword: CfnParameter;
+    readonly voscastHostname: CfnParameter;
+    readonly voscastPort: CfnParameter;
+
     constructor(scope: Construct) {
         this.ecrRepositoryName = new CfnParameter(scope, 'ECRRepositoryName', {
             type: 'String',
@@ -68,6 +75,36 @@ export class CfnParameters {
             // TODO: Change to correct type
             default: 't2.micro',
             description: 'The instance type for the audio generator task',
+        });
+
+        this.emergencyAlertSystemUrl = new CfnParameter(scope, 'EmergencyAlertSystemUrl', {
+            type: 'String',
+            default: 'sm:/wet-toast-talk-show/emergency-alert-system/slack-web-hook-url',
+            description: 'The slack url for the emergency alert system',
+        });
+
+        this.radioOperatorUrl = new CfnParameter(scope, 'RadioOperatorUrl', {
+            type: 'String',
+            default: 'sm:/wet-toast-talk-show/radio-operator/slack-web-hook-url',
+            description: 'The slack url for the radio operator',
+        });
+
+        this.voscastPassword = new CfnParameter(scope, 'VoscastPassword', {
+            type: 'String',
+            default: 'sm:/wet-toast-talk-radio/voscast-password',
+            description: 'The password for the voscast server',
+        });
+
+        this.voscastHostname = new CfnParameter(scope, 'VoscastHostname', {
+            type: 'String',
+            default: 's3.voscast.com',
+            description: 'The hostname for the voscast server',
+        });
+
+        this.voscastPort = new CfnParameter(scope, 'VoscastPort', {
+            type: 'String',
+            default: '11053',
+            description: 'The port for the voscast server',
         });
     }
 }
