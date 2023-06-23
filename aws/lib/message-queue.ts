@@ -11,6 +11,7 @@ export class MessageQueue extends Construct {
         this.streamQueue = new sqs.Queue(this, 'StreamQueue', {
             queueName: 'stream-shows.fifo',
             fifo: true,
+            contentBasedDeduplication: true,
             receiveMessageWaitTime: Duration.seconds(5),
             visibilityTimeout: Duration.seconds(60 * 10),
         });
@@ -18,8 +19,10 @@ export class MessageQueue extends Construct {
         this.scriptQueue = new sqs.Queue(this, 'ScriptQueue', {
             queueName: 'script-shows.fifo',
             fifo: true,
+            contentBasedDeduplication: true,
             receiveMessageWaitTime: Duration.seconds(5),
             visibilityTimeout: Duration.seconds(60 * 10),
+            retentionPeriod: Duration.seconds(60 * 60 * 24 * 10),
         });
     }
 }
