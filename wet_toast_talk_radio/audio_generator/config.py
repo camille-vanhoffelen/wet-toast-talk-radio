@@ -5,6 +5,7 @@ class AudioGeneratorConfig(BaseModel):
     """audio_generator config file"""
 
     use_s3_model_cache: bool = False
+    use_small_models: bool = True
 
 
 def validate_config(cfg: AudioGeneratorConfig):

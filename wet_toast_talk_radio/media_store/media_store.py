@@ -62,7 +62,7 @@ class MediaStore(ABC):
 
     @abstractmethod
     def download_script_show(self, show_id: ShowId, dir_output: Path):
-        """download script (.txt) from the media store concurently"""
+        """download script (.txt) from the media store"""
 
     @abstractmethod
     def get_transcoded_show(self, show_id: ShowId) -> bytes:

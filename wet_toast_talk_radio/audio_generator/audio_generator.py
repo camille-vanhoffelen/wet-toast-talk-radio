@@ -1,5 +1,6 @@
 import time
 import uuid
+from io import BytesIO
 from pathlib import Path
 
 import nltk
@@ -17,38 +18,78 @@ from wet_toast_talk_radio.audio_generator.model_cache import (
     download_model_cache,
 )
 from wet_toast_talk_radio.common.task_log_ctx import task_log_ctx
+from wet_toast_talk_radio.media_store import MediaStore
 
 logger = structlog.get_logger()
+
+SPEAKER = "v2/en_speaker_6"
 
 
 @task_log_ctx("audio_generator")
 class AudioGenerator:
     """Generate audio from text"""
 
-    def __init__(self, cfg: AudioGeneratorConfig, tmp_dir: Path = Path("tmp/")) -> None:
+    def __init__(
+        self,
+        cfg: AudioGeneratorConfig,
+        media_store: MediaStore | None = None,
+        tmp_dir: Path = Path("tmp/"),
+    ) -> None:
         validate_config(cfg)
         self._cfg = cfg
-        self._init_models()
+        self._media_store = media_store
+
         self._tmp_dir = tmp_dir
+        self._script_shows_dir = self._tmp_dir / "script"
         self._raw_shows_dir = self._tmp_dir / "raw"
-        if not self._raw_shows_dir.exists():
-            self._raw_shows_dir.mkdir(parents=True)
+        self._script_shows_dir.mkdir(parents=True, exist_ok=True)
+        self._raw_shows_dir.mkdir(parents=True, exist_ok=True)
 
-    def run(self) -> None:
-        logger.warning("Not yet implemented")
-        pass
+        self._init_models()
 
+    def run(
+        self,
+    ) -> None:
+        """Run audio_generator on all scripts found in media store"""
+        # TODO use_small_models in config instead of env var
+        logger.info("Starting audio generator...")
+        assert (
+            self._media_store is not None
+        ), "MediaStore must be provided to run AudioGenerator"
+        script_show_ids = self._media_store.list_script_shows()
+        logger.info(
+            f"Generating audio for {len(script_show_ids)} shows",
+            count=len(script_show_ids),
+            shows=script_show_ids,
+        )
+        for show_id in script_show_ids:
+            self._media_store.download_script_show(
+                show_id=show_id, dir_output=self._script_shows_dir
+            )
+            text = (
+                self._script_shows_dir / show_id.store_key() / "show.txt"
+            ).read_text()
+            data = self._generate_audio(text)
+            self._media_store.put_raw_show(show_id=show_id, data=data)
+        logger.info("Audio generator finished!")
+
+    # TODO pass on text in benchmark command
     def benchmark(self, text: str) -> None:
-        """Run audio_generator"""
-        # download and load all models
-        preload_models()
+        """Benchmark audio_generator speed"""
+        logger.info("Starting audio generator benchmark...")
+        data = self._generate_audio(text)
+        uuid_str = str(uuid.uuid4())[:4]
+        path = self._raw_shows_dir / f"audio-generator-benchmark-{uuid_str}.wav"
+        logger.info("Writing audio to file", path=path)
+        with path.open("wb") as f:
+            f.write(data)
+        logger.info("Audio generator benchmark finished!")
 
+    def _generate_audio(self, text: str) -> bytes:
         logger.info("Tokenizing text into sentences")
-        # Need to download punkt tokenizer prior w/ nltk.download()
         sentences = nltk.sent_tokenize(text)
+        logger.info(f"Tokenized {len(sentences)} sentences", count=len(sentences))
 
-        # save audio to disk
-        SPEAKER = "v2/en_speaker_6"
         silence = np.zeros(int(0.25 * SAMPLE_RATE))  # quarter second of silence
 
         logger.info("Starting audio generation")
@@ -62,11 +103,21 @@ class AudioGenerator:
             audio_array = generate_audio(sentence, history_prompt=SPEAKER)
             pieces += [audio_array, silence.copy()]
 
+        logger.info("Concatenating audio pieces")
         audio_array = np.concatenate(pieces)
 
-        end = time.perf_counter()
-        logger.info("Finished audio generation")
+        # np.int32 is needed in order for the wav file to end up begin 32bit width
+        # https://docs.scipy.org/doc/scipy/reference/generated/scipy.io.wavfile.write.html#scipy-io-wavfile-write
+        audio_array = self._to_pcm(audio_array)
 
+        buffer = BytesIO()
+        write_wav(
+            filename=buffer,
+            rate=SAMPLE_RATE,
+            data=audio_array,
+        )
+
+        end = time.perf_counter()
         run_time_in_s = end - start
         duration_in_s = len(audio_array) / SAMPLE_RATE
         speed_ratio = run_time_in_s / duration_in_s
@@ -77,18 +128,9 @@ class AudioGenerator:
             speed_ratio=round(speed_ratio, 3),
         )
 
-        # np.int32 is needed in order for the wav file to end up begin 32bit width
-        # https://docs.scipy.org/doc/scipy/reference/generated/scipy.io.wavfile.write.html#scipy-io-wavfile-write
-        audio_array = self._to_pcm(audio_array)
+        return buffer.getvalue()
 
-        uuid_str = str(uuid.uuid4())[:4]
-        write_wav(
-            self._raw_shows_dir / f"bark_generation_{uuid_str}.wav",
-            SAMPLE_RATE,
-            audio_array,
-        )
-
-    def _to_pcm(self, sig, dtype="int32") -> np.ndarray:
+    def _to_pcm(self, sig, dtype: str = "int32") -> np.ndarray:
         """Convert floating point signal with a range from -1 to 1 to PCM.
         Any signal values outside the interval [-1.0, 1.0) are clipped.
         No dithering is used.
@@ -97,7 +139,8 @@ class AudioGenerator:
         them.  For an overview of alternatives see
         http://blog.bjornroche.com/2009/12/int-float-int-its-jungle-out-there.html
         """
-
+        logger.info("Converting to audio to PCM", dtype=dtype)
+        dtype = np.dtype(dtype)
         if sig.dtype.kind != "f":
             raise TypeError("'sig' must be a float array")
         if dtype.kind not in "iu":
@@ -121,3 +164,11 @@ class AudioGenerator:
             else:
                 logger.info("Found local HF hub model cache")
             assert cache_is_present(), "Cache must be complete"
+        logger.info(
+            "Preloading bark models", use_small_models=self._cfg.use_small_models
+        )
+        preload_models(
+            text_use_small=self._cfg.use_small_models,
+            coarse_use_small=self._cfg.use_small_models,
+            fine_use_small=self._cfg.use_small_models,
+        )
