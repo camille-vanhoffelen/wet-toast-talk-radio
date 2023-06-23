@@ -21,6 +21,7 @@ from wet_toast_talk_radio.message_queue.new_message_queue import new_message_que
 from wet_toast_talk_radio.message_queue.sqs.config import SQSConfig
 from wet_toast_talk_radio.radio_operator.config import RadioOperatorConfig
 from wet_toast_talk_radio.radio_operator.radio_operator import RadioOperator
+from wet_toast_talk_radio.scriptwriter.config import LLMConfig
 
 logger = structlog.get_logger()
 
@@ -127,3 +128,10 @@ def message_queue() -> MessageQueue:
 def radio_operator() -> RadioOperator:
     radio_operator = RadioOperator(RadioOperatorConfig())
     return radio_operator
+
+
+@pytest.fixture()
+def llm_config() -> LLMConfig:
+    return LLMConfig(
+        virtual=True, fake_responses=["hello", "world", "how", "are", "you"]
+    )
