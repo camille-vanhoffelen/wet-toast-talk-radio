@@ -56,7 +56,6 @@ class SQSMessageQueue(MessageQueue):
                 QueueUrl=self._stream_queue_url,
                 MessageBody=show_id_json,
                 MessageGroupId="stream_shows",
-                MessageDeduplicationId=show.store_key() + "/" + str(uuid.uuid4()),
             )
 
     def purge_stream_shows(self, total_time: timedelta, wait: timedelta):
@@ -105,7 +104,6 @@ class SQSMessageQueue(MessageQueue):
                 QueueUrl=self._script_queue_url,
                 MessageBody=show_id_json,
                 MessageGroupId="script_shows",
-                MessageDeduplicationId=show.store_key() + "/" + str(uuid.uuid4()),
             )
 
     def change_message_visibility_timeout(self, receipt_handle: str, timeout_in_s: int):
