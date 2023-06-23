@@ -109,7 +109,7 @@ class SQSMessageQueue(MessageQueue):
             )
 
     def change_message_visibility_timeout(self, receipt_handle: str, timeout_in_s: int):
-        logger.info(
+        logger.debug(
             "Changing message visibility timeout",
             receipt_handle=receipt_handle,
             timeout_in_s=timeout_in_s,

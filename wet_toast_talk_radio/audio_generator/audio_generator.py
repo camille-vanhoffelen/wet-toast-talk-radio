@@ -114,7 +114,7 @@ class AudioGenerator:
             if sentence_callbacks:
                 [c() for c in sentence_callbacks]
 
-        logger.info("Concatenating audio pieces")
+        logger.debug("Concatenating audio pieces")
         audio_array = np.concatenate(pieces)
 
         # np.int32 is needed in order for the wav file to end up begin 32bit width
@@ -150,7 +150,7 @@ class AudioGenerator:
         them.  For an overview of alternatives see
         http://blog.bjornroche.com/2009/12/int-float-int-its-jungle-out-there.html
         """
-        logger.info("Converting to audio to PCM", dtype=dtype)
+        logger.debug("Converting to audio to PCM", dtype=dtype)
         dtype = np.dtype(dtype)
         if sig.dtype.kind != "f":
             raise TypeError("'sig' must be a float array")

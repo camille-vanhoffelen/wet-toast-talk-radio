@@ -29,21 +29,21 @@ class S3MediaStore(MediaStore):
         self._bucket_name = cfg.bucket_name
 
     def put_raw_show(self, show_id: ShowId, data: bytes):
-        logger.info("Uploading raw show", show_id=show_id)
+        logger.debug("Uploading raw show", show_id=show_id)
         key = f"{_RAW_SHOWS_PREFIX}/{show_id.store_key()}/show.wav"
         new_s3_client(self._cfg.local).put_object(
             Bucket=self._bucket_name, Key=key, Body=data
         )
 
     def put_transcoded_show(self, show_id: ShowId, data: bytes):
-        logger.info("Uploading transcoded show", show_id=show_id)
+        logger.debug("Uploading transcoded show", show_id=show_id)
         key = f"{_TRANSCODED_SHOWS_PREFIX}/{show_id.store_key()}/show.ogg"
         new_s3_client(self._cfg.local).put_object(
             Bucket=self._bucket_name, Key=key, Body=data
         )
 
     def put_script_show(self, show_id: ShowId, content: str):
-        logger.info("Uploading script show", show_id=show_id)
+        logger.debug("Uploading script show", show_id=show_id)
         key = f"{_SCRIPT_SHOWS_PREFIX}/{show_id.store_key()}/show.txt"
         new_s3_client(self._cfg.local).put_object(
             Bucket=self._bucket_name, Key=key, Body=content
