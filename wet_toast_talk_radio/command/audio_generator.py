@@ -6,6 +6,8 @@ import structlog
 from wet_toast_talk_radio.audio_generator import AudioGenerator
 from wet_toast_talk_radio.command.print_banner import print_banner
 from wet_toast_talk_radio.command.root import root_cmd
+from wet_toast_talk_radio.media_store import new_media_store
+from wet_toast_talk_radio.message_queue import new_message_queue
 
 logger = structlog.get_logger()
 
@@ -23,9 +25,14 @@ def run(ctx: dict):
     """Run command"""
     root_cfg = ctx.obj["root_cfg"]
     cfg = root_cfg.audio_generator
+    ms_cfg = root_cfg.media_store
+    mq_cfg = root_cfg.message_queue
 
-    logger.info("Starting audio_generator", cfg=root_cfg.audio_generator)
-    audio_gen = AudioGenerator(cfg)
+    media_store = new_media_store(ms_cfg)
+    message_queue = new_message_queue(mq_cfg)
+    audio_gen = AudioGenerator(
+        cfg=cfg, media_store=media_store, message_queue=message_queue
+    )
 
     audio_gen.run()
 

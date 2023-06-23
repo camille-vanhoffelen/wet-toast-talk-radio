@@ -18,9 +18,7 @@ class TestScriptwriter:
     ):
         cfg = ScriptwriterConfig(llm=llm_config)
         scriptwriter = Scriptwriter(cfg=cfg, media_store=media_store)
-        topic = "toilet paper"
-        scriptwriter.run(topic)
-        # TODO how will scriptwriter be triggered?
+        scriptwriter.run()
         assert len(media_store.list_script_shows()) == 1
 
 

@@ -39,6 +39,7 @@ class AudioGenerator:
         tmp_dir: Path = Path("tmp/"),
     ) -> None:
         validate_config(cfg)
+        logger.info("Initializing audio_generator", cfg=cfg)
         self._cfg = cfg
         self._media_store = media_store
         self._message_queue = message_queue

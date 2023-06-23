@@ -10,6 +10,9 @@ from langchain.chains import SequentialChain
 from langchain.chains.base import Chain
 from langchain.prompts import ChatPromptTemplate
 
+from wet_toast_talk_radio.media_store import MediaStore
+from wet_toast_talk_radio.media_store.common.date import get_current_iso_utc_date
+from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.scriptwriter import prompts
 from wet_toast_talk_radio.scriptwriter.prompts import ScriptOutputParser
 
@@ -205,3 +208,23 @@ class TheGreatDebateChain(Chain):
             + script_generation_chain.output_keys,
         )
         return cls(chain=chain)
+
+
+class TheGreatDebateShow:
+    def __init__(self, llm: BaseLanguageModel, media_store: MediaStore):
+        self._chain = TheGreatDebateChain.from_llm(llm=llm)
+        # TODO modularize topic
+        self.topic = "toilet paper"
+        self._media_store = media_store
+
+    async def arun(self):
+        logger.info("Writing The Great Debate show...", topic=self.topic)
+        outputs = self._chain(inputs={"topic": self.topic})
+        script = outputs["script"]
+        logger.info("Finished writing The Great Debate show", script=script)
+
+        # TODO the date should be the date of the show, not current date
+        # TODO how to number shows? How to generate many?
+        show_id = ShowId(show_i=0, date=get_current_iso_utc_date())
+        # TODO async media_store put
+        self._media_store.put_script_show(show_id=show_id, content=script)

@@ -21,8 +21,7 @@ def scriptwriter(ctx: dict):
 
 @scriptwriter.command(help="Run scriptwriter")
 @click.pass_context
-@click.argument("topic")
-def run(ctx: dict, topic: str):
+def run(ctx: dict):
     """Run command
     scriptwriter run TOPIC
 
@@ -32,8 +31,25 @@ def run(ctx: dict, topic: str):
     sw_cfg = root_cfg.scriptwriter
     ms_cfg = root_cfg.media_store
 
-    logger.info("Starting scriptwriter", cfg=root_cfg.scriptwriter)
     media_store = new_media_store(ms_cfg)
     writer = Scriptwriter(cfg=sw_cfg, media_store=media_store)
+    writer.run()
 
-    writer.run(topic=topic)
+# TODO allow CLI run w/ topic
+@scriptwriter.command(help="Run scriptwriter")
+@click.pass_context
+@click.argument("topic")
+def the_great_debate(ctx: dict, topic: str):
+    """Run command
+    scriptwriter run TOPIC
+
+    with TOPIC the topic of The Great Debate show.
+    """
+    root_cfg = ctx.obj["root_cfg"]
+    sw_cfg = root_cfg.scriptwriter
+
+    # logger.info("Starting scriptwriter", cfg=root_cfg.scriptwriter)
+    # writer = Scriptwriter(cfg=sw_cfg)
+
+    # writer.run(topic=topic)
+    pass
