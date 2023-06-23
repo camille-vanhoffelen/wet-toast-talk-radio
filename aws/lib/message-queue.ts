@@ -22,6 +22,7 @@ export class MessageQueue extends Construct {
             contentBasedDeduplication: true,
             receiveMessageWaitTime: Duration.seconds(5),
             visibilityTimeout: Duration.seconds(60 * 10),
+            retentionPeriod: Duration.seconds(60 * 60 * 24 * 10),
         });
     }
 }
