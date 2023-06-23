@@ -26,7 +26,8 @@ logger = structlog.get_logger()
 
 _BUCKET_NAME = "media-store"
 
-_QUEUE_NAME = "stream-shows.fifo"
+_STREAM_QUEUE_NAME = "stream-shows.fifo"
+_SCRIPT_QUEUE_NAME = "script-shows.fifo"
 
 
 @pytest.fixture()
@@ -90,17 +91,21 @@ def _parse_show_id(filename: str) -> int:
 @pytest.fixture()
 def _clear_sqs():
     sqs_client = new_sqs_client(local=True)
-    queue_url = sqs_client.get_queue_url(QueueName=_QUEUE_NAME)["QueueUrl"]
-    sqs_client.purge_queue(QueueUrl=queue_url)
+    _purge_mq(sqs_client, _STREAM_QUEUE_NAME)
+    _purge_mq(sqs_client, _SCRIPT_QUEUE_NAME)
+
+
+def _purge_mq(client, queue_name):
+    queue_url = client.get_queue_url(QueueName=queue_name)["QueueUrl"]
+    client.purge_queue(QueueUrl=queue_url)
     while True:
-        response = sqs_client.get_queue_attributes(
+        response = client.get_queue_attributes(
             QueueUrl=queue_url, AttributeNames=["ApproximateNumberOfMessages"]
         )
         message_count = int(response["Attributes"]["ApproximateNumberOfMessages"])
 
         if message_count == 0:
             break
-
         time.sleep(1)
 
 
@@ -114,7 +119,7 @@ def media_store() -> MediaStore:
 @pytest.fixture()
 def message_queue() -> MessageQueue:
     return new_message_queue(
-        MessageQueueConfig(sqs=SQSConfig(local=True, receive_message_blocking_time=0.1))
+        MessageQueueConfig(sqs=SQSConfig(local=True, receive_message_wait_time_in_s=1))
     )
 
 

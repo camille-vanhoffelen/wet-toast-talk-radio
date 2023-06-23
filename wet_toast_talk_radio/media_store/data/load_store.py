@@ -3,7 +3,7 @@ from pathlib import Path
 
 import structlog
 
-from tests.conftests import _BUCKET_NAME, _QUEUE_NAME
+from tests.conftests import _BUCKET_NAME, _STREAM_QUEUE_NAME
 from wet_toast_talk_radio.common.aws_clients import new_s3_client, new_sqs_client
 from wet_toast_talk_radio.media_store.common.date import get_current_iso_utc_date
 from wet_toast_talk_radio.media_store.config import MediaStoreConfig
@@ -26,7 +26,7 @@ def clear_bucket():
 
 def clear_sqs():
     sqs_client = new_sqs_client(local=True)
-    queue_url = sqs_client.get_queue_url(QueueName=_QUEUE_NAME)["QueueUrl"]
+    queue_url = sqs_client.get_queue_url(QueueName=_STREAM_QUEUE_NAME)["QueueUrl"]
     sqs_client.purge_queue(QueueUrl=queue_url)
     while True:
         response = sqs_client.get_queue_attributes(

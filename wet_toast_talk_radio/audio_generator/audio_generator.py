@@ -2,6 +2,7 @@ import time
 import uuid
 from io import BytesIO
 from pathlib import Path
+from typing import Callable
 
 import nltk
 import numpy as np
@@ -19,6 +20,7 @@ from wet_toast_talk_radio.audio_generator.model_cache import (
 )
 from wet_toast_talk_radio.common.task_log_ctx import task_log_ctx
 from wet_toast_talk_radio.media_store import MediaStore
+from wet_toast_talk_radio.message_queue.message_queue import MessageQueue
 
 logger = structlog.get_logger()
 
@@ -33,11 +35,13 @@ class AudioGenerator:
         self,
         cfg: AudioGeneratorConfig,
         media_store: MediaStore | None = None,
+        message_queue: MessageQueue | None = None,
         tmp_dir: Path = Path("tmp/"),
     ) -> None:
         validate_config(cfg)
         self._cfg = cfg
         self._media_store = media_store
+        self._message_queue = message_queue
 
         self._tmp_dir = tmp_dir
         self._script_shows_dir = self._tmp_dir / "script"
@@ -50,30 +54,33 @@ class AudioGenerator:
     def run(
         self,
     ) -> None:
-        """Run audio_generator on all scripts found in media store"""
-        # TODO use_small_models in config instead of env var
+        """Reads script shows from message_queue, generates audio, and uploads to media_store"""
         logger.info("Starting audio generator...")
         assert (
             self._media_store is not None
         ), "MediaStore must be provided to run AudioGenerator"
-        script_show_ids = self._media_store.list_script_shows()
-        logger.info(
-            f"Generating audio for {len(script_show_ids)} shows",
-            count=len(script_show_ids),
-            shows=script_show_ids,
-        )
-        for show_id in script_show_ids:
+        while script_show_message := self._message_queue.poll_script_show():
+            show_id = script_show_message.show_id
+            logger.info("Generating audio for script show", show_id=show_id)
             self._media_store.download_script_show(
                 show_id=show_id, dir_output=self._script_shows_dir
             )
             text = (
                 self._script_shows_dir / show_id.store_key() / "show.txt"
             ).read_text()
-            data = self._generate_audio(text)
-            self._media_store.put_raw_show(show_id=show_id, data=data)
-        logger.info("Audio generator finished!")
 
-    # TODO pass on text in benchmark command
+            def heartbeat():
+                self._message_queue.change_message_visibility_timeout(
+                    receipt_handle=script_show_message.receipt_handle,
+                    timeout_in_s=self._cfg.heartbeat_interval_in_s,
+                )
+
+            data = self._generate_audio(text, sentence_callbacks=[heartbeat])
+            self._media_store.put_raw_show(show_id=show_id, data=data)
+            self._message_queue.delete_script_show(script_show_message.receipt_handle)
+            logger.info("Show deleted from message_queue", show_id=show_id)
+        logger.info("Script shows queue empty, Audio Generator exiting")
+
     def benchmark(self, text: str) -> None:
         """Benchmark audio_generator speed"""
         logger.info("Starting audio generator benchmark...")
@@ -85,7 +92,9 @@ class AudioGenerator:
             f.write(data)
         logger.info("Audio generator benchmark finished!")
 
-    def _generate_audio(self, text: str) -> bytes:
+    def _generate_audio(
+        self, text: str, sentence_callbacks: list[Callable] | None = None
+    ) -> bytes:
         logger.info("Tokenizing text into sentences")
         sentences = nltk.sent_tokenize(text)
         logger.info(f"Tokenized {len(sentences)} sentences", count=len(sentences))
@@ -102,8 +111,10 @@ class AudioGenerator:
             logger.info("Generating audio for sentence", sentence=sentence)
             audio_array = generate_audio(sentence, history_prompt=SPEAKER)
             pieces += [audio_array, silence.copy()]
+            if sentence_callbacks:
+                [c() for c in sentence_callbacks]
 
-        logger.info("Concatenating audio pieces")
+        logger.debug("Concatenating audio pieces")
         audio_array = np.concatenate(pieces)
 
         # np.int32 is needed in order for the wav file to end up begin 32bit width
@@ -139,7 +150,7 @@ class AudioGenerator:
         them.  For an overview of alternatives see
         http://blog.bjornroche.com/2009/12/int-float-int-its-jungle-out-there.html
         """
-        logger.info("Converting to audio to PCM", dtype=dtype)
+        logger.debug("Converting to audio to PCM", dtype=dtype)
         dtype = np.dtype(dtype)
         if sig.dtype.kind != "f":
             raise TypeError("'sig' must be a float array")

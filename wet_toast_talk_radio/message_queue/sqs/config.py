@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, StrictInt
 
 
 class SQSConfig(BaseModel):
@@ -6,8 +6,9 @@ class SQSConfig(BaseModel):
     local: bool = False
 
     stream_queue_name: str = "stream-shows.fifo"
-    audio_gen_queue_name: str = "audio-gen.fifo"
-    receive_message_blocking_time: int = 10
+    script_queue_name: str = "script-shows.fifo"
+    # AWS SDK only accepts ints, and don't want to silently cast 0.1 to 0
+    receive_message_wait_time_in_s: StrictInt = 10
 
 
 def validate_config(cfg: SQSConfig):

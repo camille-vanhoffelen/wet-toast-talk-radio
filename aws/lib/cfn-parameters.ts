@@ -65,8 +65,7 @@ export class CfnParameters {
 
         this.audioGeneratorInstanceType = new CfnParameter(scope, 'AudioGeneratorInstance', {
             type: 'String',
-            // TODO: Change to correct type
-            default: 't2.micro',
+            default: 'g4dn.xlarge',
             description: 'The instance type for the audio generator task',
         });
     }

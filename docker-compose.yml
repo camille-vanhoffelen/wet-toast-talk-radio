@@ -33,11 +33,19 @@ services:
     depends_on:
       localstack:
         condition: service_healthy
-  sqsQueue:
+  streamSQSQueue:
     image: amazon/aws-cli
     environment:
       - AWS_DEFAULT_REGION=us-east-1
-    command: --no-sign-request --endpoint-url=http://localstack:4566 sqs create-queue --queue-name stream-shows.fifo --attributes FifoQueue=true
+    command: --no-sign-request --endpoint-url=http://localstack:4566 sqs create-queue --queue-name stream-shows.fifo --attributes FifoQueue=true,VisibilityTimeout=60
+    depends_on:
+      localstack:
+        condition: service_healthy
+  scriptSQSQueue:
+    image: amazon/aws-cli
+    environment:
+      - AWS_DEFAULT_REGION=us-east-1
+    command: --no-sign-request --endpoint-url=http://localstack:4566 sqs create-queue --queue-name script-shows.fifo --attributes FifoQueue=true,VisibilityTimeout=60
     depends_on:
       localstack:
         condition: service_healthy
