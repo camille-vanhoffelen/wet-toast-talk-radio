@@ -4,7 +4,6 @@ import structlog
 from wet_toast_talk_radio.command.print_banner import print_banner
 from wet_toast_talk_radio.command.root import root_cmd
 from wet_toast_talk_radio.media_store import new_media_store
-from wet_toast_talk_radio.scriptwriter import new_llm
 from wet_toast_talk_radio.scriptwriter import Scriptwriter
 from wet_toast_talk_radio.scriptwriter.config import validate_config
 

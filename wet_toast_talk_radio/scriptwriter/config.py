@@ -5,11 +5,11 @@ class LLMConfig(BaseModel):
     """LLM config file"""
 
     virtual: bool = False
-    fake_responses: list[str]
+    fake_responses: list[str] = None
     model: str = "gpt-3.5-turbo"
     temperature: float = 0.9
     # TODO make secret
-    openai_api_key: str
+    openai_api_key: str = None
 
 
 def validate_llm_config(cfg: LLMConfig):
@@ -18,7 +18,9 @@ def validate_llm_config(cfg: LLMConfig):
     if cfg.virtual:
         assert cfg.fake_responses, "If LLM is virtual, then fake_responses must be set"
     else:
-        assert cfg.openai_api_key, "If LLM is not virtual, then OpenAI API Key must be set"
+        assert (
+            cfg.openai_api_key
+        ), "If LLM is not virtual, then OpenAI API Key must be set"
 
 
 class ScriptwriterConfig(BaseModel):

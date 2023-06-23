@@ -2,8 +2,8 @@ import pytest
 
 from tests.conftests import (
     _clear_bucket,  # noqa: F401
-    media_store,  # noqa: F401
     llm_config,  # noqa: F401
+    media_store,  # noqa: F401
 )
 from wet_toast_talk_radio.scriptwriter import Scriptwriter
 from wet_toast_talk_radio.scriptwriter.config import ScriptwriterConfig
