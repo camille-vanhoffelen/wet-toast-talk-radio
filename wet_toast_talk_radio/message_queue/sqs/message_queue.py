@@ -88,10 +88,8 @@ class SQSMessageQueue(MessageQueue):
             WaitTimeSeconds=self._cfg.receive_message_wait_time_in_s,
         )
         if _has_message(response):
-            logger.info("Found script show")
             return _response_to_script_show_message(response)
         else:
-            logger.info("Did not find script show")
             return None
 
     def delete_script_show(self, receipt_handle: str):

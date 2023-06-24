@@ -10,7 +10,7 @@ logger = structlog.get_logger()
 
 def new_llm(cfg: LLMConfig) -> BaseLanguageModel:
     validate_llm_config(cfg)
-    logger.debug("Creating new LLM", cfg=cfg)
+    logger.info("Creating new LLM")
 
     if cfg.virtual:
         return FakeListLLM(responses=cfg.fake_responses)
