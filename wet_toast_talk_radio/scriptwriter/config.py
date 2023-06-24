@@ -27,7 +27,6 @@ def validate_llm_config(cfg: LLMConfig):
 class ScriptwriterConfig(BaseModel):
     """scriptwriter config file"""
 
-    foo: str = "bar"
     llm: LLMConfig | None = None
 
 

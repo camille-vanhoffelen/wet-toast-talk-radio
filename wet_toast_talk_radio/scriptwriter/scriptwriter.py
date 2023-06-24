@@ -24,7 +24,7 @@ class Scriptwriter:
     def run(self) -> None:
         logger.info("Starting scriptwriter...")
         assert (
-                self._media_store is not None
+            self._media_store is not None
         ), "MediaStore must be provided to run Scriptwriter"
         daily_program = DailyProgram(llm=self._llm, media_store=self._media_store)
         asyncio.run(daily_program.awrite())

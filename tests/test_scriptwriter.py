@@ -35,6 +35,4 @@ def llm_config() -> LLMConfig:
     n_shows = len(DailyProgram.program)
     logger.debug("Initialising FakeLLM", n_shows=n_shows)
     fake_responses = fake_responses * n_shows
-    return LLMConfig(
-        virtual=True, fake_responses=fake_responses
-    )
+    return LLMConfig(virtual=True, fake_responses=fake_responses)

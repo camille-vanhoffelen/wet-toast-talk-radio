@@ -18,9 +18,9 @@ from wet_toast_talk_radio.audio_generator.model_cache import (
     cache_is_present,
     download_model_cache,
 )
+from wet_toast_talk_radio.common.path import delete_folder
 from wet_toast_talk_radio.common.task_log_ctx import task_log_ctx
 from wet_toast_talk_radio.media_store import MediaStore
-from wet_toast_talk_radio.common.path import delete_folder
 from wet_toast_talk_radio.message_queue.message_queue import MessageQueue
 
 logger = structlog.get_logger()
