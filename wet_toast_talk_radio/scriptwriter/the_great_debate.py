@@ -15,6 +15,7 @@ from wet_toast_talk_radio.media_store.common.date import get_current_iso_utc_dat
 from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.scriptwriter import prompts
 from wet_toast_talk_radio.scriptwriter.prompts import ScriptOutputParser
+from wet_toast_talk_radio.scriptwriter.shows import RadioShow
 
 IN_FAVOR_GUEST_KEY = "in_favor_guest"
 AGAINST_GUEST_KEY = "against_guest"
@@ -210,14 +211,14 @@ class TheGreatDebateChain(Chain):
         return cls(chain=chain)
 
 
-class TheGreatDebateShow:
+class TheGreatDebateShow(RadioShow):
     def __init__(self, llm: BaseLanguageModel, media_store: MediaStore):
         self._chain = TheGreatDebateChain.from_llm(llm=llm)
         # TODO modularize topic
         self.topic = "toilet paper"
         self._media_store = media_store
 
-    async def arun(self):
+    async def awrite(self):
         logger.info("Writing The Great Debate show...", topic=self.topic)
         outputs = self._chain(inputs={"topic": self.topic})
         script = outputs["script"]
@@ -228,3 +229,9 @@ class TheGreatDebateShow:
         show_id = ShowId(show_i=0, date=get_current_iso_utc_date())
         # TODO async media_store put
         self._media_store.put_script_show(show_id=show_id, content=script)
+
+    @classmethod
+    def create(
+        cls, llm: BaseLanguageModel, media_store: MediaStore
+    ) -> "TheGreatDebateShow":
+        return cls(llm=llm, media_store=media_store)
