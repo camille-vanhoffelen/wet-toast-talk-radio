@@ -6,6 +6,7 @@ from langchain.base_language import BaseLanguageModel
 
 from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.common.date import get_offset_iso_utc_date
+from wet_toast_talk_radio.scriptwriter.radio_show import RadioShow
 from wet_toast_talk_radio.scriptwriter.the_great_debate import TheGreatDebateShow
 
 logger = structlog.get_logger()
@@ -14,7 +15,7 @@ logger = structlog.get_logger()
 class DailyProgram:
     # TODO async? but ordered?
     # https://stackoverflow.com/questions/54668701/asyncio-gather-scheduling-order-guarantee
-    program = [TheGreatDebateShow, TheGreatDebateShow]
+    program: tuple[RadioShow] = (TheGreatDebateShow, TheGreatDebateShow)
 
     def __init__(self, llm: BaseLanguageModel, media_store: MediaStore):
         self.program_iso_utc_date = get_offset_iso_utc_date(timedelta(days=2))
