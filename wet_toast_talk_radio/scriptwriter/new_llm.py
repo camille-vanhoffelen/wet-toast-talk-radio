@@ -16,7 +16,7 @@ def new_llm(cfg: LLMConfig) -> BaseLanguageModel:
         return FakeListLLM(responses=cfg.fake_responses)
     else:
         return ChatOpenAI(
-            openai_api_key=cfg.openai_api_key,
+            openai_api_key=cfg.openai_api_key.value(),
             model=cfg.model,
             temperature=cfg.temperature,
         )

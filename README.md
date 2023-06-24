@@ -38,7 +38,7 @@ scriptwriter:
   llm:
     # virtual: true
     # fake_responses: ["Yeah sure", "Nah bro"]
-    openai_api_key: "sk-....."
+    openai_api_key: sm:/wet-toast-talk-radio/scriptwriter/openai-api-key
   
 disc_jockey:
   media_transcoder:

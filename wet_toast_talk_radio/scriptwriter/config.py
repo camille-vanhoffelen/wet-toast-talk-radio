@@ -1,5 +1,7 @@
 from pydantic import BaseModel
 
+from wet_toast_talk_radio.common.secret_val import SecretVar
+
 
 class LLMConfig(BaseModel):
     """LLM config file"""
@@ -8,8 +10,7 @@ class LLMConfig(BaseModel):
     fake_responses: list[str] = None
     model: str = "gpt-3.5-turbo"
     temperature: float = 0.9
-    # TODO make secret
-    openai_api_key: str = None
+    openai_api_key: SecretVar[str] | None = None
 
 
 def validate_llm_config(cfg: LLMConfig):
