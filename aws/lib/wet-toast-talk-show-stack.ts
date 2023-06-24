@@ -53,6 +53,7 @@ export class WetToastTalkShowStack extends cdk.Stack {
             voscastServerHostname: params.voscastHostname,
             voscastServerPort: params.voscastPort,
             voscastPassword: params.voscastPassword,
+            voscastAutoDjKey: params.voscastAutoDjKey,
         });
 
         const logGroup = new logs.LogGroup(this, 'LogGroup', {

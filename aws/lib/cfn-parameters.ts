@@ -19,6 +19,7 @@ export class CfnParameters {
     readonly voscastPassword: CfnParameter;
     readonly voscastHostname: CfnParameter;
     readonly voscastPort: CfnParameter;
+    readonly voscastAutoDjKey: CfnParameter;
 
     constructor(scope: Construct) {
         this.ecrRepositoryName = new CfnParameter(scope, 'ECRRepositoryName', {
@@ -104,6 +105,12 @@ export class CfnParameters {
             type: 'String',
             default: '11053',
             description: 'The port for the voscast server',
+        });
+
+        this.voscastAutoDjKey = new CfnParameter(scope, 'VoscastAutoDjKey', {
+            type: 'String',
+            default: 'sm:/wet-toast-talk-radio/voscast-autodj-key',
+            description: 'The auto dj key for the voscast server',
         });
     }
 }

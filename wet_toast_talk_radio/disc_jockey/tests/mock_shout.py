@@ -2,8 +2,8 @@ import multiprocessing
 
 
 class MockShout:
-    def __init__(self):
-        self.queue = multiprocessing.Queue()
+    def __init__(self, queue: multiprocessing.Queue):
+        self.queue = queue
         pass
 
     def open(self):  # noqa: A003

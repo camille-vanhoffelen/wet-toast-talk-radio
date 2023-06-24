@@ -27,11 +27,19 @@ class TestStream:
         media_store.put_transcoded_show(show0, b"foo0")
         media_store.put_transcoded_show(show1, b"foo1")
 
-        stream_queue = multiprocessing.Queue(maxsize=1)
+        m = multiprocessing.Manager()
+        stream_queue = m.Queue(maxsize=1)
+        cancel_event = m.Event()
 
         prepare_process = multiprocessing.Process(
             target=_prepare,
-            args=(message_queue, media_store, stream_queue, timedelta(microseconds=1)),
+            args=(
+                cancel_event,
+                message_queue,
+                media_store,
+                stream_queue,
+                timedelta(microseconds=1),
+            ),
         )
         prepare_process.start()
         assert stream_queue.empty()

@@ -109,10 +109,10 @@ class MediaTranscoder:
     def _transcode_downloaded_shows(self):
         logger.info("Transcoding downloaded shows ...")
 
-        def transcode_show(show_path: Path, out: Path):
+        def transcode_show(show_path: Path, out: Path, show_name: str):
             try:
                 song = AudioSegment.from_wav(show_path)
-                song.export(out, format="ogg")
+                song.export(out, format="ogg", tags={"title": show_name})
             except Exception as e:
                 logger.error("could not transcode show", error=e)
 
@@ -130,7 +130,11 @@ class MediaTranscoder:
                             new_dir.mkdir(parents=True)
                         out = self._transcoded_shows_dir / date / show.name / "show.ogg"
                         show_path = show / "show.wav"
-                        futures.append(executor.submit(transcode_show, show_path, out))
+                        futures.append(
+                            executor.submit(
+                                transcode_show, show_path, out, f"{date}/{show.name}"
+                            )
+                        )
 
             concurrent.futures.wait(futures)
 

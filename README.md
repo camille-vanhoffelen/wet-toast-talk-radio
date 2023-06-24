@@ -18,10 +18,10 @@ Generating content for Wet Toast Talk Radio
 You will likely want to create a config.yml with these contents:
 
 ```yaml
-emergency_alert_system:
-  web_hook_url: sm:/wet-toast-talk-show/emergency-alert-system/slack-web-hook-url
-radio_operator:
-  web_hook_url: sm:/wet-toast-talk-show/radio-operator/slack-web-hook-url
+# emergency_alert_system:
+#   web_hook_url: sm:/wet-toast-talk-show/emergency-alert-system/slack-web-hook-url
+# radio_operator:
+#   web_hook_url: sm:/wet-toast-talk-show/radio-operator/slack-web-hook-url
 message_queue:
   # virtual: true
   sqs:
@@ -42,6 +42,11 @@ disc_jockey:
     clean_tmp_dir: false
   shout_client:
     password: "hackme"
+    # Uncomment to stream to voscast directly
+    # password: sm:/wet-toast-talk-radio/voscast-password
+    # hostname: s3.voscast.com
+    # port: 11052
+    # autodj_key: sm:/wet-toast-talk-radio/voscast-autodj-key
 ```
 
 ### Running
