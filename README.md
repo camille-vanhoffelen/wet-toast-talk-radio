@@ -35,8 +35,11 @@ audio_generator:
   # If HF Hub cache empty, download models from S3 instead of the internet
   use_s3_model_cache: true
 scriptwriter:
-  # OpenAI API key used for text generation
-  openai_api_key: "sk-....."
+  llm:
+    # virtual: true
+    # fake_responses: ["Yeah sure", "Nah bro"]
+    openai_api_key: sm:/wet-toast-talk-radio/scriptwriter/openai-api-key
+  
 disc_jockey:
   media_transcoder:
     clean_tmp_dir: false

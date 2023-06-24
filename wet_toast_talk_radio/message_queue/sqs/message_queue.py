@@ -81,6 +81,7 @@ class SQSMessageQueue(MessageQueue):
             )
 
     def poll_script_show(self) -> ScriptShowMessage | None:
+        logger.info("Polling script show")
         response = new_sqs_client(self._cfg.local).receive_message(
             QueueUrl=self._script_queue_url,
             MaxNumberOfMessages=1,
@@ -97,6 +98,7 @@ class SQSMessageQueue(MessageQueue):
         )
 
     def add_script_shows(self, shows: list[ShowId]):
+        logger.info("Adding script shows to MQ", shows=shows)
         for show in shows:
             show_id_json = json.dumps(dataclasses.asdict(show))
             new_sqs_client(self._cfg.local).send_message(

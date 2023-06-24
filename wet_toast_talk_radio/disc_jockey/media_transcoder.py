@@ -6,6 +6,7 @@ import structlog
 from pydantic import BaseModel
 from pydub import AudioSegment
 
+from wet_toast_talk_radio.common.path import delete_folder
 from wet_toast_talk_radio.common.task_log_ctx import task_log_ctx
 from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.common.date import get_current_utc_date
@@ -73,7 +74,8 @@ class MediaTranscoder:
                 self._download_raw_shows(batch)
                 self._transcode_downloaded_shows()
                 self._upload_tanscoded_shows()
-                self._cleanup_tmp_files()
+                if self._cfg.clean_tmp_dir:
+                    delete_folder(self._raw_shows_dir, self._transcoded_shows_dir)
                 batch = []
                 logger.info(f"{len(new_raw_shows)} shows left to process")
 
@@ -152,19 +154,3 @@ class MediaTranscoder:
                     )
                     shows.append(show_upload_input)
         self._media_store.upload_transcoded_shows(shows)
-
-    def _cleanup_tmp_files(self):
-        if self._cfg.clean_tmp_dir:
-            for directory in [
-                self._raw_shows_dir,
-                self._transcoded_shows_dir,
-            ]:
-                self._delete_folder(directory)
-
-    def _delete_folder(self, path: Path):
-        for sub in path.iterdir():
-            if sub.is_dir():
-                self._delete_folder(sub)
-            else:
-                sub.unlink()
-        path.rmdir()

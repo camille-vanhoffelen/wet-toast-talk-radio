@@ -1,3 +1,4 @@
+from itertools import cycle
 from typing import Any
 
 import structlog
@@ -10,13 +11,23 @@ from langchain.chains import SequentialChain
 from langchain.chains.base import Chain
 from langchain.prompts import ChatPromptTemplate
 
+from wet_toast_talk_radio.media_store import MediaStore
+from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.scriptwriter import prompts
 from wet_toast_talk_radio.scriptwriter.prompts import ScriptOutputParser
+from wet_toast_talk_radio.scriptwriter.radio_show import RadioShow
+
+logger = structlog.get_logger()
 
 IN_FAVOR_GUEST_KEY = "in_favor_guest"
 AGAINST_GUEST_KEY = "against_guest"
-
-logger = structlog.get_logger()
+TOPICS = cycle(
+    [
+        "toilet paper",
+        "eating your boogers",
+        "investing all your life savings in bitcoin",
+    ]
+)
 
 
 class GuestGenerationChain(Chain):
@@ -205,3 +216,36 @@ class TheGreatDebateChain(Chain):
             + script_generation_chain.output_keys,
         )
         return cls(chain=chain)
+
+
+class TheGreatDebateShow(RadioShow):
+    def __init__(
+        self,
+        llm: BaseLanguageModel,
+        media_store: MediaStore,
+    ):
+        self._chain = TheGreatDebateChain.from_llm(llm=llm)
+        self.topic = next(TOPICS)
+        self._media_store = media_store
+
+    async def awrite(self, show_id: ShowId) -> bool:
+        logger.info(
+            "Writing The Great Debate show...", topic=self.topic, show_id=show_id
+        )
+        outputs = await self._chain.acall(inputs={"topic": self.topic})
+        script = outputs["script"]
+        logger.info("Finished writing The Great Debate show", script=script)
+
+        self._media_store.put_script_show(show_id=show_id, content=script)
+        return True
+
+    @classmethod
+    def create(
+        cls,
+        llm: BaseLanguageModel,
+        media_store: MediaStore,
+    ) -> "TheGreatDebateShow":
+        return cls(
+            llm=llm,
+            media_store=media_store,
+        )

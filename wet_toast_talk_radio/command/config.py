@@ -10,7 +10,7 @@ from wet_toast_talk_radio.emergency_alert_system.config import (
 from wet_toast_talk_radio.media_store.config import MediaStoreConfig
 from wet_toast_talk_radio.message_queue.config import MessageQueueConfig
 from wet_toast_talk_radio.radio_operator.config import RadioOperatorConfig
-from wet_toast_talk_radio.scriptwriter.config import ScriptwriterConfig
+from wet_toast_talk_radio.scriptwriter.config import LLMConfig, ScriptwriterConfig
 
 
 class RootConfig(BaseSettings):
@@ -31,6 +31,7 @@ class RootConfig(BaseSettings):
     message_queue: Optional[MessageQueueConfig] = None
     radio_operator: Optional[RadioOperatorConfig] = None
     emergency_alert_system: Optional[EmergencyAlertSystemConfig] = None
+    llm: Optional[LLMConfig] = None
 
     class Config:
         env_prefix = "WT_"

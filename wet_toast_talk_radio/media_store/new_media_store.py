@@ -11,7 +11,7 @@ logger = structlog.get_logger()
 def new_media_store(cfg: MediaStoreConfig) -> MediaStore:
     """Return a new media store instance"""
     validate_config(cfg)
-    logger.debug("Creating new media store", cfg=cfg)
+    logger.info("Creating new media store")
 
     if cfg.virtual:
         return VirtualMediaStore()
