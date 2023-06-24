@@ -1,8 +1,12 @@
 import pytest
 from langchain.llms.fake import FakeListLLM
 
+from wet_toast_talk_radio.media_store import VirtualMediaStore
 from wet_toast_talk_radio.scriptwriter.prompts import generate_guest_generation_template
-from wet_toast_talk_radio.scriptwriter.the_great_debate import TheGreatDebateChain
+from wet_toast_talk_radio.scriptwriter.the_great_debate import (
+    TheGreatDebateChain,
+    TheGreatDebateShow,
+)
 
 
 def test_guest_generation_prompt_template():
@@ -25,6 +29,12 @@ def test_broken_the_great_debate_chain(broken_fake_llm, topic):
     chain = TheGreatDebateChain.from_llm(llm=broken_fake_llm)
     with pytest.raises(AssertionError):
         chain(inputs={"topic": topic})
+
+
+def test_topic_cycling(fake_llm):
+    show1 = TheGreatDebateShow.create(fake_llm, VirtualMediaStore())
+    show2 = TheGreatDebateShow.create(fake_llm, VirtualMediaStore())
+    assert show1.topic != show2.topic
 
 
 @pytest.fixture()
