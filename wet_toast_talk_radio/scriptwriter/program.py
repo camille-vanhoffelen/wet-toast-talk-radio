@@ -16,11 +16,12 @@ class DailyProgram:
     program: tuple[RadioShow] = (TheGreatDebateShow, TheGreatDebateShow)
 
     def __init__(self, llm: BaseLanguageModel, media_store: MediaStore):
+        self._media_store = media_store
         self.program_iso_utc_date = get_offset_iso_utc_date(timedelta(days=2))
         self._shows = [
             show.create(llm=llm, media_store=media_store) for show in self.program
         ]
-        # TODO defensive programing to check if scripts not already written for show date?
+        self._warn_overwrite()
         logger.info(
             "Initialised daily program",
             date=self.program_iso_utc_date,
@@ -37,3 +38,14 @@ class DailyProgram:
                 )
             )
         await asyncio.gather(*tasks)
+
+    def _warn_overwrite(self):
+        previous_shows = self._media_store.list_script_shows(
+            dates={self.program_iso_utc_date}
+        )
+        if previous_shows:
+            logger.warning(
+                "Overwriting previous shows",
+                date=self.program_iso_utc_date,
+                previous_shows=previous_shows,
+            )
