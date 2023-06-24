@@ -31,4 +31,4 @@ class AutoDJ:
             params = [self._key_param, ("action", "start")]
             resp = requests.get(self._url, params=params)
             if resp.status_code != requests.codes.ok:
-                raise Exception("Failed to stop autodj")
+                raise Exception("Failed to start autodj")
