@@ -22,7 +22,6 @@ class TestAudioGenerator:
         media_store,  # noqa: F811
         message_queue,  # noqa: F811
     ):
-        # TODO why this opens tmp files?
         delete_spy = mocker.spy(message_queue, "delete_script_show")
         shows = _init_bucket(media_store)
         message_queue.add_script_shows(shows)

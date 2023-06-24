@@ -59,8 +59,8 @@ def the_great_debate(ctx: dict, topic: str):
     script = outputs["script"]
 
     uuid_str = str(uuid.uuid4())[:4]
-    script_shows_dir = Path("tmp/") / "script"
-    script_shows_dir.mkdir(parents=True, exist_ok=True)
-    script_file = script_shows_dir / f"the-great-debate-{uuid_str}.txt"
+    tmp_dir = Path("tmp/")
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+    script_file = tmp_dir / f"the-great-debate-{uuid_str}.txt"
     with script_file.open("w") as f:
         f.write(script)

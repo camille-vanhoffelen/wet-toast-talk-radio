@@ -9,6 +9,7 @@ class AudioGeneratorConfig(BaseModel):
     # Renewed MQ visibility timeout set after each sentence generation
     # see: https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-visibility-timeout.html
     heartbeat_interval_in_s: StrictInt = 300
+    clean_tmp_dir: bool = True
 
 
 def validate_config(cfg: AudioGeneratorConfig):

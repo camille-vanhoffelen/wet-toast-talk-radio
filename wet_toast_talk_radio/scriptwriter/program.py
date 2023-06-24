@@ -13,8 +13,6 @@ logger = structlog.get_logger()
 
 
 class DailyProgram:
-    # TODO async? but ordered?
-    # https://stackoverflow.com/questions/54668701/asyncio-gather-scheduling-order-guarantee
     program: tuple[RadioShow] = (TheGreatDebateShow, TheGreatDebateShow)
 
     def __init__(self, llm: BaseLanguageModel, media_store: MediaStore):

@@ -20,6 +20,7 @@ from wet_toast_talk_radio.audio_generator.model_cache import (
 )
 from wet_toast_talk_radio.common.task_log_ctx import task_log_ctx
 from wet_toast_talk_radio.media_store import MediaStore
+from wet_toast_talk_radio.common.path import delete_folder
 from wet_toast_talk_radio.message_queue.message_queue import MessageQueue
 
 logger = structlog.get_logger()
@@ -46,9 +47,7 @@ class AudioGenerator:
 
         self._tmp_dir = tmp_dir
         self._script_shows_dir = self._tmp_dir / "script"
-        self._raw_shows_dir = self._tmp_dir / "raw"
         self._script_shows_dir.mkdir(parents=True, exist_ok=True)
-        self._raw_shows_dir.mkdir(parents=True, exist_ok=True)
 
         self._init_models()
 
@@ -80,6 +79,9 @@ class AudioGenerator:
             self._media_store.put_raw_show(show_id=show_id, data=data)
             self._message_queue.delete_script_show(script_show_message.receipt_handle)
             logger.info("Show deleted from message_queue", show_id=show_id)
+            if self._cfg.clean_tmp_dir:
+                logger.debug("Cleaning tmp dir")
+                delete_folder(self._script_shows_dir)
         logger.info("Script shows queue empty, Audio Generator exiting")
 
     def benchmark(self, text: str) -> None:
@@ -87,7 +89,7 @@ class AudioGenerator:
         logger.info("Starting audio generator benchmark...")
         data = self._generate_audio(text)
         uuid_str = str(uuid.uuid4())[:4]
-        path = self._raw_shows_dir / f"audio-generator-benchmark-{uuid_str}.wav"
+        path = self._tmp_dir / f"audio-generator-benchmark-{uuid_str}.wav"
         logger.info("Writing audio to file", path=path)
         with path.open("wb") as f:
             f.write(data)

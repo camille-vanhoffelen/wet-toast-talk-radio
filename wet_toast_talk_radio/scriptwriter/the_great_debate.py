@@ -15,11 +15,17 @@ from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.scriptwriter import prompts
 from wet_toast_talk_radio.scriptwriter.prompts import ScriptOutputParser
 from wet_toast_talk_radio.scriptwriter.radio_show import RadioShow
+from itertools import cycle
+
+logger = structlog.get_logger()
 
 IN_FAVOR_GUEST_KEY = "in_favor_guest"
 AGAINST_GUEST_KEY = "against_guest"
-
-logger = structlog.get_logger()
+TOPICS = cycle([
+    "toilet paper",
+    "eating your boogers",
+    "investing all your life savings in bitcoin",
+])
 
 
 class GuestGenerationChain(Chain):
@@ -217,8 +223,7 @@ class TheGreatDebateShow(RadioShow):
         media_store: MediaStore,
     ):
         self._chain = TheGreatDebateChain.from_llm(llm=llm)
-        # TODO modularize topic
-        self.topic = "toilet paper"
+        self.topic = next(TOPICS)
         self._media_store = media_store
 
     async def awrite(self, show_i: int, show_iso_utc_date: str):
