@@ -39,15 +39,27 @@ class DailyProgram:
     async def awrite(self):
         logger.info("Writing daily program...")
         tasks = []
-        # TODO more elegant way to do this
-        show_ids = []
+        all_shows = []
         for i, show in enumerate(self._shows):
             show_id = ShowId(show_i=i, date=self.program_iso_utc_date)
             tasks.append(asyncio.create_task(show.awrite(show_id=show_id)))
-            show_ids.append(show_id)
-        await asyncio.gather(*tasks)
-        # TODO failure handling, what if show fails to write? Can't send to queue
-        self._message_queue.add_script_shows(shows=show_ids)
+            all_shows.append(show_id)
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        script_shows = self._filter_failures(all_shows, results)
+        self._message_queue.add_script_shows(shows=script_shows)
+
+    def _filter_failures(self, shows: list[ShowId], results: list) -> list[ShowId]:
+        successful_shows = []
+        for show_id, result in zip(shows, results, strict=True):
+            if isinstance(result, Exception) or result is False:
+                logger.error(
+                    "Failed to write show",
+                    show_id=show_id,
+                    error=result,
+                )
+            else:
+                successful_shows.append(show_id)
+        return successful_shows
 
     def _warn_overwrite(self):
         previous_shows = self._media_store.list_script_shows(

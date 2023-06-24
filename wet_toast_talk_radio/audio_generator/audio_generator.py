@@ -40,7 +40,7 @@ class AudioGenerator:
         tmp_dir: Path = Path("tmp/"),
     ) -> None:
         validate_config(cfg)
-        logger.info("Initializing audio_generator", cfg=cfg)
+        logger.info("Initializing audio_generator")
         self._cfg = cfg
         self._media_store = media_store
         self._message_queue = message_queue
@@ -80,7 +80,6 @@ class AudioGenerator:
             self._message_queue.delete_script_show(script_show_message.receipt_handle)
             logger.info("Show deleted from message_queue", show_id=show_id)
             if self._cfg.clean_tmp_dir:
-                logger.debug("Cleaning tmp dir")
                 delete_folder(self._script_shows_dir)
         logger.info("Script shows queue empty, Audio Generator exiting")
 
@@ -105,7 +104,6 @@ class AudioGenerator:
         silence = np.zeros(int(0.25 * SAMPLE_RATE))  # quarter second of silence
 
         logger.info("Starting audio generation")
-        logger.debug("Text", text=text)
 
         start = time.perf_counter()
 

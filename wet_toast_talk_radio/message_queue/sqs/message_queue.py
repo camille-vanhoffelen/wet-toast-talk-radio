@@ -81,17 +81,17 @@ class SQSMessageQueue(MessageQueue):
             )
 
     def poll_script_show(self) -> ScriptShowMessage | None:
-        logger.debug("Polling script show")
+        logger.info("Polling script show")
         response = new_sqs_client(self._cfg.local).receive_message(
             QueueUrl=self._script_queue_url,
             MaxNumberOfMessages=1,
             WaitTimeSeconds=self._cfg.receive_message_wait_time_in_s,
         )
         if _has_message(response):
-            logger.debug("Found script show on MQ")
+            logger.info("Found script show")
             return _response_to_script_show_message(response)
         else:
-            logger.debug("Did not find script show on MQ")
+            logger.info("Did not find script show")
             return None
 
     def delete_script_show(self, receipt_handle: str):
@@ -100,8 +100,8 @@ class SQSMessageQueue(MessageQueue):
         )
 
     def add_script_shows(self, shows: list[ShowId]):
+        logger.info("Adding script shows to MQ", shows=shows)
         for show in shows:
-            logger.debug("Adding script show to MQ", show=show)
             show_id_json = json.dumps(dataclasses.asdict(show))
             new_sqs_client(self._cfg.local).send_message(
                 QueueUrl=self._script_queue_url,

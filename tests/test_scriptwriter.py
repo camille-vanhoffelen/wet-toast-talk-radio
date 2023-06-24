@@ -1,3 +1,5 @@
+from time import sleep
+
 import pytest
 import structlog
 
@@ -30,7 +32,30 @@ class TestScriptwriter:
         scriptwriter.run()
         n_shows = len(DailyProgram.program)
         assert len(media_store.list_script_shows()) == n_shows
-        assert message_queue.poll_script_show() is not None
+        for _ in range(len(DailyProgram.program)):
+            _poll_and_delete(message_queue)
+
+    @pytest.mark.integration()
+    def test_scriptwriter_failure(
+        self,
+        mocker,
+        _clear_bucket,  # noqa: PT019, F811
+        _clear_sqs,  # noqa: PT019, F811
+        media_store,  # noqa: F811
+        message_queue,  # noqa: F811
+        llm_config,
+    ):
+        mocker.patch(
+            "wet_toast_talk_radio.scriptwriter.the_great_debate.TheGreatDebateShow.awrite",
+            side_effect=Exception("Random bug"),
+        )
+        cfg = ScriptwriterConfig(llm=llm_config)
+        scriptwriter = Scriptwriter(
+            cfg=cfg, media_store=media_store, message_queue=message_queue
+        )
+        scriptwriter.run()
+        assert len(media_store.list_script_shows()) == 0
+        assert message_queue.poll_script_show() is None
 
 
 @pytest.fixture()
@@ -43,3 +68,10 @@ def llm_config() -> LLMConfig:
     logger.debug("Initialising FakeLLM", n_shows=n_shows)
     fake_responses = fake_responses * n_shows
     return LLMConfig(virtual=True, fake_responses=fake_responses)
+
+
+def _poll_and_delete(message_queue):  # noqa: F811
+    result = message_queue.poll_script_show()
+    assert result is not None
+    message_queue.delete_script_show(result.receipt_handle)
+    sleep(0.1)

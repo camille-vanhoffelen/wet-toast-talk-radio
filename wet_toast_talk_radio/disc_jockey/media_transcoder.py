@@ -75,7 +75,6 @@ class MediaTranscoder:
                 self._transcode_downloaded_shows()
                 self._upload_tanscoded_shows()
                 if self._cfg.clean_tmp_dir:
-                    logger.debug("Cleaning tmp dir")
                     delete_folder(self._raw_shows_dir, self._transcoded_shows_dir)
                 batch = []
                 logger.info(f"{len(new_raw_shows)} shows left to process")

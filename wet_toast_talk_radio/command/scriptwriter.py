@@ -39,7 +39,9 @@ def run(ctx: dict):
 
     media_store = new_media_store(ms_cfg)
     message_queue = new_message_queue(mq_cfg)
-    writer = Scriptwriter(cfg=sw_cfg, media_store=media_store, message_queue=message_queue)
+    writer = Scriptwriter(
+        cfg=sw_cfg, media_store=media_store, message_queue=message_queue
+    )
     writer.run()
 
 

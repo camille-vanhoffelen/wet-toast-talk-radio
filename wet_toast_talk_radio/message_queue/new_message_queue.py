@@ -13,7 +13,7 @@ logger = structlog.get_logger()
 
 def new_message_queue(cfg: MessageQueueConfig) -> MessageQueue:
     validate_config(cfg)
-    logger.debug("Creating new message queue", cfg=cfg)
+    logger.info("Creating new message queue")
 
     if cfg.virtual:
         return VirtualMessageQueue()

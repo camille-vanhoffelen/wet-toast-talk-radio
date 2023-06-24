@@ -228,13 +228,16 @@ class TheGreatDebateShow(RadioShow):
         self.topic = next(TOPICS)
         self._media_store = media_store
 
-    async def awrite(self, show_id: ShowId):
-        logger.info("Writing The Great Debate show...", topic=self.topic, show_id=show_id)
+    async def awrite(self, show_id: ShowId) -> bool:
+        logger.info(
+            "Writing The Great Debate show...", topic=self.topic, show_id=show_id
+        )
         outputs = await self._chain.acall(inputs={"topic": self.topic})
         script = outputs["script"]
         logger.info("Finished writing The Great Debate show", script=script)
 
         self._media_store.put_script_show(show_id=show_id, content=script)
+        return True
 
     @classmethod
     def create(

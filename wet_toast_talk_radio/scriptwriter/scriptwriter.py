@@ -21,7 +21,7 @@ class Scriptwriter:
         media_store: MediaStore,
         message_queue: MessageQueue,
     ):
-        logger.info("Initializing scriptwriter", cfg=cfg)
+        logger.info("Initializing scriptwriter")
         self._cfg = cfg
         validate_config(cfg)
         self._llm = new_llm(cfg=cfg.llm)
