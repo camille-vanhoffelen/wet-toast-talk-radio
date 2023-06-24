@@ -14,20 +14,27 @@ logger = structlog.get_logger()
 class DailyProgram:
     # TODO async? but ordered?
     # https://stackoverflow.com/questions/54668701/asyncio-gather-scheduling-order-guarantee
+    program = [TheGreatDebateShow, TheGreatDebateShow]
+
     def __init__(self, llm: BaseLanguageModel, media_store: MediaStore):
-        self._program = [TheGreatDebateShow]
+        self.program_iso_utc_date = get_offset_iso_utc_date(timedelta(days=2))
         self._shows = [
-            show.create(llm=llm, media_store=media_store) for show in self._program
+            show.create(llm=llm, media_store=media_store) for show in self.program
         ]
         # TODO defensive programing to check if scripts not already written for show date?
-        self._program_iso_utc_date = get_offset_iso_utc_date(timedelta(days=2))
-        logger.info("Initialised daily program", date=self._program_iso_utc_date, program=self._program)
+        logger.info(
+            "Initialised daily program",
+            date=self.program_iso_utc_date,
+            program=self.program,
+        )
 
     async def awrite(self):
         logger.info("Writing daily program...")
         tasks = []
         for i, show in enumerate(self._shows):
             tasks.append(
-                asyncio.create_task(show.awrite(show_i=i, show_iso_utc_date=self._program_iso_utc_date))
+                asyncio.create_task(
+                    show.awrite(show_i=i, show_iso_utc_date=self.program_iso_utc_date)
+                )
             )
         await asyncio.gather(*tasks)
