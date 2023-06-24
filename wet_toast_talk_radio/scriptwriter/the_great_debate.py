@@ -11,11 +11,10 @@ from langchain.chains.base import Chain
 from langchain.prompts import ChatPromptTemplate
 
 from wet_toast_talk_radio.media_store import MediaStore
-from wet_toast_talk_radio.media_store.common.date import get_current_iso_utc_date
 from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.scriptwriter import prompts
 from wet_toast_talk_radio.scriptwriter.prompts import ScriptOutputParser
-from wet_toast_talk_radio.scriptwriter.shows import RadioShow
+from wet_toast_talk_radio.scriptwriter.radio_show import RadioShow
 
 IN_FAVOR_GUEST_KEY = "in_favor_guest"
 AGAINST_GUEST_KEY = "against_guest"
@@ -212,13 +211,17 @@ class TheGreatDebateChain(Chain):
 
 
 class TheGreatDebateShow(RadioShow):
-    def __init__(self, llm: BaseLanguageModel, media_store: MediaStore):
+    def __init__(
+        self,
+        llm: BaseLanguageModel,
+        media_store: MediaStore,
+    ):
         self._chain = TheGreatDebateChain.from_llm(llm=llm)
         # TODO modularize topic
         self.topic = "toilet paper"
         self._media_store = media_store
 
-    async def awrite(self):
+    async def awrite(self, show_i: int, show_iso_utc_date: str):
         logger.info("Writing The Great Debate show...", topic=self.topic)
         outputs = self._chain(inputs={"topic": self.topic})
         script = outputs["script"]
@@ -226,12 +229,17 @@ class TheGreatDebateShow(RadioShow):
 
         # TODO the date should be the date of the show, not current date
         # TODO how to number shows? How to generate many?
-        show_id = ShowId(show_i=0, date=get_current_iso_utc_date())
+        show_id = ShowId(show_i=show_i, date=show_iso_utc_date)
         # TODO async media_store put
         self._media_store.put_script_show(show_id=show_id, content=script)
 
     @classmethod
     def create(
-        cls, llm: BaseLanguageModel, media_store: MediaStore
+        cls,
+        llm: BaseLanguageModel,
+        media_store: MediaStore,
     ) -> "TheGreatDebateShow":
-        return cls(llm=llm, media_store=media_store)
+        return cls(
+            llm=llm,
+            media_store=media_store,
+        )

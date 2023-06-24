@@ -12,6 +12,7 @@ class RadioShow(ABC):
         """Factory method"""
 
     @abstractmethod
-    async def awrite(self):
+    async def awrite(self, show_i: int, show_iso_utc_date: str):
         """Asynchronously write the script for the show using an LLM.
-        Script is stored in the media store."""
+        Script is stored in the media store.
+        Show id is show_i, streaming date of the show is show_iso_utc_date"""
