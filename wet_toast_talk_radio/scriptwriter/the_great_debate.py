@@ -223,14 +223,11 @@ class TheGreatDebateShow(RadioShow):
 
     async def awrite(self, show_i: int, show_iso_utc_date: str):
         logger.info("Writing The Great Debate show...", topic=self.topic)
-        outputs = self._chain(inputs={"topic": self.topic})
+        outputs = await self._chain.acall(inputs={"topic": self.topic})
         script = outputs["script"]
         logger.info("Finished writing The Great Debate show", script=script)
 
-        # TODO the date should be the date of the show, not current date
-        # TODO how to number shows? How to generate many?
         show_id = ShowId(show_i=show_i, date=show_iso_utc_date)
-        # TODO async media_store put
         self._media_store.put_script_show(show_id=show_id, content=script)
 
     @classmethod

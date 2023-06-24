@@ -36,7 +36,7 @@ def run(ctx: dict):
     writer.run()
 
 # TODO allow CLI run w/ topic
-@scriptwriter.command(help="Run scriptwriter")
+@scriptwriter.command(help="Write script for The Great Debate show")
 @click.pass_context
 @click.argument("topic")
 def the_great_debate(ctx: dict, topic: str):
