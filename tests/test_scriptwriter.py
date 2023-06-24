@@ -3,7 +3,9 @@ import structlog
 
 from tests.conftests import (
     _clear_bucket,  # noqa: F401
+    _clear_sqs,  # noqa: F401
     media_store,  # noqa: F401
+    message_queue,  # noqa: F401
 )
 from wet_toast_talk_radio.scriptwriter import DailyProgram, Scriptwriter
 from wet_toast_talk_radio.scriptwriter.config import LLMConfig, ScriptwriterConfig
@@ -16,14 +18,19 @@ class TestScriptwriter:
     def test_scriptwriter(
         self,
         _clear_bucket,  # noqa: PT019, F811
+        _clear_sqs,  # noqa: PT019, F811
         media_store,  # noqa: F811
+        message_queue,  # noqa: F811
         llm_config,
     ):
         cfg = ScriptwriterConfig(llm=llm_config)
-        scriptwriter = Scriptwriter(cfg=cfg, media_store=media_store)
+        scriptwriter = Scriptwriter(
+            cfg=cfg, media_store=media_store, message_queue=message_queue
+        )
         scriptwriter.run()
         n_shows = len(DailyProgram.program)
         assert len(media_store.list_script_shows()) == n_shows
+        assert message_queue.poll_script_show() is not None
 
 
 @pytest.fixture()

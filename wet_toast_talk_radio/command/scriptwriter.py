@@ -7,6 +7,7 @@ import structlog
 from wet_toast_talk_radio.command.print_banner import print_banner
 from wet_toast_talk_radio.command.root import root_cmd
 from wet_toast_talk_radio.media_store import new_media_store
+from wet_toast_talk_radio.message_queue import new_message_queue
 from wet_toast_talk_radio.scriptwriter import Scriptwriter, new_llm
 from wet_toast_talk_radio.scriptwriter.config import validate_config
 from wet_toast_talk_radio.scriptwriter.the_great_debate import TheGreatDebateChain
@@ -34,9 +35,11 @@ def run(ctx: dict):
     root_cfg = ctx.obj["root_cfg"]
     sw_cfg = root_cfg.scriptwriter
     ms_cfg = root_cfg.media_store
+    mq_cfg = root_cfg.message_queue
 
     media_store = new_media_store(ms_cfg)
-    writer = Scriptwriter(cfg=sw_cfg, media_store=media_store)
+    message_queue = new_message_queue(mq_cfg)
+    writer = Scriptwriter(cfg=sw_cfg, media_store=media_store, message_queue=message_queue)
     writer.run()
 
 

@@ -44,7 +44,7 @@ class MessageQueue(ABC):
 
     # Script shows #
     @abstractmethod
-    def poll_script_show(self) -> ScriptShowMessage:
+    def poll_script_show(self) -> ScriptShowMessage | None:
         """Polls script show queue. This method is blocking.
         You should call delete_script_show after processing the message"""
 
