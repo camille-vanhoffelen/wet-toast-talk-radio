@@ -72,11 +72,11 @@ export class ScriptWriter extends Construct {
             environment,
         });
 
-        // CRON  TBD
+        // Cron job once a day at 6h00 UTC
 
         // const schedule = events.Schedule.cron({
         //     minute: '0',
-        //     hour: '1',
+        //     hour: '6',
         //     day: '*',
         //     month: '*',
         //     year: '*',

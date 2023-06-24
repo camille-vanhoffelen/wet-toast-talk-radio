@@ -58,11 +58,11 @@ export class Transcoder extends Construct {
             environment,
         });
 
-        // Cron job twice a day at 1:00 AM and 1:00 PM UTC
+        // Cron job once a day at 12h00 UTC
 
         // const schedule = events.Schedule.cron({
         //     minute: '0',
-        //     hour: '1',
+        //     hour: '12',
         //     day: '*',
         //     month: '*',
         //     year: '*',
