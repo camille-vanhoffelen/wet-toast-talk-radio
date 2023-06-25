@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.1](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.0...v0.1.1) (2023-06-25)
+
+
+### Features
+
+* refactored ci pipeline ([bad43d8](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/bad43d8e5bb97d47475bb6ce554a936d7556d5a9))
+
+
+### Bug Fixes
+
+* fix github pipeline ([c4b680b](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/c4b680b87bf3c5f4df123c9ead580cbd5b1d0a40))
+* fix pipeline ([ddea44c](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/ddea44c0c334c76c22f73c5634e2b2b0f94d14db))
+
 ## 0.1.0 (2023-06-14)
 
 
