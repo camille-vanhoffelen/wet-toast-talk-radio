@@ -56,7 +56,7 @@ export class ScriptWriter extends Construct {
 
         const environment = {
             ...props.slackBots.envVars(),
-            AWS_REGION: Aws.REGION,
+            AWS_DEFAULT_REGION: Aws.REGION,
             WT_MEDIA_STORE__S3__BUCKET_NAME: props.mediaStore.bucket.bucketName,
             WT_MESSAGE_QUEUE__SQS__STREAM_QUEUE_NAME: props.queue.queueName,
             WT_SCRIPTWRITER__LLM__OPENAI_API_KEY: props.openApi.key(),

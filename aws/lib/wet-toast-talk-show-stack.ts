@@ -66,9 +66,15 @@ export class WetToastTalkShowStack extends cdk.Stack {
         });
 
         const image = ecs.ContainerImage.fromEcrRepository(
-            ecr.Repository.fromRepositoryName(this, 'ECRRepository', params.ecrRepositoryName.valueAsString),
+            ecr.Repository.fromRepositoryName(this, 'EcrRepository', params.ecrRepositoryName.valueAsString),
             params.imageTag.valueAsString,
         );
+
+        const gpuImage = ecs.ContainerImage.fromEcrRepository(
+            ecr.Repository.fromRepositoryName(this, 'GpuEcrRepository', params.ecrGpuRepositoryName.valueAsString),
+            params.imageTag.valueAsString,
+        );
+
         new ScriptWriter(this, 'ScriptWriter', {
             vpc,
             mediaStore,
@@ -84,7 +90,7 @@ export class WetToastTalkShowStack extends cdk.Stack {
             vpc,
             mediaStore,
             queue: messageQueue.scriptQueue,
-            image,
+            image: gpuImage,
             instanceType: params.audioGeneratorInstanceType,
             logGroup,
             slackBots,

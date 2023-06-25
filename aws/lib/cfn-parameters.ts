@@ -29,14 +29,14 @@ export class CfnParameters {
             default: 'wet-toast-talk-radio',
             description: 'The ecr repository name for the docker images',
         });
-        this.ecrRepositoryName.overrideLogicalId('ECRRepositoryName');
+        this.ecrRepositoryName.overrideLogicalId('EcrRepositoryName');
 
         this.ecrGpuRepositoryName = new CfnParameter(scope, 'ECRGpuRepositoryName', {
             type: 'String',
             default: 'wet-toast-talk-radio-gpu',
             description: 'The ecr repository name for the gpu docker images',
         });
-        this.ecrGpuRepositoryName.overrideLogicalId('ECRGpuRepositoryName');
+        this.ecrGpuRepositoryName.overrideLogicalId('EcrGpuRepositoryName');
 
         this.imageTag = new CfnParameter(scope, 'ImageTag', {
             type: 'String',
