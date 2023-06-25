@@ -1,3 +1,5 @@
+import json
+
 import requests
 import structlog
 
@@ -23,7 +25,7 @@ def emergency_alert_system_process(_logger, log_method, event_dict):
     if log_method == "error":
         ctx_vars = structlog.contextvars.get_contextvars()
         task = ctx_vars.get("task", "unkown task")
-        event_str = event_dict["event"]
+        event_str = json.dumps(event_dict, indent=2)
         if len(event_str) > _MAX_SLACK_TEXT_BLOCK_LEN:
             event_str = event_str[len(event_str) - _MAX_SLACK_TEXT_BLOCK_LEN :]
         today = get_current_iso_utc_date()
