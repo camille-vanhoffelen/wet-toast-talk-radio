@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.4](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.3...v0.1.4) (2023-06-25)
+
+
+### Bug Fixes
+
+* fix scaling policy and emergnecy json dump ([c5ccc95](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/c5ccc953fa54e4e636349dde0061c6d3f1d39d02))
+
 ## [0.1.3](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.2...v0.1.3) (2023-06-25)
 
 
