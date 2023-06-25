@@ -12,6 +12,7 @@ import { AudioGenerator } from './audio-generator';
 import { VoscastServer } from './voscast-server';
 import { SlackBots } from './slack-bots';
 import { OpenApi } from './open-api';
+import { ModelCache } from './model-cache';
 
 export class WetToastTalkShowStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -44,6 +45,9 @@ export class WetToastTalkShowStack extends cdk.Stack {
         Tags.of(vpc).add('Name', Aws.STACK_NAME);
 
         const mediaStore = new MediaStore(this, 'MediaStore');
+        const modelCache = new ModelCache(this, 'ModelCache', {
+            bucketName: params.modelCacheBucketName,
+        });
         const messageQueue = new MessageQueue(this, 'MessageQueue');
 
         const slackBots = new SlackBots(this, 'SlackBots', {
@@ -94,6 +98,7 @@ export class WetToastTalkShowStack extends cdk.Stack {
             instanceType: params.audioGeneratorInstanceType,
             logGroup,
             slackBots,
+            modelCache,
         });
 
         new Transcoder(this, 'Transcoder', {

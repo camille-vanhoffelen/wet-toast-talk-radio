@@ -9,9 +9,10 @@ export class CfnParameters {
     readonly transcoderInstanceType: CfnParameter;
     readonly playlistInstanceType: CfnParameter;
     readonly shoutClientInstanceType: CfnParameter;
-
     readonly scriptWriterInstanceType: CfnParameter;
     readonly audioGeneratorInstanceType: CfnParameter;
+
+    readonly modelCacheBucketName: CfnParameter;
 
     readonly emergencyAlertSystemUrl: CfnParameter;
     readonly radioOperatorUrl: CfnParameter;
@@ -77,6 +78,12 @@ export class CfnParameters {
             type: 'String',
             default: 'g4dn.xlarge',
             description: 'The instance type for the audio generator task',
+        });
+
+        this.modelCacheBucketName = new CfnParameter(scope, 'ModelCacheBucketName', {
+            type: 'String',
+            default: 'wet-toast-model-cache',
+            description: 'The bucket name for the model cache',
         });
 
         this.emergencyAlertSystemUrl = new CfnParameter(scope, 'EmergencyAlertSystemUrl', {

@@ -12,6 +12,7 @@ import { Construct } from 'constructs';
 import { MediaStore } from './media-store';
 import { Cluster } from './cluster';
 import { SlackBots } from './slack-bots';
+import { ModelCache } from './model-cache';
 
 interface AudioGeneratorProps {
     readonly vpc: ec2.Vpc;
@@ -21,14 +22,14 @@ interface AudioGeneratorProps {
     readonly instanceType: CfnParameter;
     readonly logGroup: logs.LogGroup;
     readonly slackBots: SlackBots;
+    readonly modelCache: ModelCache;
 }
 
 export class AudioGenerator extends Construct {
     constructor(scope: Construct, id: string, props: AudioGeneratorProps) {
         super(scope, id);
 
-        // TBD
-        const numTasks = 2;
+        const maxNumInstances = 2;
 
         const cluster = new Cluster(this, 'AudioGeneratorCluster', {
             vpc: props.vpc,
@@ -36,7 +37,7 @@ export class AudioGenerator extends Construct {
             image: props.image,
             instanceType: props.instanceType,
             minCapacity: 0,
-            maxCapacity: numTasks, // TBD
+            maxCapacity: maxNumInstances, // TBD
             logGroup: props.logGroup,
             hardwareType: ecs.AmiHardwareType.GPU,
             spotPrice: '0.25',
@@ -61,6 +62,7 @@ export class AudioGenerator extends Construct {
         props.mediaStore.bucket.grantReadWrite(taskRole);
         props.queue.grantConsumeMessages(taskRole);
         props.slackBots.grantReadSlackBotSecrets(taskRole);
+        props.modelCache.bucket.grantRead(taskRole);
 
         const ecsTaskDefinition = new ecs.Ec2TaskDefinition(this, 'EcsTaskDefinition', {
             family: 'wet-toast-audio-generator',
@@ -101,15 +103,14 @@ export class AudioGenerator extends Construct {
 
         const scaling = service.autoScaleTaskCount({
             minCapacity: 0,
-            maxCapacity: numTasks, // TBD
+            maxCapacity: maxNumInstances,
         });
 
         const scalingSteps: autoscaling.ScalingInterval[] = [{ upper: 0, change: 0 }];
-        for (let i = 1; i < numTasks; i++) {
-            scalingSteps.push({ lower: i, change: 1 });
+        for (let i = 1; i < maxNumInstances + 1; i++) {
+            scalingSteps.push({ lower: i, change: i });
         }
 
-        // Setup scaling metric and cooldown period
         scaling.scaleOnMetric('QueueMessagesVisibleScaling', {
             metric: props.queue.metricApproximateNumberOfMessagesVisible(),
             adjustmentType: autoscaling.AdjustmentType.EXACT_CAPACITY,
