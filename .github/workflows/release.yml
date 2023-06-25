@@ -62,7 +62,7 @@ jobs:
         with:
             role-to-assume: arn:aws:iam::289115055556:role/GitHubActionsWetToastTalkRadio
             aws-region: us-east-1
-      - name: Docker Push commit hash and latest to ECR
+      - name: Docker Push to ECR
         run: |
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ env.REGISTRY }}
           docker tag wettoast:latest ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:commit-$GITHUB_SHA
@@ -101,7 +101,7 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::289115055556:role/GitHubActionsWetToastTalkRadio
           aws-region: us-east-1
-      - name: Docker Push commit hash and latest to ECR
+      - name: Docker Push to ECR
         run: |
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ env.REGISTRY }}
           docker tag wettoast-gpu:latest ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_GPU }}:commit-$GITHUB_SHA
