@@ -21,6 +21,8 @@ export class CfnParameters {
     readonly voscastPort: CfnParameter;
     readonly voscastAutoDjKey: CfnParameter;
 
+    readonly openApiKey: CfnParameter;
+
     constructor(scope: Construct) {
         this.ecrRepositoryName = new CfnParameter(scope, 'ECRRepositoryName', {
             type: 'String',
@@ -111,6 +113,12 @@ export class CfnParameters {
             type: 'String',
             default: 'sm:/wet-toast-talk-radio/voscast-autodj-key',
             description: 'The auto dj key for the voscast server',
+        });
+
+        this.openApiKey = new CfnParameter(scope, 'OpenApiKey', {
+            type: 'String',
+            default: 'sm:/wet-toast-talk-radio/scriptwriter/openai-api-key',
+            description: 'The open api key for the script writer',
         });
     }
 }

@@ -11,6 +11,7 @@ import { Construct } from 'constructs';
 import { MediaStore } from './media-store';
 import { Cluster } from './cluster';
 import { SlackBots } from './slack-bots';
+import { OpenApi } from './open-api';
 
 interface ScriptWriterProps {
     readonly vpc: ec2.Vpc;
@@ -20,6 +21,7 @@ interface ScriptWriterProps {
     readonly instanceType: CfnParameter;
     readonly logGroup: logs.LogGroup;
     readonly slackBots: SlackBots;
+    readonly openApi: OpenApi;
 }
 
 export class ScriptWriter extends Construct {
@@ -45,6 +47,7 @@ export class ScriptWriter extends Construct {
         props.queue.grantSendMessages(taskRole);
         props.queue.grantPurge(taskRole);
         props.slackBots.grantReadSlackBotSecrets(taskRole);
+        props.openApi.grantReadKeySecret(taskRole);
 
         const ecsTaskDefinition = new ecs.Ec2TaskDefinition(this, 'EcsTaskDefinition', {
             family: 'wet-toast-script-writer',
@@ -56,6 +59,7 @@ export class ScriptWriter extends Construct {
             AWS_REGION: Aws.REGION,
             WT_MEDIA_STORE__S3__BUCKET_NAME: props.mediaStore.bucket.bucketName,
             WT_MESSAGE_QUEUE__SQS__STREAM_QUEUE_NAME: props.queue.queueName,
+            WT_SCRIPTWRITER__LLM__OPENAI_API_KEY: props.openApi.key(),
         };
 
         // t2.micro: 1 vCPU, 1 GiB

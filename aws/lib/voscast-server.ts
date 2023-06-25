@@ -30,7 +30,7 @@ export class VoscastServer extends Construct {
 
         this.voscastAutoDjKeySecret = secretmanager.Secret.fromSecretNameV2(
             this,
-            'VoscastPasswordSecret',
+            'VoscastAutoDjKeySecret',
             'wet-toast-talk-radio/voscast-autodj-key',
         );
 

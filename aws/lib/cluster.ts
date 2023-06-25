@@ -18,6 +18,7 @@ interface ClusterProps {
     readonly maxCapacity: number;
     readonly logGroup: logs.LogGroup;
     readonly hardwareType: ecs.AmiHardwareType;
+    readonly spotPrice?: string;
 }
 
 export class Cluster extends Construct {
@@ -52,6 +53,7 @@ export class Cluster extends Construct {
                 subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
             },
             newInstancesProtectedFromScaleIn: true,
+            spotPrice: props.spotPrice,
         });
         autoScalingGroup.userData.addCommands('yum install -y aws-cfn-bootstrap');
         autoScalingGroup.userData.addSignalOnExitCommand(autoScalingGroup);

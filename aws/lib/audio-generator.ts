@@ -40,6 +40,7 @@ export class AudioGenerator extends Construct {
             maxCapacity: numTasks, // TBD
             logGroup: props.logGroup,
             hardwareType: ecs.AmiHardwareType.GPU,
+            spotPrice: '0.25',
         });
 
         const taskRole = new iam.Role(this, 'EcsTaskRole', {
@@ -72,16 +73,16 @@ export class AudioGenerator extends Construct {
             AWS_REGION: Aws.REGION,
             WT_MEDIA_STORE__S3__BUCKET_NAME: props.mediaStore.bucket.bucketName,
             WT_MESSAGE_QUEUE__SQS__STREAM_QUEUE_NAME: props.queue.queueName,
+            WT_AUDIO_GENERATOR__USE_S3_MODEL_CACHE: 'true',
         };
 
-        // t2.micro: 1 vCPU, 1 GiB
+        // g4dn.xlarge: 4 vCPU, 16 GiB
         ecsTaskDefinition.addContainer('Container', {
             image: props.image,
             containerName: 'audio-generator',
-            // command: ['audio-generator', 'run'],
-            command: ['noop'],
-            memoryLimitMiB: 900, // TBD
-            cpu: 1024, // TBD
+            command: ['audio-generator', 'run'],
+            memoryLimitMiB: 1500,
+            cpu: 3584, // 3.5 vCPU
             logging: ecs.LogDriver.awsLogs({ logGroup: props.logGroup, streamPrefix: Aws.STACK_NAME }),
             environment,
         });

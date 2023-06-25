@@ -11,6 +11,7 @@ import { ScriptWriter } from './script-writer';
 import { AudioGenerator } from './audio-generator';
 import { VoscastServer } from './voscast-server';
 import { SlackBots } from './slack-bots';
+import { OpenApi } from './open-api';
 
 export class WetToastTalkShowStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -56,6 +57,10 @@ export class WetToastTalkShowStack extends cdk.Stack {
             voscastAutoDjKey: params.voscastAutoDjKey,
         });
 
+        const openApi = new OpenApi(this, 'OpenApi', {
+            openApiKey: params.openApiKey,
+        });
+
         const logGroup = new logs.LogGroup(this, 'LogGroup', {
             logGroupName: Aws.STACK_NAME,
         });
@@ -72,6 +77,7 @@ export class WetToastTalkShowStack extends cdk.Stack {
             instanceType: params.scriptWriterInstanceType,
             logGroup,
             slackBots,
+            openApi,
         });
 
         new AudioGenerator(this, 'AudioGenerator', {
