@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.1...v0.1.2) (2023-06-25)
+
+
+### Features
+
+* updated cdk for cloud test ([dfabf1b](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/dfabf1bfda2a11b93d4fedb7252dc38ef2773cba))
+
 ## [0.1.1](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.0...v0.1.1) (2023-06-25)
 
 
