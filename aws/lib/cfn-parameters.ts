@@ -105,7 +105,7 @@ export class CfnParameters {
 
         this.voscastPort = new CfnParameter(scope, 'VoscastPort', {
             type: 'String',
-            default: '11053',
+            default: '11052',
             description: 'The port for the voscast server',
         });
 

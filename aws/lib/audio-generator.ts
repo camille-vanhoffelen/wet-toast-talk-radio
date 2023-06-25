@@ -7,7 +7,6 @@ import {
     aws_logs as logs,
     aws_autoscaling as autoscaling,
     Aws,
-    Duration,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { MediaStore } from './media-store';
@@ -82,7 +81,7 @@ export class AudioGenerator extends Construct {
             containerName: 'audio-generator',
             command: ['audio-generator', 'run'],
             memoryLimitMiB: 1500,
-            cpu: 3584, // 3.5 vCPU
+            cpu: 4096, // 4 vCPU
             logging: ecs.LogDriver.awsLogs({ logGroup: props.logGroup, streamPrefix: Aws.STACK_NAME }),
             environment,
         });
@@ -105,15 +104,16 @@ export class AudioGenerator extends Construct {
             maxCapacity: numTasks, // TBD
         });
 
+        const scalingSteps: autoscaling.ScalingInterval[] = [{ upper: 0, change: 0 }];
+        for (let i = 1; i < numTasks; i++) {
+            scalingSteps.push({ lower: i, change: 1 });
+        }
+
         // Setup scaling metric and cooldown period
         scaling.scaleOnMetric('QueueMessagesVisibleScaling', {
             metric: props.queue.metricApproximateNumberOfMessagesVisible(),
-            adjustmentType: autoscaling.AdjustmentType.CHANGE_IN_CAPACITY,
-            cooldown: Duration.seconds(300),
-            scalingSteps: [
-                { upper: 0, change: -numTasks },
-                { lower: 1, change: +numTasks },
-            ],
+            adjustmentType: autoscaling.AdjustmentType.EXACT_CAPACITY,
+            scalingSteps,
         });
     }
 }
