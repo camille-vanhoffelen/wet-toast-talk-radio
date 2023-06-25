@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.3](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.2...v0.1.3) (2023-06-25)
+
+
+### Features
+
+* updated emergency alert system to output all event dict as json ([8ef9237](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/8ef923711346e987302c3a43b9a68bb581bc2cc4))
+
+
+### Bug Fixes
+
+* fix cdk aws region ([c6a234e](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/c6a234e20520e86972edbcc303ac711b31cb0d8b))
+
 ## [0.1.2](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.1...v0.1.2) (2023-06-25)
 
 
