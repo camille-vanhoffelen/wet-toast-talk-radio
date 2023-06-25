@@ -136,11 +136,11 @@ jobs:
       - name: Docker Push
         run: |
           docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:commit-$GITHUB_SHA
-          docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:commit-$GITHUB_SHA ${{ env.REGISTRY }}/${{ IMAGE_NAME }}:${{ needs.release.outputs.tag_name }}
+          docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:commit-$GITHUB_SHA ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.release.outputs.tag_name }}
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.release.outputs.tag_name }}
 
           docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_GPU }}:commit-$GITHUB_SHA
-          docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_GPU }}:commit-$GITHUB_SHA ${{ env.REGISTRY }}/${{ IMAGE_NAME_GPU }}:${{ needs.release.outputs.tag_name }}
+          docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_GPU }}:commit-$GITHUB_SHA ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_GPU }}:${{ needs.release.outputs.tag_name }}
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_GPU }}:${{ needs.release.outputs.tag_name }}
 
       - name: NPM Install
