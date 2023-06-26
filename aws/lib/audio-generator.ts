@@ -104,6 +104,7 @@ export class AudioGenerator extends Construct {
             cpu: 4096, // 4 vCPU
             logging: ecs.LogDriver.awsLogs({ logGroup: props.logGroup, streamPrefix: Aws.STACK_NAME }),
             environment,
+            gpuCount: 1,
         });
 
         const serviceName = resourceName('wet-toast-audio-generator-service', props.dev);
