@@ -85,17 +85,19 @@ class MediaTranscoder:
         """Find new raw shows from yesterday, today and tomorrow that have not been transcoded yet"""
         today = get_current_utc_date()
         tomorrow = today + timedelta(days=1)
+        day_after_tomorrow = today + timedelta(days=2)
         yesterday = today - timedelta(days=1)
 
         today_iso = today.isoformat()
         yesterday_iso = yesterday.isoformat()
         tomorrow_iso = tomorrow.isoformat()
+        day_after_tomorrow_iso = day_after_tomorrow.isoformat()
 
         transcoded_shows = self._media_store.list_transcoded_shows(
-            dates={today_iso, yesterday_iso, tomorrow_iso}
+            dates={today_iso, yesterday_iso, tomorrow_iso, day_after_tomorrow_iso}
         )
         raw_shows = self._media_store.list_raw_shows(
-            dates={today_iso, yesterday_iso, tomorrow_iso}
+            dates={today_iso, yesterday_iso, tomorrow_iso, day_after_tomorrow_iso}
         )
         new_shows = []
         for raw_show in raw_shows:
