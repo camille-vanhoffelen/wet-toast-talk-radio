@@ -14,6 +14,7 @@ import { Cluster } from './cluster';
 import { SlackBots } from './slack-bots';
 import { ModelCache } from './model-cache';
 import { MathExpression } from 'aws-cdk-lib/aws-cloudwatch';
+import { resourceName } from './resource-name';
 
 interface AudioGeneratorProps {
     readonly vpc: ec2.Vpc;
@@ -24,6 +25,7 @@ interface AudioGeneratorProps {
     readonly logGroup: logs.LogGroup;
     readonly slackBots: SlackBots;
     readonly modelCache: ModelCache;
+    readonly dev?: boolean | undefined;
 }
 
 export class AudioGenerator extends Construct {
@@ -50,10 +52,12 @@ export class AudioGenerator extends Construct {
                     }),
                 },
             ],
+            dev: props.dev,
         });
 
+        const roleName = resourceName('AudioGeneratorTaskRole', props.dev);
         const taskRole = new iam.Role(this, 'EcsTaskRole', {
-            roleName: 'AudioGeneratorTaskRole',
+            roleName,
             assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
             inlinePolicies: {
                 SecretManager: new iam.PolicyDocument({
@@ -73,8 +77,9 @@ export class AudioGenerator extends Construct {
         props.slackBots.grantReadSlackBotSecrets(taskRole);
         props.modelCache.bucket.grantRead(taskRole);
 
+        const family = resourceName('wet-toast-audio-generator', props.dev);
         const ecsTaskDefinition = new ecs.Ec2TaskDefinition(this, 'EcsTaskDefinition', {
-            family: 'wet-toast-audio-generator',
+            family,
             taskRole: taskRole,
         });
 
@@ -86,10 +91,11 @@ export class AudioGenerator extends Construct {
             WT_AUDIO_GENERATOR__USE_S3_MODEL_CACHE: 'true',
         };
 
+        const containerName = resourceName('audio-generator', props.dev);
         // g4dn.xlarge: 4 vCPU, 16 GiB
         ecsTaskDefinition.addContainer('Container', {
             image: props.image,
-            containerName: 'audio-generator',
+            containerName,
             command: ['audio-generator', 'run'],
             memoryLimitMiB: 15000,
             cpu: 4096, // 4 vCPU
@@ -97,8 +103,9 @@ export class AudioGenerator extends Construct {
             environment,
         });
 
+        const serviceName = resourceName('wet-toast-audio-generator-service', props.dev);
         const service = new ecs.Ec2Service(this, 'Service', {
-            serviceName: 'wet-toast-audio-generator-service',
+            serviceName,
             cluster: cluster.ecsCluster,
             taskDefinition: ecsTaskDefinition,
             desiredCount: 0,
@@ -115,10 +122,14 @@ export class AudioGenerator extends Construct {
             maxCapacity: maxNumInstances,
         });
 
-        const scalingSteps: autoscaling.ScalingInterval[] = [{ upper: 0, change: 0 }];
-        for (let i = 1; i < maxNumInstances + 1; i++) {
-            scalingSteps.push({ lower: i, change: i });
-        }
+        const scalingSteps: autoscaling.ScalingInterval[] = [
+            { upper: 0, change: 0 },
+            { lower: 1, change: maxNumInstances },
+        ];
+
+        // for (let i = 1; i < maxNumInstances + 1; i++) {
+        // scalingSteps.push({ lower: i, change: i });
+        // }
 
         scaling.scaleOnMetric('MyScalingMetric', {
             metric: new MathExpression({

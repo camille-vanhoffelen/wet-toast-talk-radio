@@ -29,12 +29,18 @@ Make sure your terminal has assumed the right aws credentials/profile
 You can deploy the infrastructure to any account with the following command:
 
 ```bash
-cdk deploy --parameters ImageTag=<SOME_TAG>
+cdk deploy --all --parameters ImageTag=<SOME_TAG> 
 ```
 
 You can update any CfnParameter defined at [./lib/cfn-parameters.ts](./lib/cfn-parameters.ts) by adding a `--parameters MyParam=value` to the command above.
 
 You can also go the cloud formation aws console to edit any CfnParameters directly.
+
+### Only dev stack
+
+```
+cdk deploy WetToastTalkShowDevStack --parameters ImageTag=<SOME_TAG> 
+```
 
 ## Useful commands
 

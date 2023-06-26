@@ -8,6 +8,7 @@ import {
     aws_logs as logs,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
+import { resourceName } from './resource-name';
 
 interface ClusterProps {
     readonly vpc: ec2.Vpc;
@@ -20,6 +21,7 @@ interface ClusterProps {
     readonly hardwareType: ecs.AmiHardwareType;
     readonly spotPrice?: string;
     readonly blockDevices?: autoscaling.BlockDevice[];
+    readonly dev?: boolean | undefined;
 }
 
 export class Cluster extends Construct {
@@ -30,9 +32,12 @@ export class Cluster extends Construct {
     constructor(scope: Construct, id: string, props: ClusterProps) {
         super(scope, id);
 
-        this.ecsCluster = new ecs.Cluster(this, 'Cluster', { vpc: props.vpc, clusterName: props.clusterName });
+        const clusterName = resourceName(props.clusterName, props.dev);
+        const autoScalingGroupName = resourceName(id + 'ASG', props.dev);
+
+        this.ecsCluster = new ecs.Cluster(this, 'Cluster', { vpc: props.vpc, clusterName });
         const autoScalingGroup = new autoscaling.AutoScalingGroup(this, 'AutoscalingGroup', {
-            autoScalingGroupName: id + 'ASG',
+            autoScalingGroupName,
             vpc: props.vpc,
             signals: autoscaling.Signals.waitForAll({
                 timeout: Duration.minutes(10),
