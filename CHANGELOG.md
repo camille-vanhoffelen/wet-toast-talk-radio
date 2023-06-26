@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.1.5](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.4...v0.1.5) (2023-06-26)
+
+
+### Features
+
+* added message-group-ids ([55e7f8c](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/55e7f8ca0766e23a35ad3666f2e5cefcbab1e62e))
+* audio-generator block device fix and s3 gateway endpoint ([#42](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/42)) ([8ef7166](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/8ef7166ed30537c147c916b2620ff8feeef2535e))
+* cdk model cache ([41f5449](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/41f54495e379cfce63ab19e8e22f23f9bc6ed991))
+
+
+### Documentation
+
+* updated aws docs ([1bfc2e5](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/1bfc2e5565ee2732d39c000796bcc995052b1db9))
+
 ## [0.1.4](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.3...v0.1.4) (2023-06-25)
 
 
