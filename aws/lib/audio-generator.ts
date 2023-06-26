@@ -32,7 +32,10 @@ export class AudioGenerator extends Construct {
     constructor(scope: Construct, id: string, props: AudioGeneratorProps) {
         super(scope, id);
 
-        const maxNumInstances = 2;
+        let maxNumInstances = 2;
+        if (props.dev) {
+            maxNumInstances = 1;
+        }
 
         const cluster = new Cluster(this, 'AudioGeneratorCluster', {
             vpc: props.vpc,
