@@ -1,7 +1,15 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { CfnParameters } from './cfn-parameters';
-import { aws_ec2 as ec2, Tags, Aws, aws_ecs as ecs, aws_ecr as ecr, aws_logs as logs } from 'aws-cdk-lib';
+import {
+    aws_ec2 as ec2,
+    Tags,
+    Aws,
+    aws_ecs as ecs,
+    aws_ecr as ecr,
+    aws_logs as logs,
+    aws_iam as iam,
+} from 'aws-cdk-lib';
 import { MediaStore } from './media-store';
 import { Transcoder } from './transcoder';
 import { MessageQueue } from './message-queue';
@@ -43,6 +51,17 @@ export class WetToastTalkShowStack extends cdk.Stack {
             ],
         });
         Tags.of(vpc).add('Name', Aws.STACK_NAME);
+
+        const s3BucketAcessPoint = vpc.addGatewayEndpoint('s3Endpoint', {
+            service: ec2.GatewayVpcEndpointAwsService.S3,
+        });
+        s3BucketAcessPoint.addToPolicy(
+            new iam.PolicyStatement({
+                principals: [new iam.AnyPrincipal()],
+                actions: ['s3:*'],
+                resources: ['*'],
+            }),
+        );
 
         const mediaStore = new MediaStore(this, 'MediaStore');
         const modelCache = new ModelCache(this, 'ModelCache', {

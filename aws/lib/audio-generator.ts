@@ -41,6 +41,14 @@ export class AudioGenerator extends Construct {
             logGroup: props.logGroup,
             hardwareType: ecs.AmiHardwareType.GPU,
             spotPrice: '0.25',
+            blockDevices: [
+                {
+                    deviceName: '/dev/xvda',
+                    volume: autoscaling.BlockDeviceVolume.ebs(150, {
+                        deleteOnTermination: true,
+                    }),
+                },
+            ],
         });
 
         const taskRole = new iam.Role(this, 'EcsTaskRole', {
@@ -82,7 +90,7 @@ export class AudioGenerator extends Construct {
             image: props.image,
             containerName: 'audio-generator',
             command: ['audio-generator', 'run'],
-            memoryLimitMiB: 1500,
+            memoryLimitMiB: 15000,
             cpu: 4096, // 4 vCPU
             logging: ecs.LogDriver.awsLogs({ logGroup: props.logGroup, streamPrefix: Aws.STACK_NAME }),
             environment,
