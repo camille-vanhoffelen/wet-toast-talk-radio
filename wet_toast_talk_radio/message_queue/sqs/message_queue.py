@@ -54,7 +54,7 @@ class SQSMessageQueue(MessageQueue):
             new_sqs_client(self._cfg.local).send_message(
                 QueueUrl=self._stream_queue_url,
                 MessageBody=show_id_json,
-                MessageGroupId="stream_shows",
+                MessageGroupId=f"stream_shows/{show.store_key()}",
             )
 
     def purge_stream_shows(self, total_time: timedelta, wait: timedelta):
@@ -104,7 +104,7 @@ class SQSMessageQueue(MessageQueue):
             new_sqs_client(self._cfg.local).send_message(
                 QueueUrl=self._script_queue_url,
                 MessageBody=show_id_json,
-                MessageGroupId="script_shows",
+                MessageGroupId=f"script_shows/{show.store_key()}",
             )
 
     def change_message_visibility_timeout(self, receipt_handle: str, timeout_in_s: int):
