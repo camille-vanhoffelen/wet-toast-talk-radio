@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.6](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.5...v0.1.6) (2023-06-26)
+
+
+### Features
+
+* make audio generation sentence progress available in logs ([ee6576e](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/ee6576e07991556da6dd5ef17cc5650aac88aa85))
+* transcoder also tries shows for day after tomorrow ([29f7e7c](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/29f7e7ceb4c09a6eb2621dc7832b2681dcfad465))
+
 ## [0.1.5](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.4...v0.1.5) (2023-06-26)
 
 
