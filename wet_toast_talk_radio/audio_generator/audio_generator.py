@@ -99,7 +99,8 @@ class AudioGenerator:
     ) -> bytes:
         logger.info("Tokenizing text into sentences")
         sentences = nltk.sent_tokenize(text)
-        logger.info(f"Tokenized {len(sentences)} sentences", count=len(sentences))
+        num_sentences = len(sentences)
+        logger.info(f"Tokenized {len(sentences)} sentences", count=num_sentences)
 
         silence = np.zeros(int(0.25 * SAMPLE_RATE))  # quarter second of silence
 
@@ -108,8 +109,12 @@ class AudioGenerator:
         start = time.perf_counter()
 
         pieces = []
-        for sentence in sentences:
-            logger.info("Generating audio for sentence", sentence=sentence)
+        for i, sentence in enumerate(sentences):
+            logger.info(
+                "Generating audio for sentence",
+                sentence=sentence,
+                progress=f"{i+1}/{num_sentences}",
+            )
             audio_array = generate_audio(sentence, history_prompt=SPEAKER)
             pieces += [audio_array, silence.copy()]
             if sentence_callbacks:
