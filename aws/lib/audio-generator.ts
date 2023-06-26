@@ -13,6 +13,7 @@ import { MediaStore } from './media-store';
 import { Cluster } from './cluster';
 import { SlackBots } from './slack-bots';
 import { ModelCache } from './model-cache';
+import { MathExpression } from 'aws-cdk-lib/aws-cloudwatch';
 
 interface AudioGeneratorProps {
     readonly vpc: ec2.Vpc;
@@ -119,8 +120,14 @@ export class AudioGenerator extends Construct {
             scalingSteps.push({ lower: i, change: i });
         }
 
-        scaling.scaleOnMetric('QueueMessagesVisibleScaling', {
-            metric: props.queue.metricApproximateNumberOfMessagesVisible(),
+        scaling.scaleOnMetric('MyScalingMetric', {
+            metric: new MathExpression({
+                expression: 'visibleMessages + notVisibleMessages',
+                usingMetrics: {
+                    visibleMessages: props.queue.metricApproximateNumberOfMessagesVisible(),
+                    notVisibleMessages: props.queue.metricApproximateNumberOfMessagesNotVisible(),
+                },
+            }),
             adjustmentType: autoscaling.AdjustmentType.EXACT_CAPACITY,
             scalingSteps,
         });
