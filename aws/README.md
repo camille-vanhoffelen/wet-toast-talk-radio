@@ -1,14 +1,49 @@
-# Welcome to your CDK TypeScript project
+# Wet Toast Talk Radio Infrastructure
 
-This is a blank project for CDK development with TypeScript.
+This directory contains all the infrastructure as code to deploy wet toast talk radio to a aws account.
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+## Prerequisites
+
+- [nvm](https://github.com/nvm-sh/nvm)
+
+## Getting Started
+
+Make sure you are in the `aws` directory.
+
+Setup node: 
+
+```bash
+nvm use
+```
+
+Install cdk:
+
+```bash
+npm install -g aws-cdk 
+```
+
+## Deploying 
+
+Make sure your terminal has assumed the right aws credentials/profile
+
+You can deploy the infrastructure to any account with the following command:
+
+```bash
+cdk deploy --parameters ImageTag=<SOME_TAG>
+```
+
+You can update any CfnParameter defined at [./lib/cfn-parameters.ts](./lib/cfn-parameters.ts) by adding a `--parameters MyParam=value` to the command above.
+
+You can also go the cloud formation aws console to edit any CfnParameters directly.
 
 ## Useful commands
 
-* `npm run build`   compile typescript to js
-* `npm run watch`   watch for changes and compile
-* `npm run test`    perform the jest unit tests
 * `cdk deploy`      deploy this stack to your default AWS account/region
 * `cdk diff`        compare deployed stack with current state
 * `cdk synth`       emits the synthesized CloudFormation template
+
+## Linting
+
+```bash
+npm run lint
+```
