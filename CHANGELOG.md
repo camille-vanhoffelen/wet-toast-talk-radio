@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.8](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.7...v0.1.8) (2023-06-27)
+
+
+### Features
+
+* updated ui, made shot client logging less intense ([#47](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/47)) ([27b1088](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/27b1088b4e195c150c567c14bab6ead188fceb69))
+
 ## [0.1.7](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.6...v0.1.7) (2023-06-27)
 
 
