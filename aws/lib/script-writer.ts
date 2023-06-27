@@ -1,4 +1,13 @@
-import { aws_ec2 as ec2, aws_iam as iam, CfnParameter, aws_ecs as ecs, aws_logs as logs, Aws } from 'aws-cdk-lib';
+import {
+    aws_ec2 as ec2,
+    aws_iam as iam,
+    CfnParameter,
+    aws_ecs as ecs,
+    aws_logs as logs,
+    Aws,
+    aws_events as events,
+    aws_events_targets as targets,
+} from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { MediaStore } from './media-store';
 import { Cluster } from './cluster';
@@ -23,7 +32,7 @@ export class ScriptWriter extends Construct {
     constructor(scope: Construct, id: string, props: ScriptWriterProps) {
         super(scope, id);
 
-        new Cluster(this, 'ScriptWriterCluster', {
+        const cluster = new Cluster(this, 'ScriptWriterCluster', {
             vpc: props.vpc,
             clusterName: 'ScriptWriterCluster',
             image: props.image,
@@ -73,25 +82,23 @@ export class ScriptWriter extends Construct {
         });
 
         // Cron job once a day at 6h00 UTC
-
-        // const schedule = events.Schedule.cron({
-        //     minute: '0',
-        //     hour: '6',
-        //     day: '*',
-        //     month: '*',
-        //     year: '*',
-        // });
-        // const rule = new events.Rule(this, 'MyScheduledTaskRule', {
-        //     schedule,
-        // });
-        // rule.addTarget(
-        //     new targets.EcsTask({
-        //         cluster: cluster.ecsCluster,
-        //         taskDefinition: ecsTaskDefinition,
-        //         taskCount: 1,
-        //         subnetSelection: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
-        //         role: taskRole,
-        //     }),
-        // );
+        const schedule = events.Schedule.cron({
+            minute: '0',
+            hour: '6',
+            day: '*',
+            month: '*',
+            year: '*',
+        });
+        const rule = new events.Rule(this, 'MyScheduledTaskRule', {
+            schedule,
+        });
+        rule.addTarget(
+            new targets.EcsTask({
+                cluster: cluster.ecsCluster,
+                taskDefinition: ecsTaskDefinition,
+                taskCount: 1,
+                role: taskRole,
+            }),
+        );
     }
 }
