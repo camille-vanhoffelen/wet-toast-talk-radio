@@ -178,6 +178,7 @@ def _stream(
     shout = init_shout(cfg)
     stream_logger = logger.bind(process="stream")
     stream_logger.info("Starting stream process")
+    warn_flag = True
     try:
         while True:
             if cancel_event.is_set():
@@ -186,12 +187,15 @@ def _stream(
                 return
 
             if stream_queue.empty():
-                stream_logger.warn(
-                    "Stream queue is empty, waiting to start stream again..."
-                )
+                if warn_flag:
+                    stream_logger.warn(
+                        "Stream queue is empty, waiting to start stream again..."
+                    )
+                warn_flag = False
                 time.sleep(wait_time.total_seconds())
                 continue
 
+            warn_flag = True
             auto_dj.stop(stream_logger)
             stream_logger.info("Connecting to shout server")
             shout.open()
