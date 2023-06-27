@@ -1,6 +1,5 @@
 import {
     aws_ec2 as ec2,
-    aws_sqs as sqs,
     aws_iam as iam,
     CfnParameter,
     aws_ecs as ecs,
@@ -15,11 +14,12 @@ import { SlackBots } from './slack-bots';
 import { ModelCache } from './model-cache';
 import { MathExpression } from 'aws-cdk-lib/aws-cloudwatch';
 import { resourceName } from './resource-name';
+import { MessageQueue } from './message-queue';
 
 interface AudioGeneratorProps {
     readonly vpc: ec2.Vpc;
     readonly mediaStore: MediaStore;
-    readonly queue: sqs.Queue;
+    readonly messageQueue: MessageQueue;
     readonly image: ecs.EcrImage;
     readonly instanceType: CfnParameter;
     readonly logGroup: logs.LogGroup;
@@ -76,7 +76,7 @@ export class AudioGenerator extends Construct {
             },
         });
         props.mediaStore.bucket.grantReadWrite(taskRole);
-        props.queue.grantConsumeMessages(taskRole);
+        props.messageQueue.grantConsumeMessages(taskRole);
         props.slackBots.grantReadSlackBotSecrets(taskRole);
         props.modelCache.bucket.grantRead(taskRole);
 
@@ -88,9 +88,9 @@ export class AudioGenerator extends Construct {
 
         const environment = {
             ...props.slackBots.envVars(),
+            ...props.messageQueue.envVars(),
             AWS_DEFAULT_REGION: Aws.REGION,
             WT_MEDIA_STORE__S3__BUCKET_NAME: props.mediaStore.bucket.bucketName,
-            WT_MESSAGE_QUEUE__SQS__STREAM_QUEUE_NAME: props.queue.queueName,
             WT_AUDIO_GENERATOR__USE_S3_MODEL_CACHE: 'true',
         };
 
@@ -131,16 +131,12 @@ export class AudioGenerator extends Construct {
             { lower: 1, change: maxNumInstances },
         ];
 
-        // for (let i = 1; i < maxNumInstances + 1; i++) {
-        // scalingSteps.push({ lower: i, change: i });
-        // }
-
         scaling.scaleOnMetric('MyScalingMetric', {
             metric: new MathExpression({
                 expression: 'visibleMessages + notVisibleMessages',
                 usingMetrics: {
-                    visibleMessages: props.queue.metricApproximateNumberOfMessagesVisible(),
-                    notVisibleMessages: props.queue.metricApproximateNumberOfMessagesNotVisible(),
+                    visibleMessages: props.messageQueue.scriptQueue.metricApproximateNumberOfMessagesVisible(),
+                    notVisibleMessages: props.messageQueue.scriptQueue.metricApproximateNumberOfMessagesNotVisible(),
                 },
             }),
             adjustmentType: autoscaling.AdjustmentType.EXACT_CAPACITY,

@@ -162,6 +162,7 @@ class S3MediaStore(MediaStore):
             if "Contents" in response:
                 for obj in response["Contents"]:
                     raw_show_id = obj["Key"].removeprefix(prefix + "/")
+                    logger.info(f"raw_show_id: {raw_show_id}", key=obj["Key"])
                     show_id = show_id_from_raw_key(raw_show_id)
                     if show_id.date != _FALLBACK_KEY:
                         if dates:

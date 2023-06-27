@@ -1,5 +1,5 @@
 import { Construct } from 'constructs';
-import { Duration, aws_sqs as sqs } from 'aws-cdk-lib';
+import { Duration, aws_sqs as sqs, aws_iam as iam } from 'aws-cdk-lib';
 import { resourceName } from './resource-name';
 
 export class MessageQueue extends Construct {
@@ -28,5 +28,27 @@ export class MessageQueue extends Construct {
             visibilityTimeout: Duration.seconds(60 * 10),
             retentionPeriod: Duration.seconds(60 * 60 * 24 * 10),
         });
+    }
+
+    grantConsumeMessages(grantee: iam.IGrantable) {
+        this.streamQueue.grantConsumeMessages(grantee);
+        this.scriptQueue.grantConsumeMessages(grantee);
+    }
+
+    grantSendMessages(grantee: iam.IGrantable) {
+        this.streamQueue.grantSendMessages(grantee);
+        this.scriptQueue.grantSendMessages(grantee);
+    }
+
+    grantPurge(grantee: iam.IGrantable) {
+        this.streamQueue.grantPurge(grantee);
+        this.scriptQueue.grantPurge(grantee);
+    }
+
+    envVars(): { [key: string]: string } {
+        return {
+            WT_MESSAGE_QUEUE__SQS__SCRIPT_QUEUE_NAME: this.scriptQueue.queueName,
+            WT_MESSAGE_QUEUE__SQS__STREAM_QUEUE_NAME: this.streamQueue.queueName,
+        };
     }
 }

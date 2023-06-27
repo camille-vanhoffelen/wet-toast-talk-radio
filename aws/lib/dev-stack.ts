@@ -92,7 +92,7 @@ export class WetToastTalkShowDevStack extends cdk.Stack {
         new ScriptWriter(this, 'ScriptWriter', {
             vpc,
             mediaStore,
-            queue: messageQueue.scriptQueue,
+            messageQueue,
             image,
             instanceType: params.scriptWriterInstanceType,
             logGroup,
@@ -104,7 +104,7 @@ export class WetToastTalkShowDevStack extends cdk.Stack {
         new AudioGenerator(this, 'AudioGenerator', {
             vpc,
             mediaStore,
-            queue: messageQueue.scriptQueue,
+            messageQueue,
             image: gpuImage,
             instanceType: params.audioGeneratorInstanceType,
             logGroup,

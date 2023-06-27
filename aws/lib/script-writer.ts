@@ -1,23 +1,16 @@
-import {
-    aws_ec2 as ec2,
-    aws_sqs as sqs,
-    aws_iam as iam,
-    CfnParameter,
-    aws_ecs as ecs,
-    aws_logs as logs,
-    Aws,
-} from 'aws-cdk-lib';
+import { aws_ec2 as ec2, aws_iam as iam, CfnParameter, aws_ecs as ecs, aws_logs as logs, Aws } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { MediaStore } from './media-store';
 import { Cluster } from './cluster';
 import { SlackBots } from './slack-bots';
 import { OpenApi } from './open-api';
 import { resourceName } from './resource-name';
+import { MessageQueue } from './message-queue';
 
 interface ScriptWriterProps {
     readonly vpc: ec2.Vpc;
     readonly mediaStore: MediaStore;
-    readonly queue: sqs.Queue;
+    readonly messageQueue: MessageQueue;
     readonly image: ecs.EcrImage;
     readonly instanceType: CfnParameter;
     readonly logGroup: logs.LogGroup;
@@ -48,8 +41,8 @@ export class ScriptWriter extends Construct {
             assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
         });
         props.mediaStore.bucket.grantReadWrite(taskRole);
-        props.queue.grantSendMessages(taskRole);
-        props.queue.grantPurge(taskRole);
+        props.messageQueue.grantSendMessages(taskRole);
+        props.messageQueue.grantPurge(taskRole);
         props.slackBots.grantReadSlackBotSecrets(taskRole);
         props.openApi.grantReadKeySecret(taskRole);
 
@@ -61,9 +54,9 @@ export class ScriptWriter extends Construct {
 
         const environment = {
             ...props.slackBots.envVars(),
+            ...props.messageQueue.envVars(),
             AWS_DEFAULT_REGION: Aws.REGION,
             WT_MEDIA_STORE__S3__BUCKET_NAME: props.mediaStore.bucket.bucketName,
-            WT_MESSAGE_QUEUE__SQS__STREAM_QUEUE_NAME: props.queue.queueName,
             WT_SCRIPTWRITER__LLM__OPENAI_API_KEY: props.openApi.key(),
         };
 
