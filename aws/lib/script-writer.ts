@@ -81,24 +81,26 @@ export class ScriptWriter extends Construct {
             environment,
         });
 
-        // Cron job once a day at 6h00 UTC
-        const schedule = events.Schedule.cron({
-            minute: '0',
-            hour: '6',
-            day: '*',
-            month: '*',
-            year: '*',
-        });
-        const rule = new events.Rule(this, 'MyScheduledTaskRule', {
-            schedule,
-        });
-        rule.addTarget(
-            new targets.EcsTask({
-                cluster: cluster.ecsCluster,
-                taskDefinition: ecsTaskDefinition,
-                taskCount: 1,
-                role: taskRole,
-            }),
-        );
+        if (!props.dev) {
+            // Cron job once a day at 6h00 UTC
+            const schedule = events.Schedule.cron({
+                minute: '0',
+                hour: '6',
+                day: '*',
+                month: '*',
+                year: '*',
+            });
+            const rule = new events.Rule(this, 'MyScheduledTaskRule', {
+                schedule,
+            });
+            rule.addTarget(
+                new targets.EcsTask({
+                    cluster: cluster.ecsCluster,
+                    taskDefinition: ecsTaskDefinition,
+                    taskCount: 1,
+                    role: taskRole,
+                }),
+            );
+        }
     }
 }
