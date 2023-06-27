@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.7](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.6...v0.1.7) (2023-06-27)
+
+
+### Features
+
+* added adverts with microsoft guidance ([#45](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/45)) ([ca7bfc4](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/ca7bfc42eaa7a854919977ffede6f961ddf6ec64))
+* adds a dev stack for our infra ([#44](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/44)) ([ae49ff4](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/ae49ff47eeb650e8cb10649e9d9973c5df36766c))
+* updated cron times ([#36](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/36)) ([00159cb](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/00159cb7aead99614fdf3e979108f6b3401fbb91))
+
 ## [0.1.6](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.5...v0.1.6) (2023-06-26)
 
 
