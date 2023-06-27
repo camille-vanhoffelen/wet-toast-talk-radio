@@ -1,3 +1,4 @@
+import asyncio
 import uuid
 from pathlib import Path
 
@@ -7,8 +8,11 @@ import structlog
 from wet_toast_talk_radio.command.print_banner import print_banner
 from wet_toast_talk_radio.command.root import root_cmd
 from wet_toast_talk_radio.media_store import new_media_store
+from wet_toast_talk_radio.media_store.media_store import ShowId
+from wet_toast_talk_radio.media_store.virtual.media_store import VirtualMediaStore
 from wet_toast_talk_radio.message_queue import new_message_queue
 from wet_toast_talk_radio.scriptwriter import Scriptwriter, new_llm
+from wet_toast_talk_radio.scriptwriter.adverts import Advert
 from wet_toast_talk_radio.scriptwriter.config import validate_config
 from wet_toast_talk_radio.scriptwriter.the_great_debate import TheGreatDebateChain
 
@@ -69,3 +73,19 @@ def the_great_debate(ctx: dict, topic: str):
     script_file = tmp_dir / f"the-great-debate-{uuid_str}.txt"
     with script_file.open("w") as f:
         f.write(script)
+
+
+@scriptwriter.command(help="Write script for Advert")
+@click.pass_context
+def advert(ctx: dict):
+    """Run command
+    scriptwriter advert TOPIC
+    """
+    logger.info("Writing script for an advert")
+    root_cfg = ctx.obj["root_cfg"]
+    sw_cfg = root_cfg.scriptwriter
+
+    llm = new_llm(cfg=sw_cfg.llm)
+    show = Advert.create(llm=llm, media_store=VirtualMediaStore())
+    show_id = ShowId(show_i=1, date="2021-01-01")
+    asyncio.run(show.awrite(show_id=show_id))

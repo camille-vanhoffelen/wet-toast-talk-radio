@@ -2,7 +2,7 @@ import asyncio
 from datetime import timedelta
 
 import structlog
-from langchain.base_language import BaseLanguageModel
+from guidance.llms import LLM
 
 from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.common.date import get_offset_iso_utc_date
@@ -19,7 +19,7 @@ class DailyProgram:
 
     def __init__(
         self,
-        llm: BaseLanguageModel,
+        llm: LLM,
         media_store: MediaStore,
         message_queue: MessageQueue,
     ):

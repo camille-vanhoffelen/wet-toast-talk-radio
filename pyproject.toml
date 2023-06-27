@@ -21,6 +21,7 @@ dependencies = [
     "python-shout>=0.2.8",
     "torch>=2.0.1",
     "torchaudio>=2.0.2",
+    "guidance>=0.0.64",
 ]
 requires-python = ">=3.10"
 readme = "README.md"
