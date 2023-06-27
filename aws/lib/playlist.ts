@@ -63,11 +63,10 @@ export class Playlist extends Construct {
             environment,
         });
 
-        // CRON everyday at 4am UTC
-
+        // Cron job once a day at 20h00 UTC
         // const schedule = events.Schedule.cron({
         //     minute: '0',
-        //     hour: '1',
+        //     hour: '20',
         //     day: '*',
         //     month: '*',
         //     year: '*',
@@ -80,7 +79,6 @@ export class Playlist extends Construct {
         //         cluster: cluster.ecsCluster,
         //         taskDefinition: ecsTaskDefinition,
         //         taskCount: 1,
-        //         subnetSelection: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
         //         role: taskRole,
         //     }),
         // );

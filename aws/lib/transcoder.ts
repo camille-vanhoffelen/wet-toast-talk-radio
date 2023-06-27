@@ -1,4 +1,13 @@
-import { aws_ec2 as ec2, aws_iam as iam, CfnParameter, aws_ecs as ecs, aws_logs as logs, Aws } from 'aws-cdk-lib';
+import {
+    aws_ec2 as ec2,
+    aws_iam as iam,
+    CfnParameter,
+    aws_ecs as ecs,
+    aws_logs as logs,
+    Aws,
+    aws_events as events,
+    aws_events_targets as targets,
+} from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { MediaStore } from './media-store';
 import { Cluster } from './cluster';
@@ -17,7 +26,7 @@ export class Transcoder extends Construct {
     constructor(scope: Construct, id: string, props: TranscoderProps) {
         super(scope, id);
 
-        new Cluster(this, 'TranscoderCluster', {
+        const cluster = new Cluster(this, 'TranscoderCluster', {
             vpc: props.vpc,
             clusterName: 'TranscoderCluster',
             image: props.image,
@@ -58,26 +67,24 @@ export class Transcoder extends Construct {
             environment,
         });
 
-        // Cron job twice a day at 1:00 AM and 1:00 PM UTC
-
-        // const schedule = events.Schedule.cron({
-        //     minute: '0',
-        //     hour: '1',
-        //     day: '*',
-        //     month: '*',
-        //     year: '*',
-        // });
-        // const rule = new events.Rule(this, 'MyScheduledTaskRule', {
-        //     schedule,
-        // });
-        // rule.addTarget(
-        //     new targets.EcsTask({
-        //         cluster: cluster.ecsCluster,
-        //         taskDefinition: ecsTaskDefinition,
-        //         taskCount: 1,
-        //         subnetSelection: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
-        //         role: taskRole,
-        //     }),
-        // );
+        // Cron job twice a day at 12h00 UTC and 18h00 UTC
+        const schedule = events.Schedule.cron({
+            minute: '0',
+            hour: '12,18',
+            day: '*',
+            month: '*',
+            year: '*',
+        });
+        const rule = new events.Rule(this, 'MyScheduledTaskRule', {
+            schedule,
+        });
+        rule.addTarget(
+            new targets.EcsTask({
+                cluster: cluster.ecsCluster,
+                taskDefinition: ecsTaskDefinition,
+                taskCount: 1,
+                role: taskRole,
+            }),
+        );
     }
 }
