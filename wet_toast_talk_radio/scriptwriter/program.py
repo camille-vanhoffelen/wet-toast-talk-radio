@@ -8,8 +8,8 @@ from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.common.date import get_offset_iso_utc_date
 from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.message_queue import MessageQueue
-from wet_toast_talk_radio.scriptwriter.radio_show import RadioShow
 from wet_toast_talk_radio.scriptwriter.adverts import Advert
+from wet_toast_talk_radio.scriptwriter.radio_show import RadioShow
 
 logger = structlog.get_logger()
 
