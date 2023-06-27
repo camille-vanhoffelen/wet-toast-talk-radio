@@ -11,18 +11,14 @@ import {
     aws_iam as iam,
 } from 'aws-cdk-lib';
 import { MediaStore } from './media-store';
-import { Transcoder } from './transcoder';
 import { MessageQueue } from './message-queue';
-import { Playlist } from './playlist';
-import { ShoutClient } from './shout-client';
 import { ScriptWriter } from './script-writer';
 import { AudioGenerator } from './audio-generator';
-import { VoscastServer } from './voscast-server';
 import { SlackBots } from './slack-bots';
 import { OpenApi } from './open-api';
 import { ModelCache } from './model-cache';
 
-export class WetToastTalkShowStack extends cdk.Stack {
+export class WetToastTalkShowDevStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: cdk.StackProps) {
         super(scope, id, props);
 
@@ -63,21 +59,16 @@ export class WetToastTalkShowStack extends cdk.Stack {
             }),
         );
 
-        const mediaStore = new MediaStore(this, 'MediaStore');
+        const mediaStore = new MediaStore(this, 'MediaStore', true);
         const modelCache = new ModelCache(this, 'ModelCache', {
             bucketName: params.modelCacheBucketName,
         });
-        const messageQueue = new MessageQueue(this, 'MessageQueue');
+        const messageQueue = new MessageQueue(this, 'MessageQueue', true);
 
         const slackBots = new SlackBots(this, 'SlackBots', {
             emergencyAlertSystemUrl: params.emergencyAlertSystemUrl,
             radioOperatorUrl: params.radioOperatorUrl,
-        });
-        const voscastServer = new VoscastServer(this, 'VoscastServer', {
-            voscastServerHostname: params.voscastHostname,
-            voscastServerPort: params.voscastPort,
-            voscastPassword: params.voscastPassword,
-            voscastAutoDjKey: params.voscastAutoDjKey,
+            dev: true,
         });
 
         const openApi = new OpenApi(this, 'OpenApi', {
@@ -107,6 +98,7 @@ export class WetToastTalkShowStack extends cdk.Stack {
             logGroup,
             slackBots,
             openApi,
+            dev: true,
         });
 
         new AudioGenerator(this, 'AudioGenerator', {
@@ -118,36 +110,7 @@ export class WetToastTalkShowStack extends cdk.Stack {
             logGroup,
             slackBots,
             modelCache,
-        });
-
-        new Transcoder(this, 'Transcoder', {
-            vpc,
-            mediaStore,
-            image,
-            instanceType: params.transcoderInstanceType,
-            logGroup,
-            slackBots,
-        });
-
-        new Playlist(this, 'Playlist', {
-            vpc,
-            mediaStore,
-            messageQueue,
-            image,
-            instanceType: params.playlistInstanceType,
-            logGroup,
-            slackBots,
-        });
-
-        new ShoutClient(this, 'ShoutClient', {
-            vpc,
-            mediaStore,
-            messageQueue,
-            image,
-            instanceType: params.shoutClientInstanceType,
-            logGroup,
-            slackBots,
-            voscastServer,
+            dev: true,
         });
     }
 }

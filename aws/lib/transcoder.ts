@@ -44,6 +44,7 @@ export class Transcoder extends Construct {
             ...props.slackBots.envVars(),
             AWS_DEFAULT_REGION: Aws.REGION,
             WT_MEDIA_STORE__S3__BUCKET_NAME: props.mediaStore.bucket.bucketName,
+            WT_DISC_JOCKEY__MEDIA_TRANSCODER__CLEAN_TMP_DIR: 'true',
         };
 
         // t3.medium: 2 vCPU, 4 GiB
@@ -51,7 +52,7 @@ export class Transcoder extends Construct {
             image: props.image,
             containerName: 'transcoder',
             command: ['disc-jockey', 'transcode'],
-            memoryLimitMiB: 3900, // 4 GB
+            memoryLimitMiB: 3800, // 4 GB
             cpu: 2048, // 2 vCPUs
             logging: ecs.LogDriver.awsLogs({ logGroup: props.logGroup, streamPrefix: Aws.STACK_NAME }),
             environment,

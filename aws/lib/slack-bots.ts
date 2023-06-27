@@ -4,6 +4,7 @@ import { aws_secretsmanager as secretmanager, CfnParameter, aws_iam as iam } fro
 interface SlackBotsProps {
     readonly emergencyAlertSystemUrl: CfnParameter;
     readonly radioOperatorUrl: CfnParameter;
+    readonly dev?: boolean | undefined;
 }
 
 export class SlackBots extends Construct {
@@ -11,11 +12,13 @@ export class SlackBots extends Construct {
     private readonly radioOperatorSecret: secretmanager.ISecret;
     private readonly emergencyAlertSystemUrl: CfnParameter;
     private readonly radioOperatorUrl: CfnParameter;
+    private readonly dev?: boolean | undefined;
 
     constructor(scope: Construct, id: string, props: SlackBotsProps) {
         super(scope, id);
         this.emergencyAlertSystemUrl = props.emergencyAlertSystemUrl;
         this.radioOperatorUrl = props.radioOperatorUrl;
+        this.dev = props.dev;
 
         this.emergencyAlertSystemSecret = secretmanager.Secret.fromSecretNameV2(
             this,
@@ -35,9 +38,13 @@ export class SlackBots extends Construct {
     }
 
     envVars(): { [key: string]: string } {
-        return {
-            WT_EMERGENCY_ALERT_SYSTEM__WEB_HOOK_URL: this.emergencyAlertSystemUrl.valueAsString,
-            WT_RADIO_OPERATOR__WEB_HOOK_URL: this.radioOperatorUrl.valueAsString,
-        };
+        if (this.dev) {
+            return {};
+        } else {
+            return {
+                WT_EMERGENCY_ALERT_SYSTEM__WEB_HOOK_URL: this.emergencyAlertSystemUrl.valueAsString,
+                WT_RADIO_OPERATOR__WEB_HOOK_URL: this.radioOperatorUrl.valueAsString,
+            };
+        }
     }
 }
