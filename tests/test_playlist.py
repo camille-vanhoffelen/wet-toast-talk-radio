@@ -38,7 +38,7 @@ class TestPlaylist:
         assert message_queue.get_next_stream_show().show_id == shows[0]
         assert message_queue.get_next_stream_show().show_id == shows[1]
 
-    # @pytest.mark.integration()
+    @pytest.mark.integration()
     def test_fallback_playlist(
         self,
         media_store,  # noqa: F811
