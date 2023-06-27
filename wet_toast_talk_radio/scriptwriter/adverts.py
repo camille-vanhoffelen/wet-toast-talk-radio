@@ -15,10 +15,10 @@ You are an expert in coming up with parodies of products, and marketing them in 
 {{#user~}}
 Your task is to come up with names for crazy products.
 Only write the name of a single product in the format PRODUCT: product name.
-Here are some examples: 
+Here are some examples:
 PRODUCT: Noodle Nose
-PRODUCT: Tasty Fork 
-PRODUCT: Bacon-beacon 
+PRODUCT: Tasty Fork
+PRODUCT: Bacon-beacon
 PRODUCT: The Ultimate Crypto Chatbot
 Now come up with one new name.
 {{~/user}}
@@ -60,5 +60,7 @@ class Advert(RadioShow):
 
     def _post_processing(self, program: Program, show_id: ShowId):
         logger.info(program)
-        content = PREFIX + program["product_description"]
+        product_description = program["product_description"]
+        product_description = " ".join(product_description.split())
+        content = PREFIX + product_description
         self._media_store.put_script_show(show_id=show_id, content=content)
