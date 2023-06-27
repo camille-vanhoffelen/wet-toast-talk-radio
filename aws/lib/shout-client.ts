@@ -85,7 +85,7 @@ export class ShoutClient extends Construct {
             serviceName: 'wet-toast-shout-client-service',
             cluster: cluster.ecsCluster,
             taskDefinition: ecsTaskDefinition,
-            desiredCount: 0,
+            desiredCount: 1,
             capacityProviderStrategies: [
                 {
                     capacityProvider: cluster.capacityProvider.capacityProviderName,

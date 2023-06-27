@@ -21,6 +21,7 @@ import { VoscastServer } from './voscast-server';
 import { SlackBots } from './slack-bots';
 import { OpenApi } from './open-api';
 import { ModelCache } from './model-cache';
+import { Ui } from './ui';
 
 export class WetToastTalkShowStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -149,5 +150,7 @@ export class WetToastTalkShowStack extends cdk.Stack {
             slackBots,
             voscastServer,
         });
+
+        new Ui(this, 'Ui');
     }
 }
