@@ -33,3 +33,4 @@ class ScriptwriterConfig(BaseModel):
 def validate_config(cfg: ScriptwriterConfig):
     """Validate config"""
     assert cfg is not None, "ScriptwriterConfig must not be None"
+    validate_llm_config(cfg.llm)

@@ -2,24 +2,24 @@ import asyncio
 from datetime import timedelta
 
 import structlog
-from langchain.base_language import BaseLanguageModel
+from guidance.llms import LLM
 
 from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.common.date import get_offset_iso_utc_date
 from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.message_queue import MessageQueue
+from wet_toast_talk_radio.scriptwriter.adverts import Advert
 from wet_toast_talk_radio.scriptwriter.radio_show import RadioShow
-from wet_toast_talk_radio.scriptwriter.the_great_debate import TheGreatDebateShow
 
 logger = structlog.get_logger()
 
 
 class DailyProgram:
-    program: tuple[RadioShow] = (TheGreatDebateShow, TheGreatDebateShow)
+    program: tuple[RadioShow] = (Advert, Advert, Advert, Advert, Advert)
 
     def __init__(
         self,
-        llm: BaseLanguageModel,
+        llm: LLM,
         media_store: MediaStore,
         message_queue: MessageQueue,
     ):
