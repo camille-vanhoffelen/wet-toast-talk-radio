@@ -15,7 +15,6 @@ from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.scriptwriter import prompts
 from wet_toast_talk_radio.scriptwriter.prompts import ScriptOutputParser
-from wet_toast_talk_radio.scriptwriter.radio_show import RadioShow
 
 logger = structlog.get_logger()
 

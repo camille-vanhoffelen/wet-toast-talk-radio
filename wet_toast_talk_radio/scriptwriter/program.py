@@ -9,13 +9,13 @@ from wet_toast_talk_radio.media_store.common.date import get_offset_iso_utc_date
 from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.message_queue import MessageQueue
 from wet_toast_talk_radio.scriptwriter.radio_show import RadioShow
-from wet_toast_talk_radio.scriptwriter.the_great_debate import TheGreatDebateShow
+from wet_toast_talk_radio.scriptwriter.adverts import Advert
 
 logger = structlog.get_logger()
 
 
 class DailyProgram:
-    program: tuple[RadioShow] = (TheGreatDebateShow, TheGreatDebateShow)
+    program: tuple[RadioShow] = (Advert, Advert, Advert, Advert, Advert)
 
     def __init__(
         self,
