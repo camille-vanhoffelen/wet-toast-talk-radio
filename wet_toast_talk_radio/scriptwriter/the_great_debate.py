@@ -218,7 +218,7 @@ class TheGreatDebateChain(Chain):
         return cls(chain=chain)
 
 
-class TheGreatDebateShow(RadioShow):
+class TheGreatDebateShow:
     def __init__(
         self,
         llm: BaseLanguageModel,
