@@ -79,7 +79,6 @@ export class Playlist extends Construct {
         //         cluster: cluster.ecsCluster,
         //         taskDefinition: ecsTaskDefinition,
         //         taskCount: 1,
-        //         role: taskRole,
         //     }),
         // );
     }
