@@ -1,25 +1,15 @@
 from itertools import cycle
-from typing import Any
 
 import structlog
-from langchain.base_language import BaseLanguageModel
-from langchain.callbacks.manager import (
-    AsyncCallbackManagerForChainRun,
-    CallbackManagerForChainRun,
-)
-from langchain.chains import SequentialChain
-from langchain.chains.base import Chain
-from langchain.prompts import ChatPromptTemplate
+from guidance import Program
+from guidance.llms import LLM
 
 from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.media_store import ShowId
-from wet_toast_talk_radio.scriptwriter import prompts
-from wet_toast_talk_radio.scriptwriter.prompts import ScriptOutputParser
+from wet_toast_talk_radio.scriptwriter.radio_show import RadioShow
 
 logger = structlog.get_logger()
 
-IN_FAVOR_GUEST_KEY = "in_favor_guest"
-AGAINST_GUEST_KEY = "against_guest"
 TOPICS = cycle(
     [
         "toilet paper",
@@ -28,223 +18,84 @@ TOPICS = cycle(
     ]
 )
 
+# TODO randomize names
+GUEST_TEMPLATE = """{{#system~}}
+You are an edgy, satirical writer who writes character profiles.
+{{~/system}}
+{{#user~}}
+Think of the most stereotypical person who would argue {{polarity}} of the use of {{topic}}.
+Describe them in three sentences.
+{{~/user}}
+{{#assistant~}}
+{{gen 'description' temperature=0.9 max_tokens=100}}
+{{~/assistant}}
+"""
 
-class GuestGenerationChain(Chain):
-    """
-    Generates two guests for "The Great Debate" show,
-    based on the show's topic.
-    """
-
-    llm: BaseLanguageModel
-    in_favor_prompt: ChatPromptTemplate = prompts.IN_FAVOR_GUEST
-    against_prompt: ChatPromptTemplate = prompts.AGAINST_GUEST
-    input_key: str = "topic"
-    in_favor_guest_output_key: str = IN_FAVOR_GUEST_KEY
-    against_guest_output_key: str = AGAINST_GUEST_KEY
-
-    @property
-    def input_keys(self) -> list[str]:
-        return [self.input_key]
-
-    @property
-    def output_keys(self) -> list[str]:
-        return [self.in_favor_guest_output_key, self.against_guest_output_key]
-
-    def _call(
-        self,
-        inputs: dict[str, Any],
-        run_manager: CallbackManagerForChainRun | None = None,
-    ) -> dict[str, str]:
-        logger.info("Starting guest generation chain")
-        logger.debug("Guest generation chain inputs", inputs=inputs)
-
-        in_favor_prompt_value = self.in_favor_prompt.format_prompt(**inputs)
-        against_prompt_value = self.against_prompt.format_prompt(**inputs)
-
-        in_favor_guest = self.llm.generate_prompt(
-            prompts=[in_favor_prompt_value],
-            callbacks=run_manager.get_child() if run_manager else None,
-        )
-
-        against_guest = self.llm.generate_prompt(
-            prompts=[against_prompt_value],
-            callbacks=run_manager.get_child() if run_manager else None,
-        )
-
-        output = {
-            self.in_favor_guest_output_key: in_favor_guest.generations[0][0].text,
-            self.against_guest_output_key: against_guest.generations[0][0].text,
-        }
-
-        logger.info("Finished guest generation chain")
-        logger.debug("Guest generation chain output", output=output)
-        return output
-
-    async def _acall(
-        self,
-        inputs: dict[str, Any],
-        run_manager: AsyncCallbackManagerForChainRun | None = None,
-    ) -> dict[str, str]:
-        logger.info("Starting guest generation chain")
-        logger.debug("Guest generation chain inputs", inputs=inputs)
-
-        in_favor_prompt_value = self.in_favor_prompt.format_prompt(**inputs)
-        against_prompt_value = self.against_prompt.format_prompt(**inputs)
-
-        in_favor_guest = await self.llm.agenerate_prompt(
-            [in_favor_prompt_value],
-            callbacks=run_manager.get_child() if run_manager else None,
-        )
-
-        against_guest = await self.llm.agenerate_prompt(
-            [against_prompt_value],
-            callbacks=run_manager.get_child() if run_manager else None,
-        )
-        output = {
-            self.in_favor_guest_output_key: in_favor_guest.generations[0][0].text,
-            self.against_guest_output_key: against_guest.generations[0][0].text,
-        }
-
-        logger.info("Finished guest generation chain")
-        logger.debug("Guest generation chain output", output=output)
-        return output
+DEBATE_TEMPLATE = """{{#user~}}
+Here are the descriptions of two characters: {{guest_in_favor}} and {{guest_against}}.
+Imagine that these two characters are discussing the pros and cons of {{topic}}.
+They are stubborn, emotional, and stuck in disagreement. The conversation is chaotic.
+They cut each other off often, still disagree at the end, and remain bitter.
+Now generate a dialogue for this conversation of roughly 1000 words.
+Your response should be a dialogue in the following format:
+X: Hi, how are you?
+Y: I'm good, thanks. And you?
+X: I'm pretty good.
+{{~/user}}
+{{#assistant~}}
+{{gen 'script' temperature=0.9 max_tokens=1500}}
+{{~/assistant}}"""
 
 
-class ScriptGenerationChain(Chain):
-    """
-    Generates a radio script for "The Great Debate" show,
-    based on two guest descriptions and the show's topic.
-    """
-
-    llm: BaseLanguageModel
-    prompt: ChatPromptTemplate = prompts.SCRIPT
-    parser: ScriptOutputParser = ScriptOutputParser()
-    output_key: str = "script"
-
-    @property
-    def input_keys(self) -> list[str]:
-        return self.prompt.input_variables
-
-    @property
-    def output_keys(self) -> list[str]:
-        return [self.output_key]
-
-    def _call(
-        self,
-        inputs: dict[str, Any],
-        run_manager: CallbackManagerForChainRun | None = None,
-    ) -> dict[str, str]:
-        logger.info("Starting script generation chain")
-        logger.debug("Script generation chain inputs", inputs=inputs)
-
-        prompt_value = self.prompt.format_prompt(**inputs)
-
-        result = self.llm.generate_prompt(
-            prompts=[prompt_value],
-            callbacks=run_manager.get_child() if run_manager else None,
-        )
-        raw_script = result.generations[0][0].text
-        logger.debug("Parsing raw script", raw_script=raw_script)
-        script = self.parser.parse(raw_script)
-
-        logger.info("Finished script generation chain")
-        logger.debug("Script generation chain output", script=script)
-        return {self.output_key: script}
-
-    async def _acall(
-        self,
-        inputs: dict[str, Any],
-        run_manager: AsyncCallbackManagerForChainRun | None = None,
-    ) -> dict[str, str]:
-        logger.info("Starting script generation chain")
-        logger.debug("Script generation chain inputs", inputs=inputs)
-
-        prompt_value = self.prompt.format_prompt(**inputs)
-
-        result = await self.llm.agenerate_prompt(
-            prompts=[prompt_value],
-            callbacks=run_manager.get_child() if run_manager else None,
-        )
-        raw_script = result.generations[0][0].text
-        logger.debug("Parsing raw script", raw_script=raw_script)
-        script = self.parser.parse(raw_script)
-
-        logger.info("Finished script generation chain")
-        logger.debug("Script generation chain output", script=script)
-        return {self.output_key: script}
-
-
-class TheGreatDebateChain(Chain):
-    """
-    Generates a radio script for "The Great Debate" show for a given topic.
-    Combines the guest generation and script generation chains.
-    """
-
-    chain: SequentialChain
-
-    @property
-    def input_keys(self) -> list[str]:
-        return self.chain.input_keys
-
-    @property
-    def output_keys(self) -> list[str]:
-        return self.chain.output_keys
-
-    def _call(
-        self,
-        inputs: dict[str, Any],
-        run_manager: CallbackManagerForChainRun | None = None,
-    ) -> dict[str, Any]:
-        return self.chain(inputs=inputs, callbacks=run_manager)
-
-    async def _acall(
-        self,
-        inputs: dict[str, Any],
-        run_manager: AsyncCallbackManagerForChainRun | None = None,
-    ) -> dict[str, Any]:
-        return await self.chain.acall(inputs=inputs, callbacks=run_manager)
+class TheGreatDebate(RadioShow):
+    def __init__(self, llm: LLM, media_store: MediaStore):
+        self._llm = llm
+        self._media_store = media_store
+        self.topic = next(TOPICS)
+        self.n_speakers = 2
 
     @classmethod
-    def from_llm(cls, llm: BaseLanguageModel) -> "TheGreatDebateChain":
-        guest_generation_chain = GuestGenerationChain(llm=llm)
-        script_generation_chain = ScriptGenerationChain(llm=llm)
-        chain = SequentialChain(
-            chains=[guest_generation_chain, script_generation_chain],
-            input_variables=guest_generation_chain.input_keys,
-            output_variables=guest_generation_chain.output_keys
-            + script_generation_chain.output_keys,
-        )
-        return cls(chain=chain)
-
-
-class TheGreatDebateShow:
-    def __init__(
-        self,
-        llm: BaseLanguageModel,
-        media_store: MediaStore,
-    ):
-        self._chain = TheGreatDebateChain.from_llm(llm=llm)
-        self.topic = next(TOPICS)
-        self._media_store = media_store
+    def create(cls, llm: LLM, media_store: MediaStore) -> "TheGreatDebate":
+        return cls(llm=llm, media_store=media_store)
 
     async def awrite(self, show_id: ShowId) -> bool:
-        logger.info(
-            "Writing The Great Debate show...", topic=self.topic, show_id=show_id
-        )
-        outputs = await self._chain.acall(inputs={"topic": self.topic})
-        script = outputs["script"]
-        logger.info("Finished writing The Great Debate show", script=script)
+        logger.info("Async writing the great debate", show_id=show_id, topic=self.topic)
 
-        self._media_store.put_script_show(show_id=show_id, content=script)
+        guest = Program(text=GUEST_TEMPLATE, llm=self._llm, async_mode=True)
+        guest_in_favor = await guest(topic=self.topic, polarity="in favor")
+        guest_against = await guest(topic=self.topic, polarity="against")
+
+        debate = Program(text=DEBATE_TEMPLATE, llm=self._llm, async_mode=True)
+        written_debate = await debate(
+            topic=self.topic,
+            guest_in_favor=guest_in_favor["description"],
+            guest_against=guest_against["description"],
+        )
+        logger.info(written_debate)
+
+        content = self._post_processing(written_debate["script"])
+        self._media_store.put_script_show(show_id=show_id, content=content)
         return True
 
-    @classmethod
-    def create(
-        cls,
-        llm: BaseLanguageModel,
-        media_store: MediaStore,
-    ) -> "TheGreatDebateShow":
-        return cls(
-            llm=llm,
-            media_store=media_store,
-        )
+    def _post_processing(self, script: str) -> str:
+        # TODO Remove last sentence if truncated ? or just generate a lot?
+        # TODO Add host interjection at the end
+        # TODO try agent generation
+        # TODO if most of the lines start with SPEAKER: then remove lines without speaker
+        # TODO SUFFIX host that interrupts "that's all we have time for this today"
+        script = script.strip()
+        lines = script.split("\n\n")
+        speakers = set()
+        clean_lines = []
+        for line in lines:
+            assert (
+                ":" in line
+            ), f"Expected line of format 'speaker: text', but got: {line}"
+            speaker, text = line.split(":", maxsplit=1)
+            speakers.add(speaker.strip().lower())
+            clean_lines.append(line.strip())
+        assert (
+            len(speakers) == self.n_speakers
+        ), f"Expected {self.n_speakers} speakers, but got: {len(speakers)}"
+        clean_script = "\n".join(clean_lines)
+        return clean_script

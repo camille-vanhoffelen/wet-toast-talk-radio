@@ -30,35 +30,36 @@ class VirtualMediaStore(MediaStore):
     VirtualMediaStore is used for testing
     """
 
-    def __init__(self):
+    def __init__(self, load_test_data: bool = True):  # noqa: FBT001, FBT002
         self._src_path = pathlib.Path(__file__).parent.with_name("data")
         self._bucket = VirtualBucket()
 
         today = get_current_iso_utc_date()
 
-        raw_show_i = 0
-        default_show_i = 0
-        script_show_i = 0
-        for file in self._src_path.iterdir():
-            if file.is_file():
-                if file.name.endswith(".wav"):
-                    with file.open("rb") as f:
-                        data = f.read()
-                    show_id = ShowId(raw_show_i, today)
-                    self.put_raw_show(show_id=show_id, data=data)
-                    raw_show_i += 1
-                if file.name.endswith(".ogg"):
-                    with file.open("rb") as f:
-                        data = f.read()
-                    show_id = ShowId(default_show_i, _FALLBACK_KEY)
-                    self.put_transcoded_show(show_id=show_id, data=data)
-                    default_show_i += 1
-                if file.name.endswith(".txt"):
-                    with file.open("r") as f:
-                        content = f.read()
-                    show_id = ShowId(script_show_i, today)
-                    self.put_script_show(show_id=show_id, content=content)
-                    script_show_i += 1
+        if load_test_data:
+            raw_show_i = 0
+            default_show_i = 0
+            script_show_i = 0
+            for file in self._src_path.iterdir():
+                if file.is_file():
+                    if file.name.endswith(".wav"):
+                        with file.open("rb") as f:
+                            data = f.read()
+                        show_id = ShowId(raw_show_i, today)
+                        self.put_raw_show(show_id=show_id, data=data)
+                        raw_show_i += 1
+                    if file.name.endswith(".ogg"):
+                        with file.open("rb") as f:
+                            data = f.read()
+                        show_id = ShowId(default_show_i, _FALLBACK_KEY)
+                        self.put_transcoded_show(show_id=show_id, data=data)
+                        default_show_i += 1
+                    if file.name.endswith(".txt"):
+                        with file.open("r") as f:
+                            content = f.read()
+                        show_id = ShowId(script_show_i, today)
+                        self.put_script_show(show_id=show_id, content=content)
+                        script_show_i += 1
 
     def put_raw_show(self, show_id: ShowId, data: bytes):
         self._bucket[

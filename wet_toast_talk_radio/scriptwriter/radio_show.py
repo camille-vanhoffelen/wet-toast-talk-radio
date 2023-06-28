@@ -17,9 +17,3 @@ class RadioShow(ABC):
         """Asynchronously write the script for the show using an LLM.
         Script is stored in the media store under show_id.
         Returns true if successful, false otherwise"""
-
-    @abstractmethod
-    def write(self, show_id: ShowId) -> bool:
-        """Write the script for the show using an LLM.
-        Script is stored in the media store under show_id.
-        Returns true if successful, false otherwise"""

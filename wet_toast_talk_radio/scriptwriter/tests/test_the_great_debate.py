@@ -1,39 +1,29 @@
+import asyncio
+
 import pytest
-from langchain.llms.fake import FakeListLLM
+from guidance.llms import Mock
 
-from wet_toast_talk_radio.media_store import VirtualMediaStore
-from wet_toast_talk_radio.scriptwriter.prompts import generate_guest_generation_template
-from wet_toast_talk_radio.scriptwriter.the_great_debate import (
-    TheGreatDebateChain,
-    TheGreatDebateShow,
-)
+from wet_toast_talk_radio.media_store import MediaStore, VirtualMediaStore
+from wet_toast_talk_radio.media_store.media_store import ShowId
+from wet_toast_talk_radio.scriptwriter.the_great_debate import TheGreatDebate
 
 
-def test_guest_generation_prompt_template():
-    prompt_template = generate_guest_generation_template(polarity="in_favor")
-    prompt = prompt_template.format(topic="toilet paper")
-    assert isinstance(prompt, str)
-    messages = prompt_template.format_prompt(topic="toilet paper").to_messages()
-    expected_messages = 2
-    assert len(messages) == expected_messages
+def test_the_great_debate(fake_llm, virtual_media_store, show_id):
+    show = TheGreatDebate.create(fake_llm, virtual_media_store)
+    asyncio.run(show.awrite(show_id=show_id))
+    script_shows = virtual_media_store.list_script_shows()
+    assert script_shows == [show_id]
 
 
-def test_the_great_debate_chain(fake_llm, topic):
-    chain = TheGreatDebateChain.from_llm(llm=fake_llm)
-    outputs = chain(inputs={"topic": topic})
-    script = outputs["script"]
-    assert script.startswith("Alice:")
-
-
-def test_broken_the_great_debate_chain(broken_fake_llm, topic):
-    chain = TheGreatDebateChain.from_llm(llm=broken_fake_llm)
+def test_broken_the_great_debate(broken_fake_llm, virtual_media_store, show_id):
+    show = TheGreatDebate.create(broken_fake_llm, virtual_media_store)
     with pytest.raises(AssertionError):
-        chain(inputs={"topic": topic})
+        asyncio.run(show.awrite(show_id=show_id))
 
 
-def test_topic_cycling(fake_llm):
-    show1 = TheGreatDebateShow.create(fake_llm, VirtualMediaStore())
-    show2 = TheGreatDebateShow.create(fake_llm, VirtualMediaStore())
+def test_topic_cycling(fake_llm, virtual_media_store):
+    show1 = TheGreatDebate.create(fake_llm, virtual_media_store)
+    show2 = TheGreatDebate.create(fake_llm, virtual_media_store)
     assert show1.topic != show2.topic
 
 
@@ -53,14 +43,24 @@ def bad_script() -> str:
 
 
 @pytest.fixture()
-def fake_llm(topic: str, script: str) -> FakeListLLM:
-    in_favor_guest = f"Meet Alice. Alice loves {topic}."
-    against_guest = f"Meet Bob. Bob hates {topic}."
-    return FakeListLLM(responses=[in_favor_guest, against_guest, script])
+def show_id() -> ShowId:
+    return ShowId(show_i=0, date="2021-01-01")
 
 
 @pytest.fixture()
-def broken_fake_llm(topic: str, bad_script: str) -> FakeListLLM:
+def fake_llm(topic: str, script: str) -> Mock:
     in_favor_guest = f"Meet Alice. Alice loves {topic}."
     against_guest = f"Meet Bob. Bob hates {topic}."
-    return FakeListLLM(responses=[in_favor_guest, against_guest, bad_script])
+    return Mock(output=[in_favor_guest, against_guest, script])
+
+
+@pytest.fixture()
+def broken_fake_llm(topic: str, bad_script: str) -> Mock:
+    in_favor_guest = f"Meet Alice. Alice loves {topic}."
+    against_guest = f"Meet Bob. Bob hates {topic}."
+    return Mock(output=[in_favor_guest, against_guest, bad_script])
+
+
+@pytest.fixture()
+def virtual_media_store() -> MediaStore:
+    return VirtualMediaStore(load_test_data=False)

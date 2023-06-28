@@ -51,13 +51,6 @@ class Advert(RadioShow):
         self._post_processing(program=executed_program, show_id=show_id)
         return True
 
-    def write(self, show_id: ShowId) -> bool:
-        logger.info(f"Writing advert for {show_id}")
-        program = Program(text=TEMPLATE, llm=self._llm, async_mode=False)
-        executed_program = program()
-        self._post_processing(program=executed_program, show_id=show_id)
-        return True
-
     def _post_processing(self, program: Program, show_id: ShowId):
         logger.info(program)
         product_description = program["product_description"]
