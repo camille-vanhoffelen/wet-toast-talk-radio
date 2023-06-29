@@ -1,4 +1,5 @@
 import asyncio
+import logging
 
 import click
 import structlog
@@ -15,6 +16,7 @@ from wet_toast_talk_radio.scriptwriter.config import validate_config
 from wet_toast_talk_radio.scriptwriter.the_great_debate import (
     TheGreatDebate,
 )
+from wet_toast_talk_radio.scriptwriter.traits import Traits
 
 logger = structlog.get_logger()
 
@@ -79,3 +81,31 @@ def the_great_debate(ctx: dict):
     show = TheGreatDebate.create(llm=llm, media_store=VirtualMediaStore())
     show_id = ShowId(show_i=0, date="2012-12-21")
     asyncio.run(show.awrite(show_id=show_id))
+
+
+@scriptwriter.command(help="Write character traits for guests")
+@click.pass_context
+@click.option(
+    "--n-traits", default=20, type=int, help="Number of traits generated per iteration"
+)
+@click.option(
+    "--n-iter",
+    default=50,
+    type=int,
+    help="Number of parallel generations to be aggregated",
+)
+def traits(ctx: dict, n_traits: int, n_iter: int):
+    """Run command
+    scriptwriter traits
+
+    Write unique character traits for guests, writes them in /tmp/traits.json
+    """
+    structlog.configure(
+        wrapper_class=structlog.make_filtering_bound_logger(logging.DEBUG),
+    )
+    logger.info("Writing character traits")
+    root_cfg = ctx.obj["root_cfg"]
+    sw_cfg = root_cfg.scriptwriter
+    llm = new_llm(cfg=sw_cfg.llm)
+    traits_writer = Traits(llm=llm, n_traits=n_traits, n_iter=n_iter)
+    asyncio.run(traits_writer.awrite())

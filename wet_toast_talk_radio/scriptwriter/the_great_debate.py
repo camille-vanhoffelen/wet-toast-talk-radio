@@ -1,4 +1,7 @@
+import json
+import random
 from itertools import cycle
+from pathlib import Path
 
 import structlog
 from guidance import Program
@@ -20,21 +23,55 @@ TOPICS = cycle(
 
 # TODO randomize names
 GUEST_TEMPLATE = """{{#system~}}
-You are an edgy, satirical writer who writes character profiles.
+You are an edgy, satirical author.
 {{~/system}}
+{{#block hidden=True}}
 {{#user~}}
-Think of the most stereotypical person who would argue {{polarity}} of the use of {{topic}}.
-Describe them in three sentences.
+Your task is to generate single-word character traits. Here are some examples:
+Megalomania
+Cowardice
+Greed
+Now generate a single-word character trait.
 {{~/user}}
 {{#assistant~}}
-{{gen 'description' temperature=0.9 max_tokens=100}}
+{{gen 'trait' temperature=0.95 max_tokens=5}}
+{{~/assistant}}
+{{/block}}
+{{#user~}}
+Your task is to write character profiles. {{name}} is a {{gender}} who is passionately {{polarity}} {{topic}}.
+{{name}}'s main character trait is {{trait}}.
+Describe {{name}} in three sentences.
+{{~/user}}
+{{#assistant~}}
+{{gen 'description' temperature=0.9 max_tokens=200}}
+{{~/assistant}}
+{{#user~}}
+Now list five arguments that {{name}} would make {{polarity}} {{topic}} in a debate.
+{{~/user}}
+{{#assistant~}}
+{{gen 'arguments' temperature=0.9 max_tokens=500}}
+{{~/assistant}}
+{{#user~}}
+Now summarize these arguments as terse bullet points.
+{{~/user}}
+{{#assistant~}}
+{{gen 'bullet_points' temperature=0.9 max_tokens=200}}
+{{~/assistant}}
+{{#user~}}
+Now invent an unexpected backstory for {{name}} explaining why they are so {{polarity}} {{topic}}. Explain this backstory in one sentence.
+{{~/user}}
+{{#assistant~}}
+{{gen 'backstory' temperature=0.9 max_tokens=100}}
 {{~/assistant}}
 """
 
-DEBATE_TEMPLATE = """{{#user~}}
+DEBATE_TEMPLATE = """{{#system~}}
+You are an edgy, satirical author.
+{{~/system}}
+{{#user~}}
 Here are the descriptions of two characters: {{guest_in_favor}} and {{guest_against}}.
 Imagine that these two characters are discussing the pros and cons of {{topic}}.
-They are stubborn, emotional, and stuck in disagreement. The conversation is chaotic.
+They are stubborn, emotional, and stuck in disagreement. The conversation is chaotic and eccentric.
 They cut each other off often, still disagree at the end, and remain bitter.
 Now generate a dialogue for this conversation of roughly 1000 words.
 Your response should be a dialogue in the following format:
@@ -62,8 +99,20 @@ class TheGreatDebate(RadioShow):
         logger.info("Async writing the great debate", show_id=show_id, topic=self.topic)
 
         guest = Program(text=GUEST_TEMPLATE, llm=self._llm, async_mode=True)
-        guest_in_favor = await guest(topic=self.topic, polarity="in favor")
-        guest_against = await guest(topic=self.topic, polarity="against")
+        guest_in_favor = await guest(
+            topic=self.topic,
+            polarity="in favor of",
+            name="Alice",
+            gender="woman",
+            trait="megalomania",
+        )
+        guest_against = await guest(
+            topic=self.topic,
+            polarity="against",
+            name="Bob",
+            gender="man",
+            trait="gluttony",
+        )
 
         debate = Program(text=DEBATE_TEMPLATE, llm=self._llm, async_mode=True)
         written_debate = await debate(
@@ -99,3 +148,20 @@ class TheGreatDebate(RadioShow):
         ), f"Expected {self.n_speakers} speakers, but got: {len(speakers)}"
         clean_script = "\n".join(clean_lines)
         return clean_script
+
+
+GENDERS = ["male", "female"]
+
+
+# TODO how to inject this name?
+def random_name(gender: str):
+    if gender not in GENDERS:
+        raise ValueError(f"Gender: {gender} must be one of {GENDERS}")
+    # TODO cleanup
+    path = Path(__file__).with_name("resources") / "names-ascii.json"
+    with path.open() as f:
+        doc = json.load(f)
+    region = doc[random.randrange(len(doc))]
+    names = region[gender]
+    name = names[random.randrange(len(names))]
+    return name
