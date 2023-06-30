@@ -29,8 +29,6 @@ def random_name(gender: str):
     if gender not in GENDERS:
         raise ValueError(f"Gender: {gender} must be one of {GENDERS}")
     region = NAMES[random.randrange(len(NAMES))]
-    # TODO consider region randomization
     names = region[gender]
     name = names[random.randrange(len(names))]
-    logger.info("Selected random name", name=name)
     return name

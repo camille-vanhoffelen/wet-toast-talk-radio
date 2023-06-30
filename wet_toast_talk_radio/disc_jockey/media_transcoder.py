@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from pydub import AudioSegment
 
 from wet_toast_talk_radio.common.path import delete_folder
-from wet_toast_talk_radio.common.task_log_ctx import task_log_ctx
+from wet_toast_talk_radio.common.log_ctx import task_log_ctx
 from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.common.date import get_current_utc_date
 from wet_toast_talk_radio.media_store.media_store import ShowId, ShowUploadInput

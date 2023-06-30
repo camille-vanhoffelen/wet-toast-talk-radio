@@ -1,9 +1,11 @@
+import asyncio
 import random
 
 import structlog
 from guidance import Program
 from guidance.llms import LLM
 
+from wet_toast_talk_radio.common.log_ctx import show_id_log_ctx
 from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.scriptwriter.names import (
@@ -20,7 +22,6 @@ logger = structlog.get_logger()
 TOPICS = load_topics()
 TRAITS = load_traits()
 
-# TODO Add talking style? maybe only 4-5 with cycle? rude, terse, chatty, aggressive, shy, bored
 GUEST_TEMPLATE = """{{#system~}}
 You are an edgy, satirical writer.
 {{~/system}}
@@ -122,47 +123,64 @@ class TheGreatDebate(RadioShow):
     def create(cls, llm: LLM, media_store: MediaStore) -> "TheGreatDebate":
         return cls(llm=llm, media_store=media_store)
 
+    @show_id_log_ctx()
     async def awrite(self, show_id: ShowId) -> bool:
         logger.info(
             "Async writing the great debate",
-            show_id=show_id,
             topic=self.topic,
-            trait1=self.trait_in_favor,
-            trait2=self.trait_against,
+            trait_in_favor=self.trait_in_favor,
+            trait_against=self.trait_against,
+            gender_in_favor=self.gender_in_favor,
+            gender_against=self.gender_against,
+            name_in_favor=self.name_in_favor,
+            name_against=self.name_against,
         )
 
+        logger.info("Writing guest profiles")
         guest = Program(text=GUEST_TEMPLATE, llm=self._llm, async_mode=True)
-        guest_in_favor = await guest(
-            topic=self.topic,
-            polarity="in favor of",
-            name=PLACEHOLDER_NAMES["in_favor"][self.gender_in_favor],
-            gender="woman",
-            trait=self.trait_in_favor,
+        task_in_favor = asyncio.create_task(
+            aexec(
+                guest,
+                topic=self.topic,
+                polarity="in favor of",
+                name=PLACEHOLDER_NAMES["in_favor"][self.gender_in_favor],
+                gender=self.gender_in_favor,
+                trait=self.trait_in_favor,
+            )
         )
-        guest_against = await guest(
-            topic=self.topic,
-            polarity="against",
-            name=PLACEHOLDER_NAMES["against"][self.gender_against],
-            gender="man",
-            trait=self.trait_against,
+        task_against = asyncio.create_task(
+            aexec(
+                guest,
+                topic=self.topic,
+                polarity="against",
+                name=PLACEHOLDER_NAMES["against"][self.gender_against],
+                gender=self.gender_against,
+                trait=self.trait_against,
+            )
         )
-        logger.info(guest_in_favor)
-        logger.info(guest_against)
+        results = await asyncio.gather(task_in_favor, task_against)
+        guest_in_favor = results[0]
+        guest_against = results[1]
+        logger.debug("Guest in favor", guest=guest_in_favor)
+        logger.debug("Guest against", guest=guest_against)
 
+        logger.info("Writing debate script")
         debate = Program(text=DEBATE_TEMPLATE, llm=self._llm, async_mode=True)
         written_debate = await debate(
             topic=self.topic,
             in_favor=self.guest_to_dict(guest_in_favor),
             against=self.guest_to_dict(guest_against),
         )
-        logger.info(written_debate)
-
+        logger.debug("Written debate", debate=written_debate)
         content = self._post_processing(written_debate["script"])
-        logger.info(content)
+
+        logger.info("Finished writing The Great Debate")
+        logger.debug("Final script", content=content)
         self._media_store.put_script_show(show_id=show_id, content=content)
         return True
 
     def _post_processing(self, script: str) -> str:
+        logger.info("Post processing The Great Debate")
         script = script.strip()
         script = script.replace("\n\n", "\n")
         lines = script.split("\n")
@@ -204,7 +222,7 @@ class TheGreatDebate(RadioShow):
         }
 
     def replace_guest_names(self, script: str) -> str:
-        logger.info(
+        logger.debug(
             "Replacing placeholder guest names",
             name_in_favor=self.name_in_favor,
             name_against=self.name_against,
@@ -216,3 +234,8 @@ class TheGreatDebate(RadioShow):
             PLACEHOLDER_NAMES["against"][self.gender_against], self.name_against
         )
         return script
+
+
+async def aexec(program: Program, **kwargs) -> Program:
+    """For some reason the program await is messed up so we have to wrap in this async function"""
+    return await program(**kwargs)

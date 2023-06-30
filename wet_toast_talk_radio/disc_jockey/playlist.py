@@ -4,7 +4,7 @@ from typing import Optional
 import structlog
 from pydantic import BaseModel
 
-from wet_toast_talk_radio.common.task_log_ctx import task_log_ctx
+from wet_toast_talk_radio.common.log_ctx import task_log_ctx
 from wet_toast_talk_radio.media_store.common.date import (
     get_current_iso_utc_date,
 )

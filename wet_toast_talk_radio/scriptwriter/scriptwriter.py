@@ -2,7 +2,7 @@ import asyncio
 
 import structlog
 
-from wet_toast_talk_radio.common.task_log_ctx import task_log_ctx
+from wet_toast_talk_radio.common.log_ctx import task_log_ctx
 from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.message_queue import MessageQueue
 from wet_toast_talk_radio.scriptwriter import DailyProgram, new_llm

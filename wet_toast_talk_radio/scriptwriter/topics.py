@@ -191,5 +191,3 @@ def load_topics() -> list[str]:
     with TOPICS_PATH.open() as f:
         topics = json.load(f)
     return topics
-
-
