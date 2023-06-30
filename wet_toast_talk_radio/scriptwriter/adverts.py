@@ -33,7 +33,7 @@ Now describe this product {{product_name}} in great detail. Make the description
 {{gen 'product_description' temperature=0.9 max_tokens=500}}
 {{~/assistant}}"""
 
-PREFIX = "And now for a word from our sponsors. "
+PREFIX = "Chris: And now for a word from our sponsors. "
 
 
 class Advert(RadioShow):
