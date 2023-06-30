@@ -41,7 +41,7 @@ HARMLESS_EXAMPLES = [
     "Brushing your hair",
     "Taking naps",
 ]
-HARMLESS_DESCRIPTION = "The topics should be everyday things that people do without ever thinking about it. These things should be harmless and commonplace"
+HARMLESS_DESCRIPTION = "The topics should be everyday things that people do without ever thinking about it. These things should be harmless and commonplace"  # noqa: E501
 
 TABOO_EXAMPLES = [
     "Eating your boogers",
@@ -62,7 +62,7 @@ COMMON_DESCRIPTION = "The topics should be things that a lot of people do, but t
 
 
 class TopicGenerator:
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         llm: LLM,
         n_topics: int,

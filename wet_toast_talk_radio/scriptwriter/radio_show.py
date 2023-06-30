@@ -2,9 +2,9 @@ from abc import ABC, abstractmethod
 
 from guidance.llms import LLM
 
+from wet_toast_talk_radio.common.log_ctx import show_id_log_ctx
 from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.media_store import ShowId
-from wet_toast_talk_radio.common.log_ctx import show_id_log_ctx
 
 
 class RadioShow(ABC):
