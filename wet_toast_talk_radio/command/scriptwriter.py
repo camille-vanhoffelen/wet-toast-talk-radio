@@ -1,6 +1,5 @@
 import asyncio
-import uuid
-from pathlib import Path
+import logging
 
 import click
 import structlog
@@ -14,7 +13,11 @@ from wet_toast_talk_radio.message_queue import new_message_queue
 from wet_toast_talk_radio.scriptwriter import Scriptwriter, new_llm
 from wet_toast_talk_radio.scriptwriter.adverts import Advert
 from wet_toast_talk_radio.scriptwriter.config import validate_config
-from wet_toast_talk_radio.scriptwriter.the_great_debate import TheGreatDebateChain
+from wet_toast_talk_radio.scriptwriter.the_great_debate import (
+    TheGreatDebate,
+)
+from wet_toast_talk_radio.scriptwriter.topics import Topics
+from wet_toast_talk_radio.scriptwriter.traits import Traits
 
 logger = structlog.get_logger()
 
@@ -49,32 +52,6 @@ def run(ctx: dict):
     writer.run()
 
 
-@scriptwriter.command(help="Write script for The Great Debate show")
-@click.pass_context
-@click.argument("topic")
-def the_great_debate(ctx: dict, topic: str):
-    """Run command
-    scriptwriter run TOPIC
-
-    with TOPIC the topic of The Great Debate show.
-    """
-    logger.info("Writing script for the Great Debate", topic=topic)
-    root_cfg = ctx.obj["root_cfg"]
-    sw_cfg = root_cfg.scriptwriter
-
-    llm = new_llm(cfg=sw_cfg.llm)
-    chain = TheGreatDebateChain.from_llm(llm=llm)
-    outputs = chain(inputs={"topic": topic})
-    script = outputs["script"]
-
-    uuid_str = str(uuid.uuid4())[:4]
-    tmp_dir = Path("tmp/")
-    tmp_dir.mkdir(parents=True, exist_ok=True)
-    script_file = tmp_dir / f"the-great-debate-{uuid_str}.txt"
-    with script_file.open("w") as f:
-        f.write(script)
-
-
 @scriptwriter.command(help="Write script for Advert")
 @click.pass_context
 def advert(ctx: dict):
@@ -87,5 +64,78 @@ def advert(ctx: dict):
 
     llm = new_llm(cfg=sw_cfg.llm)
     show = Advert.create(llm=llm, media_store=VirtualMediaStore())
-    show_id = ShowId(show_i=1, date="2021-01-01")
+    show_id = ShowId(show_i=0, date="2012-12-21")
     asyncio.run(show.awrite(show_id=show_id))
+
+
+@scriptwriter.command(help="Write script for The Great Debate")
+@click.pass_context
+def the_great_debate(ctx: dict):
+    """Run command
+    scriptwriter the-great-debate
+    """
+    logger.info("Writing script for The Great Debate")
+    root_cfg = ctx.obj["root_cfg"]
+    sw_cfg = root_cfg.scriptwriter
+
+    llm = new_llm(cfg=sw_cfg.llm)
+    show = TheGreatDebate.create(llm=llm, media_store=VirtualMediaStore())
+    show_id = ShowId(show_i=0, date="2012-12-21")
+    asyncio.run(show.awrite(show_id=show_id))
+
+
+@scriptwriter.command(help="Write character traits for guests")
+@click.pass_context
+@click.option(
+    "--n-traits", default=20, type=int, help="Number of traits generated per iteration"
+)
+@click.option(
+    "--n-iter",
+    default=50,
+    type=int,
+    help="Number of parallel generations to be aggregated",
+)
+def traits(ctx: dict, n_traits: int, n_iter: int):
+    """Run command
+    scriptwriter traits
+
+    Write unique character traits for guests, writes them in /tmp/traits.json
+    """
+    structlog.configure(
+        wrapper_class=structlog.make_filtering_bound_logger(logging.DEBUG),
+    )
+    logger.info("Writing character traits")
+    root_cfg = ctx.obj["root_cfg"]
+    sw_cfg = root_cfg.scriptwriter
+    llm = new_llm(cfg=sw_cfg.llm)
+    traits_writer = Traits(llm=llm, n_traits=n_traits, n_iter=n_iter)
+    asyncio.run(traits_writer.awrite())
+
+
+@scriptwriter.command(help="Write topics for The Great Debate")
+@click.pass_context
+@click.option(
+    "--n-topics", default=30, type=int, help="Number of topics generated per iteration"
+)
+@click.option(
+    "--n-iter",
+    default=10,
+    type=int,
+    help="Number of parallel generations to be aggregated",
+)
+def topics(ctx: dict, n_topics: int, n_iter: int):
+    """Run command
+    scriptwriter topics
+
+    Write unique character topics for guests, writes them in /tmp/topics.json
+    """
+    structlog.configure(
+        wrapper_class=structlog.make_filtering_bound_logger(logging.DEBUG),
+    )
+    logger.info("Writing topics for The Great Debate")
+    root_cfg = ctx.obj["root_cfg"]
+    sw_cfg = root_cfg.scriptwriter
+    llm = new_llm(cfg=sw_cfg.llm)
+
+    topics_writer = Topics(llm=llm, n_topics=n_topics, n_iter=n_iter)
+    asyncio.run(topics_writer.awrite())

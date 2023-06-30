@@ -15,7 +15,6 @@ dependencies = [
     "pydantic>=1.10.8",
     "pydub>=0.25.1",
     "wave>=0.0.2",
-    "langchain>=0.0.191",
     "openai>=0.27.7",
     "boto3>=1.26.146",
     "python-shout>=0.2.8",

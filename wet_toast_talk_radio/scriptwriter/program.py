@@ -10,12 +10,26 @@ from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.message_queue import MessageQueue
 from wet_toast_talk_radio.scriptwriter.adverts import Advert
 from wet_toast_talk_radio.scriptwriter.radio_show import RadioShow
+from wet_toast_talk_radio.scriptwriter.the_great_debate import TheGreatDebate
 
 logger = structlog.get_logger()
 
 
 class DailyProgram:
-    program: tuple[RadioShow] = (Advert, Advert, Advert, Advert, Advert)
+    program: tuple[RadioShow] = (
+        TheGreatDebate,
+        TheGreatDebate,
+        Advert,
+        TheGreatDebate,
+        TheGreatDebate,
+        Advert,
+        TheGreatDebate,
+        TheGreatDebate,
+        Advert,
+        TheGreatDebate,
+        TheGreatDebate,
+        Advert,
+    )
 
     def __init__(
         self,

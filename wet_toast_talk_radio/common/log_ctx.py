@@ -21,3 +21,21 @@ def task_log_ctx(task_name: str):
         return wrapper_repeat
 
     return decorator_task_ctx
+
+
+def show_id_log_ctx():
+    """show_id_log_ctx is a method decorator that binds a show_id to the logger contextvars.
+    This makes every log message include the show_id name as {show_id=<show_id>}
+    """
+
+    def decorator_task_ctx(func):
+        @functools.wraps(func)
+        def wrapper_repeat(*args, **kwargs):
+            assert "show_id" in kwargs, "show_id must be provided"
+            clear_contextvars()
+            bind_contextvars(show_id=kwargs["show_id"])
+            return func(*args, **kwargs)
+
+        return wrapper_repeat
+
+    return decorator_task_ctx

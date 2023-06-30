@@ -2,6 +2,7 @@ import structlog
 from guidance import Program
 from guidance.llms import LLM
 
+from wet_toast_talk_radio.common.log_ctx import show_id_log_ctx
 from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.scriptwriter.radio_show import RadioShow
@@ -32,7 +33,7 @@ Now describe this product {{product_name}} in great detail. Make the description
 {{gen 'product_description' temperature=0.9 max_tokens=500}}
 {{~/assistant}}"""
 
-PREFIX = "And now for a word from our sponsors. "
+PREFIX = "Chris: And now for a word from our sponsors. "
 
 
 class Advert(RadioShow):
@@ -44,17 +45,11 @@ class Advert(RadioShow):
     def create(cls, llm: LLM, media_store: MediaStore) -> "Advert":
         return cls(llm=llm, media_store=media_store)
 
+    @show_id_log_ctx()
     async def awrite(self, show_id: ShowId) -> bool:
-        logger.info(f"Async writing advert for {show_id}")
+        logger.info("Async writing advert")
         program = Program(text=TEMPLATE, llm=self._llm, async_mode=True)
         executed_program = await program()
-        self._post_processing(program=executed_program, show_id=show_id)
-        return True
-
-    def write(self, show_id: ShowId) -> bool:
-        logger.info(f"Writing advert for {show_id}")
-        program = Program(text=TEMPLATE, llm=self._llm, async_mode=False)
-        executed_program = program()
         self._post_processing(program=executed_program, show_id=show_id)
         return True
 

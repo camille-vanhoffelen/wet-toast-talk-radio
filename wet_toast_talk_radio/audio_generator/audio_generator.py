@@ -18,8 +18,8 @@ from wet_toast_talk_radio.audio_generator.model_cache import (
     cache_is_present,
     download_model_cache,
 )
+from wet_toast_talk_radio.common.log_ctx import task_log_ctx
 from wet_toast_talk_radio.common.path import delete_folder
-from wet_toast_talk_radio.common.task_log_ctx import task_log_ctx
 from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.message_queue.message_queue import MessageQueue
 
@@ -113,7 +113,7 @@ class AudioGenerator:
             logger.info(
                 "Generating audio for sentence",
                 sentence=sentence,
-                progress=f"{i+1}/{num_sentences}",
+                progress=f"{i + 1}/{num_sentences}",
             )
             audio_array = generate_audio(sentence, history_prompt=SPEAKER)
             pieces += [audio_array, silence.copy()]
