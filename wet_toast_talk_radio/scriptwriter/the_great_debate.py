@@ -137,7 +137,7 @@ class TheGreatDebate(RadioShow):
             name_against=self.name_against,
         )
 
-        logger.info("Writing guest profiles")
+        logger.info("Async writing guest profiles")
         guest = Program(text=GUEST_TEMPLATE, llm=self._llm, async_mode=True)
         task_in_favor = asyncio.create_task(
             aexec(
@@ -223,11 +223,6 @@ class TheGreatDebate(RadioShow):
         }
 
     def replace_guest_names(self, script: str) -> str:
-        logger.debug(
-            "Replacing placeholder guest names",
-            name_in_favor=self.name_in_favor,
-            name_against=self.name_against,
-        )
         script = script.replace(
             PLACEHOLDER_NAMES["in_favor"][self.gender_in_favor], self.name_in_favor
         )
