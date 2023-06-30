@@ -34,7 +34,7 @@ def topic() -> str:
 
 @pytest.fixture()
 def script(topic: str) -> str:
-    return f"Alice: I love {topic}.\n\nBob: I hate {topic}.\n\nAlice: Let's agree to disagree."
+    return f"Chris: Welcome to THE GREAT DEBATE!\n\nAlice: I love {topic}.\n\nBob: I hate {topic}.\n\nAlice: Let's agree to disagree."
 
 
 @pytest.fixture()

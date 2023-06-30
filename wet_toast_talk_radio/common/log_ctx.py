@@ -24,8 +24,8 @@ def task_log_ctx(task_name: str):
 
 
 def show_id_log_ctx():
-    """task_log_ctx is a class decorator that binds a task name to the logger contextvars.
-    This makes every log message from the task include the task name as {task=<taskName>}
+    """show_id_log_ctx is a method decorator that binds a show_id to the logger contextvars.
+    This makes every log message include the show_id name as {show_id=<show_id>}
     """
 
     def decorator_task_ctx(func):

@@ -2,6 +2,7 @@ import structlog
 from guidance import Program
 from guidance.llms import LLM
 
+from wet_toast_talk_radio.common.log_ctx import show_id_log_ctx
 from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.scriptwriter.radio_show import RadioShow
@@ -44,8 +45,9 @@ class Advert(RadioShow):
     def create(cls, llm: LLM, media_store: MediaStore) -> "Advert":
         return cls(llm=llm, media_store=media_store)
 
+    @show_id_log_ctx()
     async def awrite(self, show_id: ShowId) -> bool:
-        logger.info(f"Async writing advert for {show_id}")
+        logger.info("Async writing advert")
         program = Program(text=TEMPLATE, llm=self._llm, async_mode=True)
         executed_program = await program()
         self._post_processing(program=executed_program, show_id=show_id)
