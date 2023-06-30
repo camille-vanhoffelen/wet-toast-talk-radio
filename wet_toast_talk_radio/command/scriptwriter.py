@@ -16,6 +16,7 @@ from wet_toast_talk_radio.scriptwriter.config import validate_config
 from wet_toast_talk_radio.scriptwriter.the_great_debate import (
     TheGreatDebate,
 )
+from wet_toast_talk_radio.scriptwriter.topics import Topics
 from wet_toast_talk_radio.scriptwriter.traits import Traits
 
 logger = structlog.get_logger()
@@ -109,3 +110,32 @@ def traits(ctx: dict, n_traits: int, n_iter: int):
     llm = new_llm(cfg=sw_cfg.llm)
     traits_writer = Traits(llm=llm, n_traits=n_traits, n_iter=n_iter)
     asyncio.run(traits_writer.awrite())
+
+
+@scriptwriter.command(help="Write topics for The Great Debate")
+@click.pass_context
+@click.option(
+    "--n-topics", default=30, type=int, help="Number of topics generated per iteration"
+)
+@click.option(
+    "--n-iter",
+    default=10,
+    type=int,
+    help="Number of parallel generations to be aggregated",
+)
+def topics(ctx: dict, n_topics: int, n_iter: int):
+    """Run command
+    scriptwriter topics
+
+    Write unique character topics for guests, writes them in /tmp/topics.json
+    """
+    structlog.configure(
+        wrapper_class=structlog.make_filtering_bound_logger(logging.DEBUG),
+    )
+    logger.info("Writing topics for The Great Debate")
+    root_cfg = ctx.obj["root_cfg"]
+    sw_cfg = root_cfg.scriptwriter
+    llm = new_llm(cfg=sw_cfg.llm)
+
+    topics_writer = Topics(llm=llm, n_topics=n_topics, n_iter=n_iter)
+    asyncio.run(topics_writer.awrite())

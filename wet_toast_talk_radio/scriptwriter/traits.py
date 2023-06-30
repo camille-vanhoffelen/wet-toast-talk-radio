@@ -99,3 +99,12 @@ class Traits:
 
 def flatten(things: list) -> list:
     return [e for nested_things in things for e in nested_things]
+
+
+TRAITS_PATH = Path(__file__).parent / "resources" / "traits.json"
+
+
+def load_traits() -> list[str]:
+    with TRAITS_PATH.open() as f:
+        traits = json.load(f)
+    return traits
