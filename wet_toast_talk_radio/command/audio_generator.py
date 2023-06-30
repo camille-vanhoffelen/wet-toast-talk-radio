@@ -58,4 +58,4 @@ def benchmark(ctx: dict, script: Path):
     audio_gen = AudioGenerator(cfg)
 
     text = script.read_text() if script else "Hey there! I'm a dog! Woof woof!"
-    audio_gen.benchmark(text=text)
+    audio_gen.benchmark(script=text)

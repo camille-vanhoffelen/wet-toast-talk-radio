@@ -18,6 +18,7 @@ from wet_toast_talk_radio.audio_generator.model_cache import (
     cache_is_present,
     download_model_cache,
 )
+from wet_toast_talk_radio.audio_generator.speakers import get_speaker_prompt
 from wet_toast_talk_radio.common.log_ctx import task_log_ctx
 from wet_toast_talk_radio.common.path import delete_folder
 from wet_toast_talk_radio.media_store import MediaStore
@@ -25,7 +26,7 @@ from wet_toast_talk_radio.message_queue.message_queue import MessageQueue
 
 logger = structlog.get_logger()
 
-SPEAKER = "v2/en_speaker_6"
+SILENCE = np.zeros(int(0.25 * SAMPLE_RATE))  # quarter second of silence
 
 
 @task_log_ctx("audio_generator")
@@ -65,7 +66,7 @@ class AudioGenerator:
             self._media_store.download_script_show(
                 show_id=show_id, dir_output=self._script_shows_dir
             )
-            text = (
+            script = (
                 self._script_shows_dir / show_id.store_key() / "show.txt"
             ).read_text()
 
@@ -75,7 +76,7 @@ class AudioGenerator:
                     timeout_in_s=self._cfg.heartbeat_interval_in_s,
                 )
 
-            data = self._generate_audio(text, sentence_callbacks=[heartbeat])
+            data = self._script_to_audio(script=script, sentence_callbacks=[heartbeat])
             self._media_store.put_raw_show(show_id=show_id, data=data)
             self._message_queue.delete_script_show(script_show_message.receipt_handle)
             logger.info("Show deleted from message_queue", show_id=show_id)
@@ -83,10 +84,10 @@ class AudioGenerator:
                 delete_folder(self._script_shows_dir)
         logger.info("Script shows queue empty, Audio Generator exiting")
 
-    def benchmark(self, text: str) -> None:
+    def benchmark(self, script: str) -> None:
         """Benchmark audio_generator speed"""
         logger.info("Starting audio generator benchmark...")
-        data = self._generate_audio(text)
+        data = self._script_to_audio(script)
         uuid_str = str(uuid.uuid4())[:4]
         path = self._tmp_dir / f"audio-generator-benchmark-{uuid_str}.wav"
         logger.info("Writing audio to file", path=path)
@@ -94,33 +95,23 @@ class AudioGenerator:
             f.write(data)
         logger.info("Audio generator benchmark finished!")
 
-    def _generate_audio(
-        self, text: str, sentence_callbacks: list[Callable] | None = None
+    def _script_to_audio(
+        self, script: str, sentence_callbacks: list[Callable] | None = None
     ) -> bytes:
-        logger.info("Tokenizing text into sentences")
-        sentences = nltk.sent_tokenize(text)
-        num_sentences = len(sentences)
-        logger.info(f"Tokenized {len(sentences)} sentences", count=num_sentences)
-
-        silence = np.zeros(int(0.25 * SAMPLE_RATE))  # quarter second of silence
-
         logger.info("Starting audio generation")
-
         start = time.perf_counter()
 
         pieces = []
-        for i, sentence in enumerate(sentences):
-            logger.info(
-                "Generating audio for sentence",
-                sentence=sentence,
-                progress=f"{i + 1}/{num_sentences}",
+        for line in script.split("\n"):
+            assert ":" in line, f"Line must contain a speaker: {line}"
+            speaker, text = line.split(":", maxsplit=1)
+            pieces.append(
+                self._line_to_audio(
+                    speaker=speaker, text=text, sentence_callbacks=sentence_callbacks
+                )
             )
-            audio_array = generate_audio(sentence, history_prompt=SPEAKER)
-            pieces += [audio_array, silence.copy()]
-            if sentence_callbacks:
-                [c() for c in sentence_callbacks]
 
-        logger.debug("Concatenating audio pieces")
+        logger.debug("Concatenating line audio pieces")
         audio_array = np.concatenate(pieces)
 
         # np.int32 is needed in order for the wav file to end up begin 32bit width
@@ -146,6 +137,32 @@ class AudioGenerator:
         )
 
         return buffer.getvalue()
+
+    def _line_to_audio(
+        self, speaker: str, text: str, sentence_callbacks: list[Callable] | None
+    ) -> np.ndarray:
+        logger.info("Tokenizing text into sentences")
+        sentences = nltk.sent_tokenize(text)
+        num_sentences = len(sentences)
+        logger.debug(f"Tokenized {len(sentences)} sentences", count=num_sentences)
+
+        pieces = []
+        for i, sentence in enumerate(sentences):
+            logger.debug(
+                "Generating audio for sentence",
+                sentence=sentence,
+                progress=f"{i + 1}/{num_sentences}",
+            )
+            audio_array = generate_audio(
+                sentence, history_prompt=get_speaker_prompt(speaker)
+            )
+            pieces += [audio_array, SILENCE.copy()]
+            if sentence_callbacks:
+                [c() for c in sentence_callbacks]
+
+        logger.debug("Concatenating sentence audio pieces")
+        audio_array = np.concatenate(pieces)
+        return audio_array
 
     def _to_pcm(self, sig, dtype: str = "int32") -> np.ndarray:
         """Convert floating point signal with a range from -1 to 1 to PCM.
