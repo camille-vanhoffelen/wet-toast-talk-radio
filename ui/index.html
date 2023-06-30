@@ -13,68 +13,57 @@
     <meta property="og:url" content="https://wettoast.ai/" />
     <meta
       property="og:image"
-      content="https://wettoast.ai/wttr-logo-thin.png"
+      content="https://wettoast.ai/wttr-logo-thin.jpg"
     />
     <meta property="og:type" content="website" />
-
     <meta name="twitter:card" content="AI generated talk show radio" />
-
     <title>Wet Toast Talk Radio</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/98.css" />
     <style>
-      * {
-        margin: 0px;
-        padding: 0px;
-        font-family: Arial;
-      }
-      .pfiles {
-        padding-top: 15px;
-        border-top: 1px solid #e0e0e0;
-      }
-      .pfiles img {
-        margin-left: 3px;
-        vertical-align: middle;
-        position: relative;
-        bottom: 2px;
-      }
-      .center {
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-        width: 50%;
+      html {
+        background: url(floating_toast.jpg) no-repeat center center fixed;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
       }
     </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    <script>
+      $(function () {
+        $("#draggable").draggable();
+      });
+    </script>
   </head>
   <body>
-    <div
-      style="
-        width: 300px;
-        margin: 20px auto 0 auto;
-        font-size: 13px;
-        text-align: center;
-        color: #353748;
-      "
-    >
-      <div>
-        <h1>Wet Toast Talk Radio</h1>
+    <div id="draggable" class="window" style="margin: 10px; width: 350px">
+      <div class="title-bar">
+        <div class="title-bar-text">Wet Toast Talk Radio &#127838;</div>
       </div>
-      <img
-        src="wttr-logo-thin.png"
-        alt="Wet Toast Talk Radio Logo"
-        class="center"
-      />
-      <br />
-      <!-- Media Player -->
-      <script
-        type="text/javascript"
-        src="//cdn.voscast.com/player/?key=4c77e9351768272efcf928eddfd4317d&autoplay=true"
-      ></script>
-      <div class="pfiles">
-        Mirrors:
-        <script
-          type="text/javascript"
-          src="//cdn.voscast.com/resources/?key=4c77e9351768272efcf928eddfd4317d&c=playlist"
-        ></script>
+      <div class="window-body">
+        <div id="audio-player-container">
+          <section class="field-row" style="justify-content: flex-end">
+            <audio
+              src="https://s3.voscast.com:11053/stream"
+              type="audio/ogg"
+            ></audio>
+            <button id="play-icon">Play</button>
+            <input type="range" id="volume-slider" max="100" value="100" />
+            <output id="volume-output">100</output>
+          </section>
+          <section class="field-row" style="justify-content: center">
+            <ul class="tree-view" style="background-color: #dfdfdf">
+              <canvas
+                id="analyser_render"
+                style="max-height: 50px; width: 300px"
+              ></canvas>
+            </ul>
+          </section>
+        </div>
       </div>
     </div>
+    <script src="audio.js"></script>
   </body>
 </html>
