@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.9](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.8...v0.1.9) (2023-06-30)
+
+
+### Features
+
+* the great debate v2 ([#50](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/50)) ([98f588e](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/98f588e5639638b1d4183a06aebabd30c403410b))
+
+
+### Bug Fixes
+
+* fix aws cron task roles ([2c4ba00](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/2c4ba0084a3bcf92c352fcaa8e3e27bfd9148411))
+* update og metadata ([4a1b6cd](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/4a1b6cd1948ab3e9d7345fcc202bd065b41d7285))
+
 ## [0.1.8](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.7...v0.1.8) (2023-06-27)
 
 
