@@ -144,8 +144,7 @@ class Guest:
 
 
 class TheGreatDebate(RadioShow):
-    # TODO documentation
-    """"""
+    """Radio show where two guests debate a topic."""
 
     def __init__(  # noqa: PLR0913
         self,
@@ -286,7 +285,6 @@ class TheGreatDebate(RadioShow):
         elif speaker_name == "Chris":
             gender = "male"
         else:
-            # TODO fix usage of this in unit tests
             raise ValueError(f"Unknown speaker name: {speaker_name}")
         return Speaker(name=speaker_name, gender=gender)
 
