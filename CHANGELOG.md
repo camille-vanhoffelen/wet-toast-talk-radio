@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.10](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.9...v0.1.10) (2023-07-01)
+
+
+### Features
+
+* Audio generator multi speakers ([#52](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/52)) ([fdc71ea](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/fdc71eaf17815f85e5f3609f4d7328ecd9e32a91))
+* new design ([a49f2ec](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/a49f2ec4f14e7c89a5bfb8d5d32da4fb6f8ec261))
+
 ## [0.1.9](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.8...v0.1.9) (2023-06-30)
 
 
