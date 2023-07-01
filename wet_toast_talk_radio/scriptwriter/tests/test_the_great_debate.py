@@ -12,7 +12,7 @@ from wet_toast_talk_radio.scriptwriter.the_great_debate import (
 )
 
 
-def test_the_great_debate(  # noqa: PLR091
+def test_the_great_debate(  # noqa: PLR0913
     fake_llm, virtual_media_store, show_id, guest_in_favor, guest_against, topic
 ):
     show = TheGreatDebate(

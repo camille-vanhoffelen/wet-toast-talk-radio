@@ -1,5 +1,4 @@
 import concurrent.futures
-import json
 import pathlib
 from datetime import datetime
 from pathlib import Path

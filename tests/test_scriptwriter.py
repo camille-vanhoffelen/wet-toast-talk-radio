@@ -1,4 +1,5 @@
 from time import sleep
+from unittest.mock import AsyncMock
 
 import pytest
 import structlog
@@ -48,7 +49,7 @@ class TestScriptwriter:
     ):
         mocker.patch(
             "wet_toast_talk_radio.scriptwriter.adverts.Advert.awrite",
-            side_effect=Exception("Random bug"),
+            side_effect=AsyncMock(side_effect=Exception("Random bug")),
         )
         cfg = ScriptwriterConfig(llm=llm_config)
         scriptwriter = Scriptwriter(
