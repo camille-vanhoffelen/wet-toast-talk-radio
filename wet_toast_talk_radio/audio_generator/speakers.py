@@ -10,6 +10,10 @@ GUESTS = {
 
 
 def get_speaker_prompt(speaker: Speaker) -> str:
+    """For given speaker name and gender, return the audio prompt to use for audio generation.
+    This decides on the voice and language to use for the voice.
+    Host names are given consistent prompts, while guest names are randomly assigned prompts.
+    """
     if speaker.name == "Chris":
         return HOST
     else:

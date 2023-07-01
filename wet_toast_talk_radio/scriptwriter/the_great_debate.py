@@ -144,7 +144,7 @@ class Guest:
 
 
 class TheGreatDebate(RadioShow):
-    """Radio show where two guests debate a topic."""
+    """Radio show where two call-in guests debate a topic, moderated by the host."""
 
     def __init__(  # noqa: PLR0913
         self,

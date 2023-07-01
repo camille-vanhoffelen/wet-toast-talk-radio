@@ -38,6 +38,8 @@ PREFIX = "And now for a word from our sponsors. "
 
 
 class Advert(RadioShow):
+    """A radio show where the host reads out an advert for an absurd product."""
+
     def __init__(self, llm: LLM, media_store: MediaStore):
         self._llm = llm
         self._media_store = media_store

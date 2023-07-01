@@ -19,5 +19,6 @@ class Line(BaseModel):
 
 
 def read_lines(path: Path) -> list[Line]:
+    """Read a script file (.jsonl) where each file line is a pydantic Line json."""
     with path.open("r") as file:
         return [Line.parse_raw(line) for line in file]
