@@ -10,6 +10,7 @@ from tests.conftests import (
     message_queue,  # noqa: F401
 )
 from wet_toast_talk_radio.scriptwriter import DailyProgram, Scriptwriter
+from wet_toast_talk_radio.scriptwriter.adverts import Advert
 from wet_toast_talk_radio.scriptwriter.config import LLMConfig, ScriptwriterConfig
 
 logger = structlog.get_logger()
@@ -46,7 +47,7 @@ class TestScriptwriter:
         llm_config,
     ):
         mocker.patch(
-            "wet_toast_talk_radio.scriptwriter.the_great_debate.TheGreatDebateShow.awrite",
+            "wet_toast_talk_radio.scriptwriter.adverts.Advert.awrite",
             side_effect=Exception("Random bug"),
         )
         cfg = ScriptwriterConfig(llm=llm_config)
@@ -60,10 +61,11 @@ class TestScriptwriter:
 
 @pytest.fixture()
 def llm_config() -> LLMConfig:
-    in_favor_guest = "Meet Alice. Alice loves toilet paper."
-    against_guest = "Meet Bob. Bob hates toilet paper."
-    script = "Alice: I love toilet paper.\n\nBob: I hate toilet paper.\n\nAlice: Let's agree to disagree."
-    fake_responses = [in_favor_guest, against_guest, script]
+    # Easy to mock daily program
+    DailyProgram.program = [Advert, Advert, Advert]
+    product_name = "Fancy pants"
+    product_description = "Fancy pants are the best pants."
+    fake_responses = [product_name, product_description]
     n_shows = len(DailyProgram.program)
     logger.debug("Initialising FakeLLM", n_shows=n_shows)
     fake_responses = fake_responses * n_shows

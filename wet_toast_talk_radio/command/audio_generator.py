@@ -6,6 +6,7 @@ import structlog
 from wet_toast_talk_radio.audio_generator import AudioGenerator
 from wet_toast_talk_radio.command.print_banner import print_banner
 from wet_toast_talk_radio.command.root import root_cmd
+from wet_toast_talk_radio.common.dialogue import Line, Speaker, read_lines
 from wet_toast_talk_radio.media_store import new_media_store
 from wet_toast_talk_radio.message_queue import new_message_queue
 
@@ -57,5 +58,14 @@ def benchmark(ctx: dict, script: Path):
     logger.info("Starting audio_generator", cfg=root_cfg.audio_generator)
     audio_gen = AudioGenerator(cfg)
 
-    text = script.read_text() if script else "Hey there! I'm a dog! Woof woof!"
-    audio_gen.benchmark(script=text)
+    lines = (
+        read_lines(script)
+        if script
+        else [
+            Line(
+                speaker=Speaker(name="Chris", gender="male"),
+                content="Hey there! I'm a dog! Woof woof!",
+            )
+        ]
+    )
+    audio_gen.benchmark(lines=lines)

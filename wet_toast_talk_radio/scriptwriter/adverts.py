@@ -2,6 +2,7 @@ import structlog
 from guidance import Program
 from guidance.llms import LLM
 
+from wet_toast_talk_radio.common.dialogue import Line, Speaker
 from wet_toast_talk_radio.common.log_ctx import show_id_log_ctx
 from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.media_store import ShowId
@@ -33,7 +34,7 @@ Now describe this product {{product_name}} in great detail. Make the description
 {{gen 'product_description' temperature=0.9 max_tokens=500}}
 {{~/assistant}}"""
 
-PREFIX = "Chris: And now for a word from our sponsors. "
+PREFIX = "And now for a word from our sponsors. "
 
 
 class Advert(RadioShow):
@@ -58,4 +59,5 @@ class Advert(RadioShow):
         product_description = program["product_description"]
         product_description = " ".join(product_description.split())
         content = PREFIX + product_description
-        self._media_store.put_script_show(show_id=show_id, content=content)
+        line = Line(speaker=Speaker(name="Chris", gender="male"), content=content)
+        self._media_store.put_script_show(show_id=show_id, lines=[line])

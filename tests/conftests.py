@@ -6,6 +6,7 @@ import pytest
 import structlog
 
 from wet_toast_talk_radio.common.aws_clients import new_s3_client, new_sqs_client
+from wet_toast_talk_radio.common.dialogue import read_lines
 from wet_toast_talk_radio.media_store.common.date import get_current_iso_utc_date
 from wet_toast_talk_radio.media_store.config import MediaStoreConfig
 from wet_toast_talk_radio.media_store.media_store import (
@@ -68,11 +69,11 @@ def setup_bucket(_clear_bucket) -> dict[str, list[ShowId]]:
                 data = f.read()
                 media_store.put_transcoded_show(show, data)
             ret["fallback"].append(show)
-        if file.is_file() and file.suffix == ".txt":
+        if file.is_file() and file.suffix == ".jsonl":
             show_i = _parse_show_id(file.name)
             show = ShowId(show_i=show_i, date=today)
-            text = file.read_text()
-            media_store.put_script_show(show_id=show, content=text)
+            lines = read_lines(file)
+            media_store.put_script_show(show_id=show, lines=lines)
             ret["script"].append(show)
 
     return ret
@@ -80,7 +81,7 @@ def setup_bucket(_clear_bucket) -> dict[str, list[ShowId]]:
 
 def _parse_show_id(filename: str) -> int:
     """Parse show id from filename in the format: show<show_id>.<ext>"""
-    pattern = r"show(\d+)\.(ogg|txt|wav)"
+    pattern = r"show(\d+)\.(ogg|jsonl|wav)"
     match = re.search(pattern, filename)
     if match:
         return int(match.group(1))

@@ -1,17 +1,19 @@
 # ruff: noqa: E501
 import asyncio
 import random
+from dataclasses import dataclass
+from enum import Enum
 
 import structlog
 from guidance import Program
 from guidance.llms import LLM
 
+from wet_toast_talk_radio.common.dialogue import Line, Speaker
 from wet_toast_talk_radio.common.log_ctx import show_id_log_ctx
 from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.scriptwriter.names import (
     GENDERS,
-    PLACEHOLDER_NAMES,
     random_name,
 )
 from wet_toast_talk_radio.scriptwriter.radio_show import RadioShow
@@ -106,17 +108,64 @@ Now generate this long conversation in 2000 words. Please include the guests' ar
 {{~/assistant}}"""
 
 
+class Polarity(Enum):
+    IN_FAVOR = "in favor of"
+    AGAINST = "against"
+
+
+# Neutral names to prevent biasing character profiles
+PLACEHOLDER_NAMES = {
+    Polarity.IN_FAVOR: {"female": "Emily", "male": "Kevin"},
+    Polarity.AGAINST: {"female": "Sarah", "male": "Brian"},
+}
+
+
+@dataclass
+class Guest:
+    name: str
+    gender: str
+    trait: str
+    polarity: Polarity
+    placeholder_name: str
+
+    @classmethod
+    def random(cls, polarity: Polarity):
+        gender = random.choice(GENDERS)
+        name = random_name(gender)
+        trait = random.choice(TRAITS).lower()
+        placeholder_name = PLACEHOLDER_NAMES[polarity][gender]
+        return cls(
+            name=name,
+            gender=gender,
+            trait=trait,
+            polarity=polarity,
+            placeholder_name=placeholder_name,
+        )
+
+
 class TheGreatDebate(RadioShow):
-    def __init__(self, llm: LLM, media_store: MediaStore):
+    # TODO documentation
+    """"""
+
+    def __init__(  # noqa: PLR0913
+        self,
+        llm: LLM,
+        media_store: MediaStore,
+        guest_in_favor: Guest | None = None,
+        guest_against: Guest | None = None,
+        topic: str | None = None,
+    ):
         self._llm = llm
         self._media_store = media_store
-        self.topic = random.choice(TOPICS).lower()
-        self.trait_in_favor = random.choice(TRAITS).lower()
-        self.trait_against = random.choice(TRAITS).lower()
-        self.gender_in_favor = random.choice(GENDERS)
-        self.gender_against = random.choice(GENDERS)
-        self.name_in_favor = random_name(self.gender_in_favor)
-        self.name_against = random_name(self.gender_against)
+        self.topic = topic if topic else random.choice(TOPICS).lower()
+        self.guest_in_favor = (
+            guest_in_favor
+            if guest_in_favor
+            else Guest.random(polarity=Polarity.IN_FAVOR)
+        )
+        self.guest_against = (
+            guest_against if guest_against else Guest.random(polarity=Polarity.AGAINST)
+        )
         self.n_speakers = 3
         self.max_bad_lines_ratio = 0.1
 
@@ -129,12 +178,8 @@ class TheGreatDebate(RadioShow):
         logger.info(
             "Async writing the great debate",
             topic=self.topic,
-            trait_in_favor=self.trait_in_favor,
-            trait_against=self.trait_against,
-            gender_in_favor=self.gender_in_favor,
-            gender_against=self.gender_against,
-            name_in_favor=self.name_in_favor,
-            name_against=self.name_against,
+            guest_in_favor=self.guest_in_favor,
+            guest_against=self.guest_against,
         )
 
         logger.info("Async writing guest profiles")
@@ -143,77 +188,79 @@ class TheGreatDebate(RadioShow):
             aexec(
                 guest,
                 topic=self.topic,
-                polarity="in favor of",
-                name=PLACEHOLDER_NAMES["in_favor"][self.gender_in_favor],
-                gender=self.gender_in_favor,
-                trait=self.trait_in_favor,
+                polarity=self.guest_in_favor.polarity.value,
+                name=self.guest_in_favor.placeholder_name,
+                gender=self.guest_in_favor.gender,
+                trait=self.guest_in_favor.trait,
             )
         )
         task_against = asyncio.create_task(
             aexec(
                 guest,
                 topic=self.topic,
-                polarity="against",
-                name=PLACEHOLDER_NAMES["against"][self.gender_against],
-                gender=self.gender_against,
-                trait=self.trait_against,
+                polarity=self.guest_against.polarity.value,
+                name=self.guest_against.placeholder_name,
+                gender=self.guest_against.gender,
+                trait=self.guest_against.trait,
             )
         )
         results = await asyncio.gather(task_in_favor, task_against)
-        guest_in_favor = results[0]
-        guest_against = results[1]
-        logger.debug("Guest in favor", guest=guest_in_favor)
-        logger.debug("Guest against", guest=guest_against)
+        results_in_favor = results[0]
+        results_against = results[1]
+        logger.debug("Guest in favor", guest=results_in_favor)
+        logger.debug("Guest against", guest=results_against)
 
         logger.info("Writing debate script")
         debate = Program(text=DEBATE_TEMPLATE, llm=self._llm, async_mode=True)
         written_debate = await debate(
             topic=self.topic,
-            in_favor=self.guest_to_dict(guest_in_favor),
-            against=self.guest_to_dict(guest_against),
+            in_favor=self.results_to_dict(results_in_favor),
+            against=self.results_to_dict(results_against),
         )
         logger.debug("Written debate", debate=written_debate)
-        content = self._post_processing(written_debate["script"])
+        lines = self._post_processing(written_debate["script"])
 
         logger.info("Finished writing The Great Debate")
-        logger.debug("Final script", content=content)
-        self._media_store.put_script_show(show_id=show_id, content=content)
+        logger.debug("Final script", content=lines)
+        self._media_store.put_script_show(show_id=show_id, lines=lines)
         return True
 
-    def _post_processing(self, script: str) -> str:
+    def _post_processing(self, script: str) -> list[Line]:
         logger.info("Post processing The Great Debate")
+
         script = script.strip()
         script = script.replace("\n\n", "\n")
+        script = self.replace_guest_names(script)
         lines = script.split("\n")
-        speakers = set()
-        clean_lines = []
+
+        speaker_names = set()
+        dialogue_lines = []
         bad_lines_counter = 0
         for line in lines:
             if self.is_good_line(line):
-                speaker, text = line.split(":", maxsplit=1)
-                speakers.add(speaker.strip().lower())
-                clean_lines.append(line.strip())
+                speaker_name, text = line.split(":", maxsplit=1)
+                speaker_names.add(speaker_name.strip().lower())
+                speaker = self.to_speaker(speaker_name.strip())
+                dialogue_lines.append(Line(content=text.strip(), speaker=speaker))
             else:
                 bad_lines_counter += 1
                 logger.warning("Skipping bad line", line=line)
                 continue
         assert (
-            len(speakers) == self.n_speakers
-        ), f"Expected {self.n_speakers} speakers, but got: {len(speakers)}"
+            len(speaker_names) == self.n_speakers
+        ), f"Expected {self.n_speakers} speakers, but got: {len(speaker_names)}"
         bad_lines_ratio = bad_lines_counter / len(lines)
         assert (
             bad_lines_ratio < self.max_bad_lines_ratio
         ), f"Too many bad lines, {bad_lines_ratio}%"
-        clean_script = "\n".join(clean_lines)
-        clean_script = self.replace_guest_names(clean_script)
-        return clean_script
+        return dialogue_lines
 
     @staticmethod
     def is_good_line(line: str) -> bool:
         return ":" in line
 
     @staticmethod
-    def guest_to_dict(guest: Program) -> dict[str, str]:
+    def results_to_dict(guest: Program) -> dict[str, str]:
         return {
             "name": guest["name"],
             "description": guest["description"],
@@ -224,12 +271,24 @@ class TheGreatDebate(RadioShow):
 
     def replace_guest_names(self, script: str) -> str:
         script = script.replace(
-            PLACEHOLDER_NAMES["in_favor"][self.gender_in_favor], self.name_in_favor
+            self.guest_in_favor.placeholder_name, self.guest_in_favor.name
         )
         script = script.replace(
-            PLACEHOLDER_NAMES["against"][self.gender_against], self.name_against
+            self.guest_against.placeholder_name, self.guest_against.name
         )
         return script
+
+    def to_speaker(self, speaker_name: str) -> Speaker:
+        if speaker_name == self.guest_in_favor.name:
+            gender = self.guest_in_favor.gender
+        elif speaker_name == self.guest_against.name:
+            gender = self.guest_against.gender
+        elif speaker_name == "Chris":
+            gender = "male"
+        else:
+            # TODO fix usage of this in unit tests
+            raise ValueError(f"Unknown speaker name: {speaker_name}")
+        return Speaker(name=speaker_name, gender=gender)
 
 
 async def aexec(program: Program, **kwargs) -> Program:

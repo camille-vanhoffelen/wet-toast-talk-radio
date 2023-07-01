@@ -1,4 +1,5 @@
 import concurrent.futures
+import json
 import pathlib
 from datetime import datetime
 from pathlib import Path
@@ -6,6 +7,7 @@ from typing import Optional
 
 import structlog
 
+from wet_toast_talk_radio.common.dialogue import Line, read_lines
 from wet_toast_talk_radio.media_store.common.date import get_current_iso_utc_date
 from wet_toast_talk_radio.media_store.media_store import (
     _FALLBACK_KEY,
@@ -54,11 +56,10 @@ class VirtualMediaStore(MediaStore):
                         show_id = ShowId(default_show_i, _FALLBACK_KEY)
                         self.put_transcoded_show(show_id=show_id, data=data)
                         default_show_i += 1
-                    if file.name.endswith(".txt"):
-                        with file.open("r") as f:
-                            content = f.read()
+                    if file.name.endswith(".jsonl"):
+                        lines = read_lines(file)
                         show_id = ShowId(script_show_i, today)
-                        self.put_script_show(show_id=show_id, content=content)
+                        self.put_script_show(show_id=show_id, lines=lines)
                         script_show_i += 1
 
     def put_raw_show(self, show_id: ShowId, data: bytes):
@@ -81,10 +82,12 @@ class VirtualMediaStore(MediaStore):
             show_type=ShowType.TRANSCODED,
         )
 
-    def put_script_show(self, show_id: ShowId, content: str):
+    def put_script_show(self, show_id: ShowId, lines: list[Line]):
+        text_lines = [line.json() for line in lines]
+        content = "\n".join(text_lines)
         data = content.encode(TXT_ENCODING)
         self._bucket[
-            f"{ShowType.SCRIPT.value}/{show_id.store_key()}/show.txt"
+            f"{ShowType.SCRIPT.value}/{show_id.store_key()}/show.jsonl"
         ] = VirtualObject(
             show_id=show_id,
             data=data,
@@ -138,7 +141,7 @@ class VirtualMediaStore(MediaStore):
 
     def download_script_show(self, show_id: ShowId, dir_output: Path):
         obj = self._bucket.get(
-            f"{ShowType.SCRIPT.value}/{show_id.store_key()}/show.txt", None
+            f"{ShowType.SCRIPT.value}/{show_id.store_key()}/show.jsonl", None
         )
         if not obj:
             raise Exception(f"Show {show_id} not found")
@@ -147,7 +150,7 @@ class VirtualMediaStore(MediaStore):
         new_dir = dir_output / show_id.store_key()
         if not new_dir.exists():
             new_dir.mkdir(parents=True)
-        with (new_dir / "show.txt").open("w") as f:
+        with (new_dir / "show.jsonl").open("w") as f:
             f.write(content)
 
     def get_transcoded_show(self, show_id: str) -> bytes:

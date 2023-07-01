@@ -1,10 +1,12 @@
 import concurrent.futures
+import json
 from pathlib import Path
 from typing import Optional
 
 import structlog
 
 from wet_toast_talk_radio.common.aws_clients import new_s3_client
+from wet_toast_talk_radio.common.dialogue import Line
 from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.media_store import (
     _FALLBACK_KEY,
@@ -42,9 +44,11 @@ class S3MediaStore(MediaStore):
             Bucket=self._bucket_name, Key=key, Body=data
         )
 
-    def put_script_show(self, show_id: ShowId, content: str):
+    def put_script_show(self, show_id: ShowId, lines: list[Line]):
         logger.info("Uploading script show", show_id=show_id)
-        key = f"{_SCRIPT_SHOWS_PREFIX}/{show_id.store_key()}/show.txt"
+        key = f"{_SCRIPT_SHOWS_PREFIX}/{show_id.store_key()}/show.jsonl"
+        text_lines = [line.json() for line in lines]
+        content = "\n".join(text_lines)
         new_s3_client(self._cfg.local).put_object(
             Bucket=self._bucket_name, Key=key, Body=content
         )
@@ -80,7 +84,7 @@ class S3MediaStore(MediaStore):
         self._download_shows(show_ids, dir_output, _RAW_SHOWS_PREFIX, "wav")
 
     def download_script_show(self, show_id: ShowId, dir_output: Path):
-        self._download_shows([show_id], dir_output, _SCRIPT_SHOWS_PREFIX, "txt")
+        self._download_shows([show_id], dir_output, _SCRIPT_SHOWS_PREFIX, "jsonl")
 
     def _download_shows(
         self, show_ids: list[ShowId], dir_output: Path, prefix: str, file_suffix: str
