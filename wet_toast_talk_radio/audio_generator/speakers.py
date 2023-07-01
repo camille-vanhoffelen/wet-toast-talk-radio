@@ -13,5 +13,4 @@ def get_speaker_prompt(speaker: Speaker) -> str:
     if speaker.name == "Chris":
         return HOST
     else:
-        # TODO gender select
-        return random.choice(GUESTS["male"])
+        return random.choice(GUESTS[speaker.gender])
