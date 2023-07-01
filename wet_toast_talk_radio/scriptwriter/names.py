@@ -17,11 +17,6 @@ def load_names() -> dict:
 
 NAMES = load_names()
 GENDERS = ["female", "male"]
-# Neutral names to prevent biasing character profiles
-PLACEHOLDER_NAMES = {
-    "in_favor": {"female": "Emily", "male": "Kevin"},
-    "against": {"female": "Sarah", "male": "Brian"},
-}
 
 
 def random_name(gender: str):

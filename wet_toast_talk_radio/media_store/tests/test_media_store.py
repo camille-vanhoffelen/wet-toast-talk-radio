@@ -6,6 +6,7 @@ from typing import Generator
 import pytest
 
 from wet_toast_talk_radio.common.aws_clients import new_s3_client
+from wet_toast_talk_radio.common.dialogue import Line, Speaker, read_lines
 from wet_toast_talk_radio.media_store.common.date import (
     get_current_iso_utc_date,
     get_current_utc_date,
@@ -65,7 +66,8 @@ def _setup_bucket(media_store, today) -> list[str]:
     media_store.put_raw_show(ShowId(1, today), b"raw bytes")
     media_store.put_transcoded_show(ShowId(0, _FALLBACK_KEY), b"raw bytes")
     media_store.put_transcoded_show(ShowId(1, _FALLBACK_KEY), b"raw bytes")
-    media_store.put_script_show(ShowId(0, today), "raw bytes")
+    line = Line(speaker=Speaker(name="John", gender="male"), content="raw bytes")
+    media_store.put_script_show(show_id=ShowId(0, today), lines=[line])
 
 
 class TestMediaStore:
@@ -87,7 +89,8 @@ class TestMediaStore:
         expected = 1
         assert len(media_store.list_script_shows()) == expected
         show_id = ShowId(666, today)
-        media_store.put_script_show(show_id, "Toast is wet")
+        line = Line(speaker=Speaker(name="John", gender="male"), content="Toast is wet")
+        media_store.put_script_show(show_id, [line])
         assert len(media_store.list_script_shows()) == expected + 1
 
     def test_put_transcoded_shows(
@@ -136,12 +139,15 @@ class TestMediaStore:
     ):
         d = tmp_path / "temp"
         d.mkdir()
-        expected_content = "Toast is wet!"
+        expected_line = Line(
+            speaker=Speaker(name="John", gender="male"), content="Toast is wet!"
+        )
         show_id = ShowId(666, today)
-        media_store.put_script_show(show_id=show_id, content=expected_content)
+        media_store.put_script_show(show_id=show_id, lines=[expected_line])
         media_store.download_script_show(show_id=show_id, dir_output=d)
-        actual_content = (d / show_id.store_key() / "show.txt").read_text()
-        assert actual_content == expected_content
+        lines = read_lines(d / show_id.store_key() / "show.jsonl")
+        assert len(lines) == 1
+        assert lines[0] == expected_line
 
     def test_list_raw_shows(self, media_store, today, tomorrow):
         case = unittest.TestCase()
@@ -197,11 +203,17 @@ class TestMediaStore:
         show0 = ShowId(0, today)
         case.assertCountEqual(media_store.list_script_shows(), [show0])
         show666 = ShowId(666, today)
-        media_store.put_script_show(show_id=show666, content="Toast is wet!")
+        line = Line(
+            speaker=Speaker(name="John", gender="male"), content="Toast is wet!"
+        )
+        media_store.put_script_show(show_id=show666, lines=[line])
         case.assertCountEqual(media_store.list_script_shows(), [show0, show666])
 
         show999 = ShowId(999, tomorrow)
-        media_store.put_script_show(show999, content="Toast is dry :(")
+        line = Line(
+            speaker=Speaker(name="Anna", gender="female"), content="Toast is dry :("
+        )
+        media_store.put_script_show(show999, lines=[line])
         case.assertCountEqual(
             media_store.list_script_shows(dates={tomorrow}), [show999]
         )

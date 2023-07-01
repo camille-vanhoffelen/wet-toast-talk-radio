@@ -3,6 +3,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
+from wet_toast_talk_radio.common.dialogue import Line
+
 _FALLBACK_KEY = "fallback"
 
 
@@ -35,7 +37,7 @@ class MediaStore(ABC):
 
     - raw/<iso-date>/<incremental-int-show-id>/show.wav
     - transcoded/<iso-date>/<incremental-int-show-id>/show.ogg
-    - scripts/<iso-date>/<incremental-int-show-id>/show.txt
+    - scripts/<iso-date>/<incremental-int-show-id>/show.jsonl
 
     A show id is '<iso-date>/<incremental-int-show-id>'
     """
@@ -49,8 +51,8 @@ class MediaStore(ABC):
         """Put show (.ogg) to the media store"""
 
     @abstractmethod
-    def put_script_show(self, show_id: ShowId, content: str):
-        """Put script (.txt) to the media store"""
+    def put_script_show(self, show_id: ShowId, lines: list[Line]):
+        """Put script (.jsonl) to the media store"""
 
     @abstractmethod
     def upload_transcoded_shows(self, shows: list[ShowUploadInput]):
@@ -62,7 +64,7 @@ class MediaStore(ABC):
 
     @abstractmethod
     def download_script_show(self, show_id: ShowId, dir_output: Path):
-        """download script (.txt) from the media store"""
+        """download script (.jsonl) from the media store"""
 
     @abstractmethod
     def get_transcoded_show(self, show_id: ShowId) -> bytes:
