@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.12](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.11...v0.1.12) (2023-07-02)
+
+
+### Features
+
+* stats reload every min ([a7a06d3](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/a7a06d32b6718b81d4356660c0f8fc07457e1199))
+* updated ui to auto reload audio and updated transcoder to mp3 ([a050cbb](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/a050cbb903eb9b284472795138bb405b7d5690fe))
+
 ## [0.1.11](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.10...v0.1.11) (2023-07-02)
 
 
