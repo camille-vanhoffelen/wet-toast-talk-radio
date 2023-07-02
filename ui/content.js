@@ -112,5 +112,4 @@ function updateStats_64a1bc49a2561(result) {
 }
 
 getStats();
-// setInterval("getStats()", 600000);
-setInterval("getStats()", 1000);
+setInterval("getStats()", 600000);
