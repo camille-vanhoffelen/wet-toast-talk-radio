@@ -10,14 +10,14 @@ const outputContainer = document.getElementById("volume-output");
 playIconContainer.addEventListener("click", () => {
   if (!playing) {
     audio.play();
-    playIconContainer.innerHTML = "Pause &#9208;";
+    playIconContainer.innerHTML = "Pause";
     playing = true;
     if (!analyserInitialized) {
       initAnalyzer();
     }
   } else {
     audio.pause();
-    playIconContainer.innerHTML = "Play &#9654;";
+    playIconContainer.innerHTML = "Play";
     playing = false;
   }
 });
