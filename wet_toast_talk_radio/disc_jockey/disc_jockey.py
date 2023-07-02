@@ -14,7 +14,7 @@ logger = structlog.get_logger()
 
 
 class DiscJockey:
-    """DiscJockey is responsible for transcoding media files to .ogg and uploading them to the media stream server"""
+    """DiscJockey is responsible for transcoding media files to .mp3 and uploading them to the media stream server"""
 
     def __init__(
         self,
@@ -40,7 +40,7 @@ class DiscJockey:
         shout_client.start()
 
     def transcode_latest_media(self):
-        """Transcode the latest media files to .ogg and upload them to the Media Store"""
+        """Transcode the latest media files to .mp3 and upload them to the Media Store"""
         media_transcoder = MediaTranscoder(
             self._cfg.media_transcoder, self._media_store, self._radio_operator
         )

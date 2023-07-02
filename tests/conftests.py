@@ -62,7 +62,7 @@ def setup_bucket(_clear_bucket) -> dict[str, list[ShowId]]:
                 data = f.read()
                 media_store.put_raw_show(show, data)
             ret["raw"].append(show)
-        if file.is_file() and file.suffix == ".ogg":
+        if file.is_file() and file.suffix == ".mp3":
             show_i = _parse_show_id(file.name)
             show = ShowId(show_i=show_i, date=_FALLBACK_KEY)
             with file.open("rb") as f:

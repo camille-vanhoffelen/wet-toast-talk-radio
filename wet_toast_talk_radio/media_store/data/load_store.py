@@ -60,7 +60,7 @@ if __name__ == "__main__":
                 media_store.put_raw_show(show, data)
             raw_i += 1
 
-        if file.is_file() and file.name.endswith(".ogg"):
+        if file.is_file() and file.name.endswith(".mp3"):
             show = ShowId(fallback_i, _FALLBACK_KEY)
             logger.info("Loading fallback show", show=show)
             with file.open("rb") as f:

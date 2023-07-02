@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <title>Wet Toast Talk Radio</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
@@ -17,9 +18,25 @@
     />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="AI generated talk show radio" />
-    <title>Wet Toast Talk Radio</title>
-
-    <link rel="stylesheet" href="https://unpkg.com/98.css" />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="https:www.wettoast.ai/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="https:www.wettoast.ai/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="https:www.wettoast.ai/favicon-16x16.png"
+    />
+    <link rel="manifest" href="https:www.wettoast.ai/site.webmanifest" />
+    <link rel="stylesheet" href="https://unpkg.com/98.css@0.1.20/dist/98.css" />
     <style>
       html {
         background: url(floating_toast.jpg) no-repeat center center fixed;
@@ -51,6 +68,7 @@
         <div id="audio-player-container">
           <section class="field-row" style="justify-content: flex-end">
             <audio
+              crossorigin="anonymous"
               src="https://s3.voscast.com:11053/stream"
               type="audio/ogg"
             ></audio>
@@ -84,6 +102,9 @@
           </li>
           <li id="team-tab" role="tab">
             <a href="javascript:showContentMenu('team-tab')">The Team</a>
+          </li>
+          <li id="stats-tab" role="tab">
+            <a href="javascript:showContentMenu('stats-tab')">Stats</a>
           </li>
         </menu>
         <div class="window" role="tabpanel">

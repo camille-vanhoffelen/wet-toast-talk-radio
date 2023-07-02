@@ -14,7 +14,7 @@ logger = structlog.get_logger()
 @root_cmd.group()
 @click.pass_context
 def disc_jockey(ctx: dict):
-    """disc_jockey transcodes media files to .ogg and uploads them to the media stream server"""
+    """disc_jockey transcodes media files to .mp3 and uploads them to the media stream server"""
     print_banner("disc_jockey_banner.txt")
     root_cfg = ctx.obj["root_cfg"]
     logger.debug("Starting disc_jockey", cfg=root_cfg.disc_jockey)
@@ -37,7 +37,7 @@ def stream(ctx: dict):
 
 
 @disc_jockey.command(
-    help="Transcode latest new media files to .ogg and upload them to the Media Store"
+    help="Transcode latest new media files to .mp3 and upload them to the Media Store"
 )
 @click.pass_context
 def transcode(ctx: dict):

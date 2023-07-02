@@ -72,9 +72,9 @@ You can access it from the cli like this:
 
 ```bash
 aws --endpoint-url=http://localhost:4566 s3 cp ./wet_toast_talk_radio/media_store/virtual/data s3://wet-toast-talk-radio/raw --recursive
-aws --endpoint-url=http://localhost:4566 s3 ls s3://wet-toast-talk-radio/raw/
-aws --endpoint-url=http://localhost:4566 s3 ls s3://wet-toast-talk-radio/transcoded/
-aws --endpoint-url=http://localhost:4566 s3 rm s3://wet-toast-talk-radio/transcoded/ --recursive
+aws --endpoint-url=http://localhost:4566 s3 ls s3://media-store/raw/
+aws --endpoint-url=http://localhost:4566 s3 ls s3://media-store/transcoded/
+aws --endpoint-url=http://localhost:4566 s3 rm s3://media-store/transcoded/ --recursive
 ```
 
 #### SQS

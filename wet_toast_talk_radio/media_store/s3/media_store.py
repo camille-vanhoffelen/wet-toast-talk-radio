@@ -38,7 +38,7 @@ class S3MediaStore(MediaStore):
 
     def put_transcoded_show(self, show_id: ShowId, data: bytes):
         logger.info("Uploading transcoded show", show_id=show_id)
-        key = f"{_TRANSCODED_SHOWS_PREFIX}/{show_id.store_key()}/show.ogg"
+        key = f"{_TRANSCODED_SHOWS_PREFIX}/{show_id.store_key()}/show.mp3"
         new_s3_client(self._cfg.local).put_object(
             Bucket=self._bucket_name, Key=key, Body=data
         )
@@ -70,11 +70,11 @@ class S3MediaStore(MediaStore):
                 if not file_name:
                     logger.warning(f"Skipping {show} because it has no file name")
                     continue
-                if not file_name.endswith(".ogg"):
-                    logger.warning(f"Skipping {show} because it does not end with .ogg")
+                if not file_name.endswith(".mp3"):
+                    logger.warning(f"Skipping {show} because it does not end with .mp3")
                     continue
 
-                key = f"{_TRANSCODED_SHOWS_PREFIX}/{show.show_id.store_key()}/show.ogg"
+                key = f"{_TRANSCODED_SHOWS_PREFIX}/{show.show_id.store_key()}/show.mp3"
                 futures.append(executor.submit(upload_file, show, key))
 
             concurrent.futures.wait(futures)
@@ -111,7 +111,7 @@ class S3MediaStore(MediaStore):
             concurrent.futures.wait(futures)
 
     def get_transcoded_show(self, show_id: ShowId) -> bytes:
-        key = f"{_TRANSCODED_SHOWS_PREFIX}/{show_id.store_key()}/show.ogg"
+        key = f"{_TRANSCODED_SHOWS_PREFIX}/{show_id.store_key()}/show.mp3"
         response = new_s3_client(self._cfg.local).get_object(
             Bucket=self._bucket_name, Key=key
         )

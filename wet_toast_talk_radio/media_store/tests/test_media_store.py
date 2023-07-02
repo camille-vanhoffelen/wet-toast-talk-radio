@@ -105,7 +105,7 @@ class TestMediaStore:
         num_shows = 2
         shows = []
         for i in range(num_shows):
-            show_path = d.joinpath(f"show{i}.ogg")
+            show_path = d.joinpath(f"show{i}.mp3")
             show_path.write_bytes(b"raw bytes")
             shows.append(ShowUploadInput(ShowId(i, today), show_path))
 

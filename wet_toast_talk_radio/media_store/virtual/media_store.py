@@ -49,7 +49,7 @@ class VirtualMediaStore(MediaStore):
                         show_id = ShowId(raw_show_i, today)
                         self.put_raw_show(show_id=show_id, data=data)
                         raw_show_i += 1
-                    if file.name.endswith(".ogg"):
+                    if file.name.endswith(".mp3"):
                         with file.open("rb") as f:
                             data = f.read()
                         show_id = ShowId(default_show_i, _FALLBACK_KEY)
@@ -73,7 +73,7 @@ class VirtualMediaStore(MediaStore):
 
     def put_transcoded_show(self, show_id: ShowId, data: bytes):
         self._bucket[
-            f"{ShowType.TRANSCODED.value}/{show_id.store_key()}/show.ogg"
+            f"{ShowType.TRANSCODED.value}/{show_id.store_key()}/show.mp3"
         ] = VirtualObject(
             show_id=show_id,
             data=data,
@@ -113,7 +113,7 @@ class VirtualMediaStore(MediaStore):
                 if not file_name:
                     logger.warning(f"Skipping {show} because it has no file name")
                     continue
-                key = f"{ShowType.TRANSCODED.value}/{show.show_id.store_key()}/show.ogg"
+                key = f"{ShowType.TRANSCODED.value}/{show.show_id.store_key()}/show.mp3"
                 futures.append(executor.submit(upload_file, show, key))
 
             concurrent.futures.wait(futures)
@@ -154,7 +154,7 @@ class VirtualMediaStore(MediaStore):
 
     def get_transcoded_show(self, show_id: str) -> bytes:
         obj = self._bucket.get(
-            f"{ShowType.TRANSCODED.value}/{show_id.store_key()}/show.ogg", None
+            f"{ShowType.TRANSCODED.value}/{show_id.store_key()}/show.mp3", None
         )
         if obj:
             return obj.data

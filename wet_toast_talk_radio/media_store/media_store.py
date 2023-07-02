@@ -36,7 +36,7 @@ class MediaStore(ABC):
     The media store should follow the following structure:
 
     - raw/<iso-date>/<incremental-int-show-id>/show.wav
-    - transcoded/<iso-date>/<incremental-int-show-id>/show.ogg
+    - transcoded/<iso-date>/<incremental-int-show-id>/show.mp3
     - scripts/<iso-date>/<incremental-int-show-id>/show.jsonl
 
     A show id is '<iso-date>/<incremental-int-show-id>'
@@ -48,7 +48,7 @@ class MediaStore(ABC):
 
     @abstractmethod
     def put_transcoded_show(self, show_id: ShowId, data: bytes):
-        """Put show (.ogg) to the media store"""
+        """Put show (.mp3) to the media store"""
 
     @abstractmethod
     def put_script_show(self, show_id: ShowId, lines: list[Line]):
@@ -56,7 +56,7 @@ class MediaStore(ABC):
 
     @abstractmethod
     def upload_transcoded_shows(self, shows: list[ShowUploadInput]):
-        """Upload shows (.ogg) to the media store concurently"""
+        """Upload shows (.mp3) to the media store concurently"""
 
     @abstractmethod
     def download_raw_shows(self, show_ids: list[ShowId], dir_output: Path):
@@ -68,7 +68,7 @@ class MediaStore(ABC):
 
     @abstractmethod
     def get_transcoded_show(self, show_id: ShowId) -> bytes:
-        """get transcoded show (.ogg) from the media store"""
+        """get transcoded show (.mp3) from the media store"""
 
     @abstractmethod
     def list_raw_shows(self, dates: Optional[set[str]] = None) -> list[ShowId]:

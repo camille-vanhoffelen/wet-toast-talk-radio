@@ -46,11 +46,11 @@ def init_shout(cfg: ShoutClientConfig) -> libshout.Shout:
     shout.user = cfg.user
     shout.password = cfg.password.value()
     shout.mount = cfg.mount
-    shout.format = "vorbis"  # vorbis | mp3
+    shout.format = "mp3"  # vorbis | mp3
     shout.protocol = cfg.protocol
     shout.name = "Wet Toast Talk Radio"
     shout.genre = "Talk Radio"
-    shout.url = "https://wettoast.ai"
+    shout.url = "https://www.wettoast.ai"
     shout.public = cfg.public
     shout.audio_info = {
         libshout.SHOUT_AI_BITRATE: str(cfg.bitrate),

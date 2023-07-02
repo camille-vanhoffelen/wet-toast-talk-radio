@@ -26,7 +26,7 @@ class MediaTranscoderConfig(BaseModel):
 
 @task_log_ctx("media_transcoder")
 class MediaTranscoder:
-    """MediaTranscoder converts .wav files from a folder to .ogg files and uploads them to the media store"""
+    """MediaTranscoder converts .wav files from a folder to .mp3 files and uploads them to the media store"""
 
     def __init__(
         self,
@@ -116,7 +116,7 @@ class MediaTranscoder:
         def transcode_show(show_path: Path, out: Path, show_name: str):
             try:
                 song = AudioSegment.from_wav(show_path)
-                song.export(out, format="ogg", tags={"title": show_name})
+                song.export(out, format="mp3", tags={"title": show_name})
             except Exception as e:
                 logger.error("could not transcode show", error=e)
 
@@ -132,7 +132,7 @@ class MediaTranscoder:
                         new_dir = self._transcoded_shows_dir / date / show.name
                         if not new_dir.exists():
                             new_dir.mkdir(parents=True)
-                        out = self._transcoded_shows_dir / date / show.name / "show.ogg"
+                        out = self._transcoded_shows_dir / date / show.name / "show.mp3"
                         show_path = show / "show.wav"
                         futures.append(
                             executor.submit(
@@ -152,7 +152,7 @@ class MediaTranscoder:
                 for show in current_dir.iterdir():
                     show_id = ShowId(date=date, show_i=show.name)
                     show_upload_input = ShowUploadInput(
-                        show_id=show_id, path=show / "show.ogg"
+                        show_id=show_id, path=show / "show.mp3"
                     )
                     shows.append(show_upload_input)
         self._media_store.upload_transcoded_shows(shows)

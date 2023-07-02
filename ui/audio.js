@@ -2,13 +2,12 @@ const playIconContainer = document.getElementById("play-icon");
 const audioPlayerContainer = document.getElementById("audio-player-container");
 const volumeSlider = document.getElementById("volume-slider");
 let playing = false;
-let muteState = "unmute";
 const audio = document.querySelector("audio");
-audio.crossOrigin = "anonymous";
 const outputContainer = document.getElementById("volume-output");
 
 playIconContainer.addEventListener("click", () => {
   if (!playing) {
+    audio.load();
     audio.play();
     playIconContainer.innerHTML = "Pause";
     playing = true;
@@ -19,6 +18,13 @@ playIconContainer.addEventListener("click", () => {
     audio.pause();
     playIconContainer.innerHTML = "Play";
     playing = false;
+  }
+});
+
+audio.addEventListener("ended", function () {
+  audio.load();
+  if (playing) {
+    audio.play();
   }
 });
 
@@ -75,18 +81,20 @@ function frameLooper() {
   const bars = Math.floor(canvas.width / (barWidth + space));
   let arrayLen = fbcArray.length;
 
-  // We are on a browser that doesn't support analyser
-  if (isUint8ArrayEmpty(fbcArray) && playing) {
-    if (oldBandValues.length === 0) {
-      bands = bars;
-      getFFT(oldBandValues);
+  if (!audio.paused) {
+    // We are on a browser that doesn't support analyser
+    if (!supportsAnalyser(fbcArray)) {
+      if (oldBandValues.length === 0) {
+        bands = bars;
+        getFFT(oldBandValues);
+      }
+      getFFT(bandValues);
+      fbcArray = generateFrequencyArray();
+      arrayLen = fbcArray.length;
+    } else {
+      // High frequency values are mostly 0
+      arrayLen = fbcArray.length - 548;
     }
-    getFFT(bandValues);
-    fbcArray = generateFrequencyArray();
-    arrayLen = fbcArray.length;
-  } else {
-    // High frequency values are mostly 0
-    arrayLen = fbcArray.length - 350;
   }
 
   for (var i = 0; i < bars; i++) {
@@ -97,6 +105,22 @@ function frameLooper() {
     );
     ctx.fillRect(barX, canvas.height, barWidth, barHeight);
   }
+}
+
+let hadValues = false;
+// This function is used to check if the browser supports the analyser
+// if the fbcArray is even not empty, then the browser supports it
+function supportsAnalyser(fbcArray) {
+  if (hadValues) {
+    return true;
+  }
+  if (playing) {
+    if (!isUint8ArrayEmpty(fbcArray)) {
+      hadValues = true;
+      return true;
+    }
+  }
+  return false;
 }
 
 function convertRange(value, r1, r2) {
