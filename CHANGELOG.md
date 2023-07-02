@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.11](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.10...v0.1.11) (2023-07-02)
+
+
+### Features
+
+* cdk fix, ui update ([2b14b07](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/2b14b07cd0d2ceb3f6b8c2d9c45fa9664455b855))
+
+
+### Bug Fixes
+
+* removed play and pause emojis ([41e9fa2](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/41e9fa229e607c9eb4abd9d89a30aa1ebdda756f))
+
 ## [0.1.10](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.9...v0.1.10) (2023-07-01)
 
 
