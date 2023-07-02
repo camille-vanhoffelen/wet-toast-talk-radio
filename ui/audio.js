@@ -3,24 +3,21 @@ const audioPlayerContainer = document.getElementById("audio-player-container");
 const volumeSlider = document.getElementById("volume-slider");
 let playing = false;
 let muteState = "unmute";
-
 const audio = document.querySelector("audio");
 audio.crossOrigin = "anonymous";
-window.AudioContext = window.AudioContext || window.webkitAudioContext;
-
 const outputContainer = document.getElementById("volume-output");
 
 playIconContainer.addEventListener("click", () => {
   if (!playing) {
     audio.play();
-    playIconContainer.textContent = "Pause";
+    playIconContainer.innerHTML = "Pause &#9208;";
     playing = true;
     if (!analyserInitialized) {
       initAnalyzer();
     }
   } else {
     audio.pause();
-    playIconContainer.textContent = "Play";
+    playIconContainer.innerHTML = "Play &#9654;";
     playing = false;
   }
 });
@@ -64,10 +61,6 @@ function initAnalyzer() {
   frameLooper();
 }
 
-let bandValues = [];
-let oldBandValues = [];
-let bands = 1;
-
 // frameLooper() animates any style of graphics you wish to the audio frequency
 // Looping at the default frame rate that the browser provides(approx. 60 FPS)
 function frameLooper() {
@@ -77,10 +70,12 @@ function frameLooper() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = "#014b08";
 
-  barWidth = 10;
-  space = 1;
-  bars = Math.floor(canvas.width / (barWidth + space));
+  const barWidth = 10;
+  const space = 1;
+  const bars = Math.floor(canvas.width / (barWidth + space));
+  let arrayLen = fbcArray.length;
 
+  // We are on a browser that doesn't support analyser
   if (isUint8ArrayEmpty(fbcArray) && playing) {
     if (oldBandValues.length === 0) {
       bands = bars;
@@ -88,13 +83,15 @@ function frameLooper() {
     }
     getFFT(bandValues);
     fbcArray = generateFrequencyArray();
+    arrayLen = fbcArray.length;
+  } else {
+    // High frequency values are mostly 0
+    arrayLen = fbcArray.length - 350;
   }
 
   for (var i = 0; i < bars; i++) {
     barX = i * (barWidth + space);
-    const fbcArrayi = Math.floor(
-      convertRange(i, [0, bars], [0, fbcArray.length])
-    );
+    const fbcArrayi = Math.floor(convertRange(i, [0, bars], [0, arrayLen]));
     barHeight = -Math.floor(
       convertRange(fbcArray[fbcArrayi], [0, 255], [0, canvas.height])
     );
@@ -114,6 +111,10 @@ function isUint8ArrayEmpty(arr) {
   }
   return true;
 }
+
+let bandValues = [];
+let oldBandValues = [];
+let bands = 1;
 
 function generateFrequencyArray() {
   const ret = [];

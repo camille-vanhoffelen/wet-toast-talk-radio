@@ -4,6 +4,7 @@ from datetime import timedelta
 import structlog
 from guidance.llms import LLM
 
+from wet_toast_talk_radio.common.log_ctx import task_log_ctx
 from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.common.date import get_offset_iso_utc_date
 from wet_toast_talk_radio.media_store.media_store import ShowId
@@ -15,6 +16,7 @@ from wet_toast_talk_radio.scriptwriter.the_great_debate import TheGreatDebate
 logger = structlog.get_logger()
 
 
+@task_log_ctx("daily_program")
 class DailyProgram:
     program: tuple[RadioShow] = (
         TheGreatDebate,

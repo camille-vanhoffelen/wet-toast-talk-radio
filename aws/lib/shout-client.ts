@@ -92,6 +92,8 @@ export class ShoutClient extends Construct {
                     weight: 1,
                 },
             ],
+            minHealthyPercent: 0,
+            maxHealthyPercent: 100,
         });
     }
 }

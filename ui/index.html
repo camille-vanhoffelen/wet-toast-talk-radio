@@ -10,10 +10,10 @@
 
     <meta property="og:title" content="Wet Toast Talk Radio" />
     <meta property="og:description" content="AI generated talk show radio" />
-    <meta property="og:url" content="https://wettoast.ai/" />
+    <meta property="og:url" content="https://www.wettoast.ai/" />
     <meta
       property="og:image"
-      content="https://wettoast.ai/wttr-logo-thin.jpg"
+      content="https://www.wettoast.ai/wttr-logo-thin.jpg"
     />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="AI generated talk show radio" />
@@ -31,16 +31,21 @@
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it@13.0.1/dist/markdown-it.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it-emoji@2.0.2/dist/markdown-it-emoji.min.js"></script>
     <script>
       $(function () {
         $("#draggable").draggable();
+      });
+      $(function () {
+        $("#draggable2").draggable();
       });
     </script>
   </head>
   <body>
     <div id="draggable" class="window" style="margin: 10px; width: 350px">
       <div class="title-bar">
-        <div class="title-bar-text">Wet Toast Talk Radio &#127838;</div>
+        <div class="title-bar-text">Wet Toast Talk Radio Player &#128251;</div>
       </div>
       <div class="window-body">
         <div id="audio-player-container">
@@ -49,7 +54,7 @@
               src="https://s3.voscast.com:11053/stream"
               type="audio/ogg"
             ></audio>
-            <button id="play-icon">Play</button>
+            <button id="play-icon">Play &#9654;</button>
             <input type="range" id="volume-slider" max="100" value="100" />
             <output id="volume-output">100</output>
           </section>
@@ -65,5 +70,27 @@
       </div>
     </div>
     <script src="audio.js"></script>
+    <div id="draggable2" class="window" style="margin: 10px; width: 350px">
+      <div class="title-bar">
+        <div class="title-bar-text">Wet Toast Talk Radio &#127838;</div>
+      </div>
+      <div class="window-body">
+        <menu id="content-menu" role="tablist">
+          <li id="about-tab" role="tab">
+            <a href="javascript:showContentMenu('about-tab')">About</a>
+          </li>
+          <li id="twitch-tab" role="tab">
+            <a href="javascript:showContentMenu('twitch-tab')">Twitch</a>
+          </li>
+          <li id="team-tab" role="tab">
+            <a href="javascript:showContentMenu('team-tab')">The Team</a>
+          </li>
+        </menu>
+        <div class="window" role="tabpanel">
+          <div id="window-content" class="window-body"></div>
+        </div>
+      </div>
+    </div>
+    <script src="content.js"></script>
   </body>
 </html>

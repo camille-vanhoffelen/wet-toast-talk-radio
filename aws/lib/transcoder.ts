@@ -75,7 +75,7 @@ export class Transcoder extends Construct {
             month: '*',
             year: '*',
         });
-        const rule = new events.Rule(this, 'MyScheduledTaskRule', {
+        const rule = new events.Rule(this, 'ScheduledTaskRule', {
             schedule,
         });
         rule.addTarget(
