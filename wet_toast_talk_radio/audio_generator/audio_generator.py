@@ -138,20 +138,19 @@ class AudioGenerator:
     def _line_to_audio(
         self, line: Line, sentence_callbacks: list[Callable] | None
     ) -> np.ndarray:
-        logger.info("Tokenizing text into sentences")
         sentences = nltk.sent_tokenize(line.content)
         num_sentences = len(sentences)
         logger.debug(f"Tokenized {len(sentences)} sentences", count=num_sentences)
 
         pieces = []
         for i, sentence in enumerate(sentences):
-            logger.debug(
+            logger.info(
                 "Generating audio for sentence",
                 sentence=sentence,
                 progress=f"{i + 1}/{num_sentences}",
             )
             audio_array = generate_audio(
-                sentence, history_prompt=get_speaker_prompt(line.speaker)
+                sentence, history_prompt=get_speaker_prompt(line.speaker), silent=True
             )
             pieces += [audio_array, SILENCE.copy()]
             if sentence_callbacks:
