@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.13](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.12...v0.1.13) (2023-07-03)
+
+
+### Features
+
+* default now uses big models ([#57](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/57)) ([6beafbf](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/6beafbfac9fcda9547abf70811f6dce245050b08))
+* silent audio-generator ([#55](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/55)) ([56d7d50](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/56d7d50e8089f0d5bbf762c065b929b6ba3f77f1))
+
 ## [0.1.12](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.11...v0.1.12) (2023-07-02)
 
 
