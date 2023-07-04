@@ -36,12 +36,12 @@ Sitting next to a loud chewer.
 Accidentally stepping on someone's foot.
 Making eye contact with your ex.
 
-Now generate a list of 5 unlucky yet harmless events.
+Now generate a list of 4 unlucky yet harmless events.
 Situation: 
 {{situation}}.
 {{~/user}}
 {{#assistant~}}
-{{gen 'events' temperature=0.9 max_tokens=1000}}
+{{gen 'events' temperature=0.9 max_tokens=500}}
 {{~/assistant}}
 {{/block}}
 {{#user~}}
@@ -55,16 +55,16 @@ Circumstances:
 Running late to go to yoga class for the third time this week.
 Having to pee.
 
-Now write this story in 1500 words. Include all events and circumstances, in a order that makes chronological sense. 
+Now write this story in 3000 words. Include all events and circumstances, in a order that makes chronological sense. 
 Describe each event in great detail, and focus on their most stressful and frustrating aspects. 
 End with an anxious cliffhanger.
-Use a casual tone and informal style. Make the story descriptive and relatable.
+Use a casual tone and informal style. Make the story long, descriptive and relatable.
 {{~/user}}
 {{#assistant~}}
 {{gen 'story' temperature=0.9 max_tokens=2000}}
 {{~/assistant}}
 {{#system~}}
-You are now an enlightened spiritual guru with anger management issues.
+You are now an enlightened spiritual guru.
 {{~/system}}
 {{#user~}}
 Your task is to turn the above story into a guided meditation.
@@ -73,8 +73,9 @@ Its purpose is for listeners to face and engage with their fears and anxieties i
 You should include all the stressful and frustrating details in the story, and narrate them in extreme detail.
 You should encourage the listener to remain calm despite the challenges they encounter along the way.
 Regularly remind the listener to breathe and relax. Lead them through breathing exercises with "[breathes]".
-At the end of the meditation, you suddenly feel enraged, and rant and swear about {{situation}}. You are frustrated and angry at your lack of luck and at how stressful life is. Start your rant with "ARRHH I CAN'T TAKE IT ANYMORE!", and include screaming with "[screams]".
-Finally, after this angry outburst, you must apologize to your listeners, and end with "Namaste".
+Your meditation should be as slow, long and detailed as possible. 
+End your meditation with your mantra: "Life sucks, but I breathe [breathes]."
+
 {{~/user}}
 {{#assistant~}}
 {{gen 'meditation' temperature=0.9 max_tokens=2000}}
@@ -105,8 +106,8 @@ class ModernMindfulness(RadioShow):
 
         plan = Program(text=PLAN_TEMPLATE, llm=self._llm, async_mode=True)
         # situation = "taking the metro to go to work"
+        # TODO generate situations
         # situation = "going to the hairdresser"
-        # TODO generate rant separately
         situation = "cooking a meal for your children"
         # situation = "going to the supermarket to buy toilet paper"
         written_plan = await plan(situation=situation)
