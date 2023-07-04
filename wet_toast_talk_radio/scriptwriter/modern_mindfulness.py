@@ -36,7 +36,7 @@ Sitting next to a loud chewer.
 Accidentally stepping on someone's foot.
 Making eye contact with your ex.
 
-Now generate a list of 4 unlucky yet harmless events.
+Now generate a list of 5 unlucky yet harmless events.
 Situation: 
 {{situation}}.
 {{~/user}}
@@ -74,11 +74,11 @@ Its purpose is for listeners to face and engage with their fears and anxieties i
 You should include all the stressful and frustrating descriptions of the story, and narrate them in extreme detail.
 You should encourage the listener to remain calm despite the challenges they encounter along the way.
 Regularly remind the listener to breathe and relax. Lead them through breathing exercises with "[breathes]".
-Make the meditation long, descriptive, and slow.
+Make the meditation long, descriptive, and in 5000 words.
 End your meditation with your mantra: "Life sucks, but I breathe [breathes]."
 {{~/user}}
 {{#assistant~}}
-{{gen 'meditation' temperature=0.9 max_tokens=3000}}
+{{gen 'meditation' temperature=0.9 max_tokens=2500}}
 {{~/assistant}}
 """
 
