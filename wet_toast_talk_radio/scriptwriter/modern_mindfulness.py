@@ -45,7 +45,7 @@ Situation:
 {{~/assistant}}
 {{/block}}
 {{#user~}}
-Your task is to write a story about a person who experiences the unlucky events in the stressful circumstances listed below.
+Your task is to write a story about the unlucky events and the stressful circumstances listed below.
 
 Situation:
 {{situation}}.
@@ -55,7 +55,8 @@ Circumstances:
 Running late to go to yoga class for the third time this week.
 Having to pee.
 
-Now write this story in 3000 words. Include all events and circumstances, in a order that makes chronological sense. 
+Now write this story in 2000 words and in the first person point of view. 
+Include all events and circumstances, in a order that makes chronological sense. 
 Describe each event in great detail, and focus on their most stressful and frustrating aspects. 
 End with an anxious cliffhanger.
 Use a casual tone and informal style. Make the story long, descriptive and relatable.
@@ -70,15 +71,14 @@ You are now an enlightened spiritual guru.
 Your task is to turn the above story into a guided meditation.
 This is a mindfulness exercise combined with exposure therapy. 
 Its purpose is for listeners to face and engage with their fears and anxieties in a safe environment.
-You should include all the stressful and frustrating details in the story, and narrate them in extreme detail.
+You should include all the stressful and frustrating descriptions of the story, and narrate them in extreme detail.
 You should encourage the listener to remain calm despite the challenges they encounter along the way.
 Regularly remind the listener to breathe and relax. Lead them through breathing exercises with "[breathes]".
-Your meditation should be as slow, long and detailed as possible. 
+Make the meditation long, descriptive, and slow.
 End your meditation with your mantra: "Life sucks, but I breathe [breathes]."
-
 {{~/user}}
 {{#assistant~}}
-{{gen 'meditation' temperature=0.9 max_tokens=2000}}
+{{gen 'meditation' temperature=0.9 max_tokens=3000}}
 {{~/assistant}}
 """
 
@@ -108,7 +108,8 @@ class ModernMindfulness(RadioShow):
         # situation = "taking the metro to go to work"
         # TODO generate situations
         # situation = "going to the hairdresser"
-        situation = "cooking a meal for your children"
+        # situation = "cooking a meal for your children"
+        situation = "picking up a package from the post office"
         # situation = "going to the supermarket to buy toilet paper"
         written_plan = await plan(situation=situation)
         logger.debug("Written plan", debate=written_plan)
