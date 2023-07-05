@@ -9,6 +9,9 @@ from wet_toast_talk_radio.common.dialogue import Line, Speaker
 from wet_toast_talk_radio.common.log_ctx import show_id_log_ctx
 from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.media_store import ShowId
+from wet_toast_talk_radio.scriptwriter.modern_mindfulness.circumstances import (
+    load_circumstances,
+)
 from wet_toast_talk_radio.scriptwriter.modern_mindfulness.situations import (
     load_situations,
 )
@@ -17,6 +20,7 @@ from wet_toast_talk_radio.scriptwriter.radio_show import RadioShow
 logger = structlog.get_logger()
 
 SITUATIONS = load_situations()
+CIRCUMSTANCES = load_circumstances()
 
 PLAN_TEMPLATE = """{{#system~}}
 You are an edgy, satirical writer.
@@ -49,12 +53,12 @@ Situation:
 You are now an enlightened spiritual guru.
 {{~/system}}
 {{#user~}}
-Your task is to write a guided meditation about the unlucky events and the stressful circumstances listed below.
+Your task is to write a guided meditation about the unlucky events and the stressful circumstance listed below.
 
 Situation:
 {{situation}}.
-Circumstances:
-Having to pee.
+Circumstance:
+{{circumstance}}
 Unlucky events:
 {{events}}
 
@@ -81,10 +85,14 @@ class ModernMindfulness(RadioShow):
         llm: LLM,
         media_store: MediaStore,
         situation: str | None = None,
+        circumstance: str | None = None,
     ):
         self._llm = llm
         self._media_store = media_store
         self.situation = situation if situation else random.choice(SITUATIONS)
+        self.circumstance = (
+            circumstance if circumstance else random.choice(CIRCUMSTANCES)
+        )
 
     @classmethod
     def create(cls, llm: LLM, media_store: MediaStore) -> "ModernMindfulness":
@@ -92,11 +100,15 @@ class ModernMindfulness(RadioShow):
 
     @show_id_log_ctx()
     async def awrite(self, show_id: ShowId) -> bool:
-        logger.info("Async writing modern mindfulness", situation=self.situation)
-
-        # TODO generate circumstances
+        logger.info(
+            "Async writing modern mindfulness",
+            situation=self.situation,
+            circumstance=self.circumstance,
+        )
         meditation = Program(text=PLAN_TEMPLATE, llm=self._llm, async_mode=True)
-        written_meditation = await meditation(situation=self.situation)
+        written_meditation = await meditation(
+            situation=self.situation, circumstance=self.circumstance
+        )
         logger.debug("Written meditation", debate=written_meditation)
         logger.info("Finished writing Modern Mindfulness")
         lines = self._post_processing(written_meditation)
