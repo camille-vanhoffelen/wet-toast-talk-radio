@@ -11,7 +11,7 @@ from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.message_queue import MessageQueue
 from wet_toast_talk_radio.scriptwriter.adverts import Advert
 from wet_toast_talk_radio.scriptwriter.radio_show import RadioShow
-from wet_toast_talk_radio.scriptwriter.the_great_debate import TheGreatDebate
+from wet_toast_talk_radio.scriptwriter.the_great_debate.show import TheGreatDebate
 
 logger = structlog.get_logger()
 

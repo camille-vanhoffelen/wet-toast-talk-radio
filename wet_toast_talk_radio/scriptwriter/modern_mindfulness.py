@@ -9,8 +9,8 @@ from wet_toast_talk_radio.common.log_ctx import show_id_log_ctx
 from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.scriptwriter.radio_show import RadioShow
-from wet_toast_talk_radio.scriptwriter.topics import load_topics
-from wet_toast_talk_radio.scriptwriter.traits import load_traits
+from wet_toast_talk_radio.scriptwriter.the_great_debate.topics import load_topics
+from wet_toast_talk_radio.scriptwriter.the_great_debate.traits import load_traits
 
 logger = structlog.get_logger()
 

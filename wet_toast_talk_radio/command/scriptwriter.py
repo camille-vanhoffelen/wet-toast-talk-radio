@@ -13,12 +13,12 @@ from wet_toast_talk_radio.message_queue import new_message_queue
 from wet_toast_talk_radio.scriptwriter import Scriptwriter, new_llm
 from wet_toast_talk_radio.scriptwriter.adverts import Advert
 from wet_toast_talk_radio.scriptwriter.config import validate_config
+from wet_toast_talk_radio.scriptwriter.modern_mindfulness import ModernMindfulness
 from wet_toast_talk_radio.scriptwriter.the_great_debate import (
     TheGreatDebate,
+    Topics,
+    Traits,
 )
-from wet_toast_talk_radio.scriptwriter.modern_mindfulness import ModernMindfulness
-from wet_toast_talk_radio.scriptwriter.topics import Topics
-from wet_toast_talk_radio.scriptwriter.traits import Traits
 
 logger = structlog.get_logger()
 
@@ -84,6 +84,7 @@ def the_great_debate(ctx: dict):
     show_id = ShowId(show_i=0, date="2012-12-21")
     asyncio.run(show.awrite(show_id=show_id))
 
+
 @scriptwriter.command(help="Write script for Modern Mindfulness")
 @click.pass_context
 def modern_mindfulness(ctx: dict):
@@ -98,6 +99,7 @@ def modern_mindfulness(ctx: dict):
     show = ModernMindfulness.create(llm=llm, media_store=VirtualMediaStore())
     show_id = ShowId(show_i=0, date="2012-12-21")
     asyncio.run(show.awrite(show_id=show_id))
+
 
 @scriptwriter.command(help="Write character traits for guests")
 @click.pass_context
