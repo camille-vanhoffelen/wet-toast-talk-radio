@@ -42,7 +42,7 @@ class TestScriptwriter:
             _poll_and_delete(message_queue)
 
     @pytest.mark.integration()
-    def test_scriptwriter_failure( # noqa: PLR0913
+    def test_scriptwriter_failure(  # noqa: PLR0913
         self,
         mocker,
         _clear_bucket,  # noqa: PT019, F811
