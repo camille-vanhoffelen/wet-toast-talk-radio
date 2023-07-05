@@ -75,7 +75,7 @@ You should include all the stressful and frustrating descriptions of the story, 
 You should encourage the listener to remain calm despite the challenges they encounter along the way.
 Regularly remind the listener to breathe and relax. Lead them through breathing exercises with "[breathes]".
 Make the meditation long, descriptive, and in 5000 words.
-End your meditation with your mantra: "Life sucks, but I breathe [breathes]."
+End your meditation with your mantra: "Life sucks, but I breathe" [breathes]
 {{~/user}}
 {{#assistant~}}
 {{gen 'meditation' temperature=0.9 max_tokens=2500}}
