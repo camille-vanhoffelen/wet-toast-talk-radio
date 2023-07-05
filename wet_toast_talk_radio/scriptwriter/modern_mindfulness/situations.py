@@ -46,6 +46,8 @@ RARE_DESCRIPTION = "exceptional events that you look forward to"
 
 
 class Situations:
+    """Generate lists of contextual situations for Modern Mindfulness."""
+
     def __init__(
         self,
         llm: LLM,

@@ -13,7 +13,7 @@ CIRCUMSTANCES_TEMPLATE = """{{#system~}}
 You are an edgy, satirical author.
 {{~/system}}
 {{#user~}}
-Your task is to generate lists of frustrating conditions, such as mild illnesses or injuries. 
+Your task is to generate lists of frustrating conditions, such as mild illnesses or injuries.
 Be specific about the cause of the condition.
 List the condition one per line. Don't number them or print any other text, just print a condition on each line.
 
@@ -30,6 +30,8 @@ Now generate a list of {{n_circumstances}} conditions.
 
 
 class Circumstances:
+    """Generate lists of frustrating circumstances, such as mild illnesses or injuries, for Modern Mindfulness."""
+
     examples = [
         "Toe injury from excessive kink play",
         "Hungover from Tequila Tuesdays",

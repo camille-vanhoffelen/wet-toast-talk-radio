@@ -14,9 +14,9 @@ from wet_toast_talk_radio.scriptwriter import Scriptwriter, new_llm
 from wet_toast_talk_radio.scriptwriter.adverts import Advert
 from wet_toast_talk_radio.scriptwriter.config import validate_config
 from wet_toast_talk_radio.scriptwriter.modern_mindfulness import (
+    Circumstances,
     ModernMindfulness,
     Situations,
-    Circumstances,
 )
 from wet_toast_talk_radio.scriptwriter.the_great_debate import (
     TheGreatDebate,
@@ -191,6 +191,8 @@ def situations(ctx: dict, n_situations: int, n_iter: int):
     llm = new_llm(cfg=sw_cfg.llm)
     situations_writer = Situations(llm=llm, n_situations=n_situations, n_iter=n_iter)
     asyncio.run(situations_writer.awrite())
+
+
 @scriptwriter.command(help="Write bad circumstances for guided meditation")
 @click.pass_context
 @click.option(
@@ -218,5 +220,7 @@ def circumstances(ctx: dict, n_circumstances: int, n_iter: int):
     root_cfg = ctx.obj["root_cfg"]
     sw_cfg = root_cfg.scriptwriter
     llm = new_llm(cfg=sw_cfg.llm)
-    circumstances_writer = Circumstances(llm=llm, n_circumstances=n_circumstances, n_iter=n_iter)
+    circumstances_writer = Circumstances(
+        llm=llm, n_circumstances=n_circumstances, n_iter=n_iter
+    )
     asyncio.run(circumstances_writer.awrite())

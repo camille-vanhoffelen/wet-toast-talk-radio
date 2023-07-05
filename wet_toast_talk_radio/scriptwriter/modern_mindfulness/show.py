@@ -22,7 +22,7 @@ logger = structlog.get_logger()
 SITUATIONS = load_situations()
 CIRCUMSTANCES = load_circumstances()
 
-PLAN_TEMPLATE = """{{#system~}}
+MEDITATION_TEMPLATE = """{{#system~}}
 You are an edgy, satirical writer.
 {{~/system}}
 {{#block hidden=True}}
@@ -105,7 +105,7 @@ class ModernMindfulness(RadioShow):
             situation=self.situation,
             circumstance=self.circumstance,
         )
-        meditation = Program(text=PLAN_TEMPLATE, llm=self._llm, async_mode=True)
+        meditation = Program(text=MEDITATION_TEMPLATE, llm=self._llm, async_mode=True)
         written_meditation = await meditation(
             situation=self.situation, circumstance=self.circumstance
         )
