@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.14](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.13...v0.1.14) (2023-07-05)
+
+
+### Features
+
+* modern mindfulness radio show ([#58](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/58)) ([8a483dd](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/8a483dd7edb9208ead62d2e777b3658b9301e34e))
+
 ## [0.1.13](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.12...v0.1.13) (2023-07-03)
 
 
