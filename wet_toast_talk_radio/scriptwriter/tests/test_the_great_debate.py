@@ -5,7 +5,7 @@ from guidance.llms import Mock
 
 from wet_toast_talk_radio.media_store import MediaStore, VirtualMediaStore
 from wet_toast_talk_radio.media_store.media_store import ShowId
-from wet_toast_talk_radio.scriptwriter.the_great_debate import (
+from wet_toast_talk_radio.scriptwriter.the_great_debate.show import (
     Guest,
     Polarity,
     TheGreatDebate,

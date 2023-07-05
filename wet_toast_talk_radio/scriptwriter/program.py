@@ -10,46 +10,47 @@ from wet_toast_talk_radio.media_store.common.date import get_offset_iso_utc_date
 from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.message_queue import MessageQueue
 from wet_toast_talk_radio.scriptwriter.adverts import Advert
-from wet_toast_talk_radio.scriptwriter.radio_show import RadioShow
+from wet_toast_talk_radio.scriptwriter.modern_mindfulness import ModernMindfulness
 from wet_toast_talk_radio.scriptwriter.the_great_debate import TheGreatDebate
 
 logger = structlog.get_logger()
 
+DAILY_PROGRAM = (
+    TheGreatDebate,
+    ModernMindfulness,
+    Advert,
+    TheGreatDebate,
+    ModernMindfulness,
+    Advert,
+    TheGreatDebate,
+    ModernMindfulness,
+    Advert,
+    TheGreatDebate,
+    ModernMindfulness,
+    Advert,
+) * 24
+
 
 @task_log_ctx("daily_program")
 class DailyProgram:
-    program: tuple[RadioShow] = (
-        TheGreatDebate,
-        TheGreatDebate,
-        Advert,
-        TheGreatDebate,
-        TheGreatDebate,
-        Advert,
-        TheGreatDebate,
-        TheGreatDebate,
-        Advert,
-        TheGreatDebate,
-        TheGreatDebate,
-        Advert,
-    )
-
     def __init__(
         self,
         llm: LLM,
         media_store: MediaStore,
         message_queue: MessageQueue,
+        program: tuple = DAILY_PROGRAM,
     ):
         self._media_store = media_store
         self._message_queue = message_queue
         self.program_iso_utc_date = get_offset_iso_utc_date(timedelta(days=2))
         self._shows = [
-            show.create(llm=llm, media_store=media_store) for show in self.program
+            show.create(llm=llm, media_store=media_store) for show in program
         ]
         self._warn_overwrite()
         logger.info(
             "Initialised daily program",
             date=self.program_iso_utc_date,
-            program=self.program,
+            shows=self._shows,
         )
 
     async def awrite(self):

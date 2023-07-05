@@ -13,11 +13,16 @@ from wet_toast_talk_radio.message_queue import new_message_queue
 from wet_toast_talk_radio.scriptwriter import Scriptwriter, new_llm
 from wet_toast_talk_radio.scriptwriter.adverts import Advert
 from wet_toast_talk_radio.scriptwriter.config import validate_config
+from wet_toast_talk_radio.scriptwriter.modern_mindfulness import (
+    Circumstances,
+    ModernMindfulness,
+    Situations,
+)
 from wet_toast_talk_radio.scriptwriter.the_great_debate import (
     TheGreatDebate,
+    Topics,
+    Traits,
 )
-from wet_toast_talk_radio.scriptwriter.topics import Topics
-from wet_toast_talk_radio.scriptwriter.traits import Traits
 
 logger = structlog.get_logger()
 
@@ -84,6 +89,22 @@ def the_great_debate(ctx: dict):
     asyncio.run(show.awrite(show_id=show_id))
 
 
+@scriptwriter.command(help="Write script for Modern Mindfulness")
+@click.pass_context
+def modern_mindfulness(ctx: dict):
+    """Run command
+    scriptwriter modern-mindfulness
+    """
+    logger.info("Writing script for Modern Mindfulness")
+    root_cfg = ctx.obj["root_cfg"]
+    sw_cfg = root_cfg.scriptwriter
+
+    llm = new_llm(cfg=sw_cfg.llm)
+    show = ModernMindfulness.create(llm=llm, media_store=VirtualMediaStore())
+    show_id = ShowId(show_i=0, date="2012-12-21")
+    asyncio.run(show.awrite(show_id=show_id))
+
+
 @scriptwriter.command(help="Write character traits for guests")
 @click.pass_context
 @click.option(
@@ -139,3 +160,67 @@ def topics(ctx: dict, n_topics: int, n_iter: int):
 
     topics_writer = Topics(llm=llm, n_topics=n_topics, n_iter=n_iter)
     asyncio.run(topics_writer.awrite())
+
+
+@scriptwriter.command(help="Write situations for guided meditation")
+@click.pass_context
+@click.option(
+    "--n-situations",
+    default=30,
+    type=int,
+    help="Number of situations generated per iteration",
+)
+@click.option(
+    "--n-iter",
+    default=50,
+    type=int,
+    help="Number of parallel generations to be aggregated",
+)
+def situations(ctx: dict, n_situations: int, n_iter: int):
+    """Run command
+    scriptwriter situations
+
+    Write unique situations for guided meditation, writes them in /tmp/situations.json
+    """
+    structlog.configure(
+        wrapper_class=structlog.make_filtering_bound_logger(logging.DEBUG),
+    )
+    logger.info("Writing character situations")
+    root_cfg = ctx.obj["root_cfg"]
+    sw_cfg = root_cfg.scriptwriter
+    llm = new_llm(cfg=sw_cfg.llm)
+    situations_writer = Situations(llm=llm, n_situations=n_situations, n_iter=n_iter)
+    asyncio.run(situations_writer.awrite())
+
+
+@scriptwriter.command(help="Write bad circumstances for guided meditation")
+@click.pass_context
+@click.option(
+    "--n-circumstances",
+    default=30,
+    type=int,
+    help="Number of circumstances generated per iteration",
+)
+@click.option(
+    "--n-iter",
+    default=50,
+    type=int,
+    help="Number of parallel generations to be aggregated",
+)
+def circumstances(ctx: dict, n_circumstances: int, n_iter: int):
+    """Run command
+    scriptwriter circumstances
+
+    Write unique bad circumstances for guided meditation, writes them in /tmp/circumstances.json
+    """
+    structlog.configure(
+        wrapper_class=structlog.make_filtering_bound_logger(logging.DEBUG),
+    )
+    logger.info("Writing character circumstances")
+    root_cfg = ctx.obj["root_cfg"]
+    sw_cfg = root_cfg.scriptwriter
+    llm = new_llm(cfg=sw_cfg.llm)
+    circumstances_writer = Circumstances(
+        llm=llm, n_circumstances=n_circumstances, n_iter=n_iter
+    )
+    asyncio.run(circumstances_writer.awrite())

@@ -9,21 +9,6 @@ from guidance.llms import LLM
 
 logger = structlog.get_logger()
 
-TOPIC_TEMPLATE = """{{#system~}}
-You are an edgy, satirical author.
-{{~/system}}
-{{#user~}}
-Your task is to come up with a topic for a pros vs cons debate.
-This is meant for a parody: the chosen topic should be ridiculous, and anyone with common sense should stand on the same side.
-Here are some examples:
-Toilet paper
-Eating your boogers
-Investing all your life savings in bitcoin
-Now generate a topic.
-{{#assistant~}}
-{{gen 'topic' temperature=0.9 max_tokens=50}}
-{{~/assistant}}"""
-
 TRAIT_TEMPLATE = """{{#system~}}
 You are an edgy, satirical author.
 {{~/system}}

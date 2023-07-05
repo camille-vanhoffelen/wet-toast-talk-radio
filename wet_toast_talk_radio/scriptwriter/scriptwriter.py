@@ -20,6 +20,7 @@ class Scriptwriter:
         cfg: ScriptwriterConfig,
         media_store: MediaStore,
         message_queue: MessageQueue,
+        program: tuple | None = None,
     ):
         logger.info("Initializing scriptwriter")
         self._cfg = cfg
@@ -27,6 +28,7 @@ class Scriptwriter:
         self._llm = new_llm(cfg=cfg.llm)
         self._media_store = media_store
         self._message_queue = message_queue
+        self._program = program
 
     def run(self) -> None:
         logger.info("Starting scriptwriter...")
@@ -37,6 +39,7 @@ class Scriptwriter:
             llm=self._llm,
             media_store=self._media_store,
             message_queue=self._message_queue,
+            program=self._program,
         )
         asyncio.run(daily_program.awrite())
         logger.info("Scriptwriter finished, exiting")
