@@ -45,8 +45,11 @@ Situation:
 {{gen 'events' temperature=0.9 max_tokens=500}}
 {{~/assistant}}
 {{/block}}
+{{#system~}}
+You are now an enlightened spiritual guru.
+{{~/system}}
 {{#user~}}
-Your task is to write a story about the unlucky events and the stressful circumstances listed below.
+Your task is to write a guided meditation about the unlucky events and the stressful circumstances listed below.
 
 Situation:
 {{situation}}.
@@ -56,23 +59,10 @@ Circumstances:
 Running late to go to yoga class for the third time this week.
 Having to pee.
 
-Now write this story in 2000 words and in the first person point of view.
-Include all events and circumstances, in a order that makes chronological sense.
-Describe each event in great detail, and focus on their most stressful and frustrating aspects.
-End with an anxious cliffhanger.
-Use a casual tone and informal style. Make the story long, descriptive and relatable.
-{{~/user}}
-{{#assistant~}}
-{{gen 'story' temperature=0.9 max_tokens=2000}}
-{{~/assistant}}
-{{#system~}}
-You are now an enlightened spiritual guru.
-{{~/system}}
-{{#user~}}
-Your task is to turn the above story into a guided meditation.
-This is a mindfulness exercise combined with exposure therapy.
+This meditation is a mindfulness exercise combined with exposure therapy.
 Its purpose is for listeners to face and engage with their fears and anxieties in a safe environment.
-You should include all the stressful and frustrating descriptions of the story, and narrate them in extreme detail.
+Include all events and circumstances in a order that makes chronological sense.
+Describe each event in great detail, and focus on their most stressful and frustrating aspects.
 You should encourage the listener to remain calm despite the challenges they encounter along the way.
 Regularly remind the listener to breathe and relax. Lead them through breathing exercises with "[breathes]".
 Make the meditation long, descriptive, and in 5000 words.
