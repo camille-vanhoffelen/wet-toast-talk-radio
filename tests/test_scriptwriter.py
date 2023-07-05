@@ -10,7 +10,7 @@ from tests.conftests import (
     media_store,  # noqa: F401
     message_queue,  # noqa: F401
 )
-from wet_toast_talk_radio.scriptwriter import DailyProgram, Scriptwriter
+from wet_toast_talk_radio.scriptwriter import Scriptwriter
 from wet_toast_talk_radio.scriptwriter.adverts import Advert
 from wet_toast_talk_radio.scriptwriter.config import LLMConfig, ScriptwriterConfig
 
@@ -26,19 +26,23 @@ class TestScriptwriter:
         media_store,  # noqa: F811
         message_queue,  # noqa: F811
         llm_config,
+        program,
     ):
         cfg = ScriptwriterConfig(llm=llm_config)
         scriptwriter = Scriptwriter(
-            cfg=cfg, media_store=media_store, message_queue=message_queue
+            cfg=cfg,
+            media_store=media_store,
+            message_queue=message_queue,
+            program=program,
         )
         scriptwriter.run()
-        n_shows = len(DailyProgram.program)
+        n_shows = len(program)
         assert len(media_store.list_script_shows()) == n_shows
-        for _ in range(len(DailyProgram.program)):
+        for _ in range(n_shows):
             _poll_and_delete(message_queue)
 
     @pytest.mark.integration()
-    def test_scriptwriter_failure(
+    def test_scriptwriter_failure( # noqa: PLR0913
         self,
         mocker,
         _clear_bucket,  # noqa: PT019, F811
@@ -46,6 +50,7 @@ class TestScriptwriter:
         media_store,  # noqa: F811
         message_queue,  # noqa: F811
         llm_config,
+        program,
     ):
         mocker.patch(
             "wet_toast_talk_radio.scriptwriter.adverts.Advert.awrite",
@@ -53,7 +58,10 @@ class TestScriptwriter:
         )
         cfg = ScriptwriterConfig(llm=llm_config)
         scriptwriter = Scriptwriter(
-            cfg=cfg, media_store=media_store, message_queue=message_queue
+            cfg=cfg,
+            media_store=media_store,
+            message_queue=message_queue,
+            program=program,
         )
         scriptwriter.run()
         assert len(media_store.list_script_shows()) == 0
@@ -61,16 +69,20 @@ class TestScriptwriter:
 
 
 @pytest.fixture()
-def llm_config() -> LLMConfig:
+def llm_config(program) -> LLMConfig:
     # Easy to mock daily program
-    DailyProgram.program = [Advert, Advert, Advert]
     product_name = "Fancy pants"
     product_description = "Fancy pants are the best pants."
     fake_responses = [product_name, product_description]
-    n_shows = len(DailyProgram.program)
+    n_shows = len(program)
     logger.debug("Initialising FakeLLM", n_shows=n_shows)
     fake_responses = fake_responses * n_shows
     return LLMConfig(virtual=True, fake_responses=fake_responses)
+
+
+@pytest.fixture()
+def program():
+    return Advert, Advert, Advert
 
 
 def _poll_and_delete(message_queue):  # noqa: F811

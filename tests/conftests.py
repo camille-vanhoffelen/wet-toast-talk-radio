@@ -81,7 +81,7 @@ def setup_bucket(_clear_bucket) -> dict[str, list[ShowId]]:
 
 def _parse_show_id(filename: str) -> int:
     """Parse show id from filename in the format: show<show_id>.<ext>"""
-    pattern = r"show(\d+)\.(ogg|jsonl|wav)"
+    pattern = r"show(\d+)\.(ogg|jsonl|wav|mp3)"
     match = re.search(pattern, filename)
     if match:
         return int(match.group(1))
