@@ -28,7 +28,7 @@ DAILY_PROGRAM = (
     TheGreatDebate,
     ModernMindfulness,
     Advert,
-)
+) * 24
 
 
 @task_log_ctx("daily_program")
