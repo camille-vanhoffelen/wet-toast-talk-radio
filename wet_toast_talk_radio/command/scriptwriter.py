@@ -13,7 +13,10 @@ from wet_toast_talk_radio.message_queue import new_message_queue
 from wet_toast_talk_radio.scriptwriter import Scriptwriter, new_llm
 from wet_toast_talk_radio.scriptwriter.adverts import Advert
 from wet_toast_talk_radio.scriptwriter.config import validate_config
-from wet_toast_talk_radio.scriptwriter.modern_mindfulness import ModernMindfulness
+from wet_toast_talk_radio.scriptwriter.modern_mindfulness import (
+    ModernMindfulness,
+    Situations,
+)
 from wet_toast_talk_radio.scriptwriter.the_great_debate import (
     TheGreatDebate,
     Topics,
@@ -156,3 +159,34 @@ def topics(ctx: dict, n_topics: int, n_iter: int):
 
     topics_writer = Topics(llm=llm, n_topics=n_topics, n_iter=n_iter)
     asyncio.run(topics_writer.awrite())
+
+
+@scriptwriter.command(help="Write character traits for guests")
+@click.pass_context
+@click.option(
+    "--n-situations",
+    default=20,
+    type=int,
+    help="Number of situations generated per iteration",
+)
+@click.option(
+    "--n-iter",
+    default=50,
+    type=int,
+    help="Number of parallel generations to be aggregated",
+)
+def situations(ctx: dict, n_situations: int, n_iter: int):
+    """Run command
+    scriptwriter situations
+
+    Write unique character situations for guests, writes them in /tmp/situations.json
+    """
+    structlog.configure(
+        wrapper_class=structlog.make_filtering_bound_logger(logging.DEBUG),
+    )
+    logger.info("Writing character situations")
+    root_cfg = ctx.obj["root_cfg"]
+    sw_cfg = root_cfg.scriptwriter
+    llm = new_llm(cfg=sw_cfg.llm)
+    situations_writer = Situations(llm=llm, n_situations=n_situations, n_iter=n_iter)
+    asyncio.run(situations_writer.awrite())
