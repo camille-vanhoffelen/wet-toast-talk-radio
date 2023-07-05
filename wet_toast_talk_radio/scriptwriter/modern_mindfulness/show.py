@@ -5,7 +5,7 @@ import structlog
 from guidance import Program
 from guidance.llms import LLM
 
-from wet_toast_talk_radio.common.dialogue import Line
+from wet_toast_talk_radio.common.dialogue import Line, Speaker
 from wet_toast_talk_radio.common.log_ctx import show_id_log_ctx
 from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.media_store import ShowId
@@ -53,13 +53,12 @@ Your task is to write a guided meditation about the unlucky events and the stres
 
 Situation:
 {{situation}}.
+Circumstances:
+Having to pee.
 Unlucky events:
 {{events}}
-Circumstances:
-Running late to go to yoga class for the third time this week.
-Having to pee.
 
-This meditation is a mindfulness exercise combined with exposure therapy.
+This meditation is called "Modern Mindfulness". It is a mindfulness exercise combined with exposure therapy.
 Its purpose is for listeners to face and engage with their fears and anxieties in a safe environment.
 Include all events and circumstances in a order that makes chronological sense.
 Describe each event in great detail, and focus on their most stressful and frustrating aspects.
@@ -93,18 +92,19 @@ class ModernMindfulness(RadioShow):
 
     @show_id_log_ctx()
     async def awrite(self, show_id: ShowId) -> bool:
-        logger.info(
-            "Async writing modern mindfulness", situation=self.situation
-        )
+        logger.info("Async writing modern mindfulness", situation=self.situation)
 
         # TODO generate circumstances
-        plan = Program(text=PLAN_TEMPLATE, llm=self._llm, async_mode=True)
-        written_plan = await plan(situation=self.situation)
-        logger.debug("Written plan", debate=written_plan)
+        meditation = Program(text=PLAN_TEMPLATE, llm=self._llm, async_mode=True)
+        written_meditation = await meditation(situation=self.situation)
+        logger.debug("Written meditation", debate=written_meditation)
         logger.info("Finished writing Modern Mindfulness")
+        lines = self._post_processing(written_meditation)
+        self._media_store.put_script_show(show_id=show_id, lines=lines)
         return True
 
-    def _post_processing(self, script: str) -> list[Line]:
-        logger.info("Post processing Modern Mindfulness")
-        # TODO
-        return script
+    def _post_processing(self, program: Program) -> list[Line]:
+        logger.debug("Post processing Modern Mindfulness")
+        meditation = program["meditation"]
+        line = Line(speaker=Speaker(name="Chris", gender="male"), content=meditation)
+        return [line]
