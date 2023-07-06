@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.15](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.14...v0.1.15) (2023-07-06)
+
+
+### Features
+
+* added log for radio operator ([5e3885d](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/5e3885d80592c88cfd7f03913acc7cdd2612ca97))
+
 ## [0.1.14](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.13...v0.1.14) (2023-07-05)
 
 
