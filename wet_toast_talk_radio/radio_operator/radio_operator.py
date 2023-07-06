@@ -1,11 +1,14 @@
 from typing import Optional
 
 import requests
+import structlog
 
 from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.radio_operator.config import (
     RadioOperatorConfig,
 )
+
+logger = structlog.get_logger()
 
 
 # https://app.slack.com/block-kit-builder
@@ -17,6 +20,7 @@ class RadioOperator:
         if cfg is not None and cfg.web_hook_url is not None:
             self._enabled = True
             self._web_hook_url = cfg.web_hook_url.value()
+            logger.info("Radio operator enabled")
 
     def _send(self, block_ui: dict):
         if self._enabled:
