@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.16](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.15...v0.1.16) (2023-07-10)
+
+
+### Features
+
+* update ui for h1 ([93eac41](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/93eac414fad8bdf6d8532f4f7f6c4ce9a5929cc1))
+
+
+### Bug Fixes
+
+* default daily program injection ([#62](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/62)) ([f52c29a](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/f52c29aaea1849fac0b0964a0b989e299ab5b6ad))
+
 ## [0.1.15](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.14...v0.1.15) (2023-07-06)
 
 
