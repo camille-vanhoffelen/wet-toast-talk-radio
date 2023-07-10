@@ -19,9 +19,6 @@ from wet_toast_talk_radio.scriptwriter.radio_show import RadioShow
 
 logger = structlog.get_logger()
 
-SITUATIONS = load_situations()
-CIRCUMSTANCES = load_circumstances()
-
 MEDITATION_TEMPLATE = """{{#system~}}
 You are an edgy, satirical writer.
 {{~/system}}
@@ -89,9 +86,11 @@ class ModernMindfulness(RadioShow):
     ):
         self._llm = llm
         self._media_store = media_store
-        self.situation = situation if situation else random.choice(SITUATIONS)
+        self._situations = load_situations()
+        self.situation = situation if situation else random.choice(self._situations)
+        self._circumstances = load_circumstances()
         self.circumstance = (
-            circumstance if circumstance else random.choice(CIRCUMSTANCES)
+            circumstance if circumstance else random.choice(self._circumstances)
         )
 
     @classmethod

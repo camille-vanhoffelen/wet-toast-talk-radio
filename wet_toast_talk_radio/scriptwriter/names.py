@@ -15,15 +15,15 @@ def load_names() -> dict:
     return doc
 
 
-NAMES = load_names()
 GENDERS = ["female", "male"]
 
 
 def random_name(gender: str):
-    """Select a random name from the names.json file"""
+    """Loads names.json file and selects a random name"""
+    all_names = load_names()
     if gender not in GENDERS:
         raise ValueError(f"Gender: {gender} must be one of {GENDERS}")
-    region = NAMES[random.randrange(len(NAMES))]
+    region = all_names[random.randrange(len(all_names))]
     names = region[gender]
     name = names[random.randrange(len(names))]
     return name
