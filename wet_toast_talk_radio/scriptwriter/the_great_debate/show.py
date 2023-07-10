@@ -22,9 +22,6 @@ from wet_toast_talk_radio.scriptwriter.the_great_debate.traits import load_trait
 
 logger = structlog.get_logger()
 
-TOPICS = load_topics()
-TRAITS = load_traits()
-
 GUEST_TEMPLATE = """{{#system~}}
 You are an edgy, satirical writer.
 {{~/system}}
@@ -132,7 +129,8 @@ class Guest:
     def random(cls, polarity: Polarity):
         gender = random.choice(GENDERS)
         name = random_name(gender)
-        trait = random.choice(TRAITS).lower()
+        all_traits = load_traits()
+        trait = random.choice(all_traits).lower()
         placeholder_name = PLACEHOLDER_NAMES[polarity][gender]
         return cls(
             name=name,
@@ -156,7 +154,8 @@ class TheGreatDebate(RadioShow):
     ):
         self._llm = llm
         self._media_store = media_store
-        self.topic = topic if topic else random.choice(TOPICS).lower()
+        self._topics = load_topics()
+        self.topic = topic if topic else random.choice(self._topics).lower()
         self.guest_in_favor = (
             guest_in_favor
             if guest_in_favor
