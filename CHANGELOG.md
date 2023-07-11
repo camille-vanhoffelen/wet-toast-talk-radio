@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.17](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.16...v0.1.17) (2023-07-11)
+
+
+### Bug Fixes
+
+* mq accumulation ([#63](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/63)) ([495d7ce](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/495d7cec5da10caa24d1343241504129c40f90c0))
+
 ## [0.1.16](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.15...v0.1.16) (2023-07-10)
 
 
