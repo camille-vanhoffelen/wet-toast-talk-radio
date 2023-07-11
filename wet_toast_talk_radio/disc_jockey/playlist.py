@@ -1,4 +1,3 @@
-
 import structlog
 
 from wet_toast_talk_radio.common.log_ctx import task_log_ctx

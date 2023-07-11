@@ -113,7 +113,7 @@ class SQSMessageQueue(MessageQueue):
         end_time = datetime.now() + total_time
         while datetime.now() < end_time:
             response = sqs_client.get_queue_attributes(
-                QueueUrl=self._stream_queue_url,
+                QueueUrl=queue_url,
                 AttributeNames=["ApproximateNumberOfMessages"],
             )
             message_count = int(response["Attributes"]["ApproximateNumberOfMessages"])

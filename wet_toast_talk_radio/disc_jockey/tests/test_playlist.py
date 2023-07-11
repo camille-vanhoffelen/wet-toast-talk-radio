@@ -29,9 +29,7 @@ class TestPlaylist:
         media_store.put_transcoded_show(show0, "foo")
         media_store.put_transcoded_show(show1, "foo")
 
-        playlist = Playlist(
-            media_store, message_queue, radio_operator
-        )
+        playlist = Playlist(media_store, message_queue, radio_operator)
         playlist.start()
 
         assert message_queue.get_next_stream_show().show_id == show0
@@ -41,9 +39,7 @@ class TestPlaylist:
         media_store = new_media_store(MediaStoreConfig(virtual=True))
         message_queue = new_message_queue(MessageQueueConfig(virtual=True))
 
-        playlist = Playlist(
-             media_store, message_queue, radio_operator
-        )
+        playlist = Playlist(media_store, message_queue, radio_operator)
         playlist.start()
 
         show0 = ShowId(0, _FALLBACK_KEY)
