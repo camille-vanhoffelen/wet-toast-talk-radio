@@ -49,6 +49,7 @@ export class MessageQueue extends Construct {
         return {
             WT_MESSAGE_QUEUE__SQS__SCRIPT_QUEUE_NAME: this.scriptQueue.queueName,
             WT_MESSAGE_QUEUE__SQS__STREAM_QUEUE_NAME: this.streamQueue.queueName,
+            WT_MESSAGE_QUEUE__SQS__PURGE_QUEUE_WAIT_TIME_IN_S:: '1',
         };
     }
 }
