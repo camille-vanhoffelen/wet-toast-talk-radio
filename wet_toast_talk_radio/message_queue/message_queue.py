@@ -36,11 +36,8 @@ class MessageQueue(ABC):
         """Add stream shows to the queue"""
 
     @abstractmethod
-    def purge_stream_shows(self, total_time: timedelta, wait: timedelta):
-        """Delete stream shows from the queue, effectually resetting the playlist.
-        total_time: The total time to wait for queue to be purged
-        wait: The time to wait between each check to see if the queue is empty
-        """
+    def purge_stream_shows(self):
+        """Delete stream shows from the queue, effectively resetting the playlist."""
 
     # Script shows #
     @abstractmethod
@@ -56,6 +53,10 @@ class MessageQueue(ABC):
     @abstractmethod
     def add_script_shows(self, shows: list[ShowId]):
         """Add script shows to the queue"""
+
+    @abstractmethod
+    def purge_script_shows(self):
+        """Delete script shows from the queue, effectively resetting the daily list to generate audio for."""
 
     @abstractmethod
     def change_message_visibility_timeout(self, receipt_handle: str, timeout_in_s: int):

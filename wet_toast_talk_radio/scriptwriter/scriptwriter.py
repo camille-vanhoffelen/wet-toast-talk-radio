@@ -79,6 +79,8 @@ class Scriptwriter:
             all_shows.append(show_id)
         results = await asyncio.gather(*tasks, return_exceptions=True)
         script_shows = self._filter_failures(all_shows, results)
+
+        self._message_queue.purge_script_shows()
         self._message_queue.add_script_shows(shows=script_shows)
 
     def _filter_failures(self, shows: list[ShowId], results: list) -> list[ShowId]:

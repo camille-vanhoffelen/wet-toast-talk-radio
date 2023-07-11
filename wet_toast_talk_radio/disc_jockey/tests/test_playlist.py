@@ -1,6 +1,6 @@
 import pytest
 
-from wet_toast_talk_radio.disc_jockey.playlist import Playlist, PlaylistConfig
+from wet_toast_talk_radio.disc_jockey.playlist import Playlist
 from wet_toast_talk_radio.media_store.common.date import get_current_iso_utc_date
 from wet_toast_talk_radio.media_store.config import MediaStoreConfig
 from wet_toast_talk_radio.media_store.media_store import _FALLBACK_KEY, ShowId
@@ -30,7 +30,7 @@ class TestPlaylist:
         media_store.put_transcoded_show(show1, "foo")
 
         playlist = Playlist(
-            PlaylistConfig(), media_store, message_queue, radio_operator
+            media_store, message_queue, radio_operator
         )
         playlist.start()
 
@@ -42,7 +42,7 @@ class TestPlaylist:
         message_queue = new_message_queue(MessageQueueConfig(virtual=True))
 
         playlist = Playlist(
-            PlaylistConfig(), media_store, message_queue, radio_operator
+             media_store, message_queue, radio_operator
         )
         playlist.start()
 
