@@ -57,28 +57,8 @@ class SQSMessageQueue(MessageQueue):
                 MessageGroupId=f"stream_shows/{show.store_key()}",
             )
 
-    def purge_stream_shows(self, total_time: timedelta, wait: timedelta):
-        sqs_client = new_sqs_client(self._cfg.local)
-        sqs_client.purge_queue(QueueUrl=self._stream_queue_url)
-        success = False
-        end_time = datetime.now() + total_time
-        while datetime.now() < end_time:
-            response = sqs_client.get_queue_attributes(
-                QueueUrl=self._stream_queue_url,
-                AttributeNames=["ApproximateNumberOfMessages"],
-            )
-            message_count = int(response["Attributes"]["ApproximateNumberOfMessages"])
-
-            if message_count == 0:
-                success = True
-                break
-
-            time.sleep(wait.total_seconds())
-
-        if not success:
-            raise Exception(
-                f"Unable to purge queue in time, total_time={total_time}, wait={wait}"
-            )
+    def purge_stream_shows(self):
+        self._purge_queue(queue_url=self._stream_queue_url)
 
     def poll_script_show(self) -> ScriptShowMessage | None:
         logger.info("Polling script show")
@@ -107,6 +87,9 @@ class SQSMessageQueue(MessageQueue):
                 MessageGroupId=f"script_shows/{show.store_key()}",
             )
 
+    def purge_script_shows(self):
+        self._purge_queue(queue_url=self._script_queue_url)
+
     def change_message_visibility_timeout(self, receipt_handle: str, timeout_in_s: int):
         logger.debug(
             "Changing message visibility timeout",
@@ -118,6 +101,33 @@ class SQSMessageQueue(MessageQueue):
             ReceiptHandle=receipt_handle,
             VisibilityTimeout=timeout_in_s,
         )
+
+    def _purge_queue(self, queue_url: str):
+        total_time = timedelta(seconds=self._cfg.purge_queue_total_time_in_s)
+        wait = (timedelta(seconds=self._cfg.purge_queue_wait_time_in_s),)
+        logger.info("Purging MQ", queue_url=queue_url)
+
+        sqs_client = new_sqs_client(self._cfg.local)
+        sqs_client.purge_queue(QueueUrl=queue_url)
+        success = False
+        end_time = datetime.now() + total_time
+        while datetime.now() < end_time:
+            response = sqs_client.get_queue_attributes(
+                QueueUrl=queue_url,
+                AttributeNames=["ApproximateNumberOfMessages"],
+            )
+            message_count = int(response["Attributes"]["ApproximateNumberOfMessages"])
+
+            if message_count == 0:
+                success = True
+                break
+
+            time.sleep(wait.total_seconds())
+
+        if not success:
+            raise Exception(
+                f"Unable to purge queue in time, total_time={total_time}, wait={wait}"
+            )
 
 
 def _has_message(response: dict) -> bool:

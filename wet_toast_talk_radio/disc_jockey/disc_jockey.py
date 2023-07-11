@@ -49,7 +49,6 @@ class DiscJockey:
     def create_playlist(self) -> None:
         """Create a playlist from the current day transcoded shows and upload them to the message queue"""
         playlist = Playlist(
-            self._cfg.playlist,
             self._media_store,
             self._message_queue,
             self._radio_operator,

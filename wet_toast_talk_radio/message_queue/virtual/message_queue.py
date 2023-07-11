@@ -1,5 +1,4 @@
 import multiprocessing
-from datetime import timedelta
 from queue import Empty
 
 from wet_toast_talk_radio.media_store.media_store import ShowId
@@ -29,7 +28,7 @@ class VirtualMessageQueue(MessageQueue):
         for show in shows:
             self._queues["stream"].put(show)
 
-    def purge_stream_shows(self, _total_time: timedelta, _wait: timedelta):
+    def purge_stream_shows(self):
         try:
             while True:
                 self._queues["stream"].get_nowait()
@@ -47,6 +46,13 @@ class VirtualMessageQueue(MessageQueue):
     def add_script_shows(self, shows: list[ShowId]):
         for show in shows:
             self._queues["script"].put(show)
+
+    def purge_script_shows(self):
+        try:
+            while True:
+                self._queues["script"].get_nowait()
+        except Empty:
+            return
 
     def change_message_visibility_timeout(self, receipt_handle: str, timeout_in_s: int):
         # not needed for virtual message queue

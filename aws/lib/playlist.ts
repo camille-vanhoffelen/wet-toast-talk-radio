@@ -58,7 +58,6 @@ export class Playlist extends Construct {
             ...props.messageQueue.envVars(),
             AWS_DEFAULT_REGION: Aws.REGION,
             WT_MEDIA_STORE__S3__BUCKET_NAME: props.mediaStore.bucket.bucketName,
-            WT_DISC_JOCKEY__PLAYLIST__PURGE_WAIT_TIME: '1',
         };
 
         // t2.micro: 1 vCPU, 1 GiB

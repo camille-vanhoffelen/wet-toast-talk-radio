@@ -10,6 +10,7 @@ from tests.conftests import (
     media_store,  # noqa: F401
     message_queue,  # noqa: F401
 )
+from wet_toast_talk_radio.message_queue import MessageQueue
 from wet_toast_talk_radio.scriptwriter import Scriptwriter
 from wet_toast_talk_radio.scriptwriter.adverts import Advert
 from wet_toast_talk_radio.scriptwriter.config import LLMConfig, ScriptwriterConfig
@@ -38,8 +39,7 @@ class TestScriptwriter:
         scriptwriter.run()
         n_shows = len(program)
         assert len(media_store.list_script_shows()) == n_shows
-        for _ in range(n_shows):
-            _poll_and_delete(message_queue)
+        assert_n_messages(mq=message_queue, n_messages=n_shows)
 
     @pytest.mark.integration()
     def test_scriptwriter_failure(  # noqa: PLR0913
@@ -67,6 +67,44 @@ class TestScriptwriter:
         assert len(media_store.list_script_shows()) == 0
         assert message_queue.poll_script_show() is None
 
+    @pytest.mark.integration()
+    def test_scriptwriter_daily_purge(  # noqa: PLR0913
+        self,
+        mocker,
+        _clear_bucket,  # noqa: PT019, F811
+        _clear_sqs,  # noqa: PT019, F811
+        media_store,  # noqa: F811
+        message_queue,  # noqa: F811
+        llm_config,
+        program,
+    ):
+        cfg = ScriptwriterConfig(llm=llm_config)
+        scriptwriter = Scriptwriter(
+            cfg=cfg,
+            media_store=media_store,
+            message_queue=message_queue,
+            program=program,
+        )
+        # day 1
+        scriptwriter.run()
+        n_shows = len(program)
+        assert len(media_store.list_script_shows()) == n_shows
+
+        # day 2
+        mocker.patch(
+            "wet_toast_talk_radio.scriptwriter.scriptwriter.get_offset_iso_utc_date",
+            return_value="2012-12-21",
+        )
+        scriptwriter2 = Scriptwriter(
+            cfg=cfg,
+            media_store=media_store,
+            message_queue=message_queue,
+            program=program,
+        )
+        scriptwriter2.run()
+        assert len(media_store.list_script_shows()) == 2 * n_shows
+        assert_n_messages(mq=message_queue, n_messages=n_shows)
+
 
 @pytest.fixture()
 def llm_config(program) -> LLMConfig:
@@ -85,8 +123,20 @@ def program():
     return Advert, Advert, Advert
 
 
-def _poll_and_delete(message_queue):  # noqa: F811
-    result = message_queue.poll_script_show()
+def assert_n_messages(mq: MessageQueue, n_messages: int):
+    for _ in range(n_messages):
+        _poll_and_delete(mq)
+    _assert_mq_is_empty(mq)
+
+
+def _poll_and_delete(mq: MessageQueue):
+    result = mq.poll_script_show()
     assert result is not None
-    message_queue.delete_script_show(result.receipt_handle)
+    mq.delete_script_show(result.receipt_handle)
+    sleep(0.1)
+
+
+def _assert_mq_is_empty(mq: MessageQueue):
+    result = mq.poll_script_show()
+    assert result is None
     sleep(0.1)

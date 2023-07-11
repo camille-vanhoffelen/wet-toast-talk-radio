@@ -1,8 +1,4 @@
-from datetime import timedelta
-from typing import Optional
-
 import structlog
-from pydantic import BaseModel
 
 from wet_toast_talk_radio.common.log_ctx import task_log_ctx
 from wet_toast_talk_radio.media_store.common.date import (
@@ -15,23 +11,14 @@ from wet_toast_talk_radio.radio_operator.radio_operator import RadioOperator
 logger = structlog.get_logger()
 
 
-class PlaylistConfig(BaseModel):
-    total_purge_time: int = 60 * 10  # 10 minutes
-    purge_wait_time: int = 1  # 1 second
-
-
 @task_log_ctx("playlist")
 class Playlist:
     def __init__(
         self,
-        cfg: Optional[PlaylistConfig],
         media_store: MediaStore,
         message_queue: MessageQueue,
         radio_operator: RadioOperator,
     ) -> None:
-        if cfg is None:
-            cfg = PlaylistConfig()
-        self._cfg = cfg
         self._media_store = media_store
         self._message_queue = message_queue
         self._radio_operator = radio_operator
@@ -41,11 +28,7 @@ class Playlist:
         if len(shows) == 0:
             raise Exception("No shows found")
 
-        logger.info("Purging message queue")
-        self._message_queue.purge_stream_shows(
-            timedelta(seconds=self._cfg.total_purge_time),
-            timedelta(seconds=self._cfg.purge_wait_time),
-        )
+        self._message_queue.purge_stream_shows()
 
         logger.info("Adding shows to message queue", shows=shows)
         self._message_queue.add_stream_shows(shows)
