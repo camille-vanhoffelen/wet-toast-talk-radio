@@ -70,12 +70,12 @@ export class ShoutClient extends Construct {
             WT_DISC_JOCKEY__SHOUT_CLIENT__AUTODJ_KEY: props.voscastServer.autoDjKey(),
         };
 
-        // t3.small : 2 vCPU, 2 GiB
+        // t3.micro: 2 vCPU, 1 GiB
         ecsTaskDefinition.addContainer('Container', {
             image: props.image,
             containerName: 'shout-client',
             command: ['disc-jockey', 'stream'],
-            memoryLimitMiB: 1900, // 2 GB
+            memoryLimitMiB: 950, // 2 GB
             cpu: 2048, // 2 vCPUs
             logging: ecs.LogDriver.awsLogs({ logGroup: props.logGroup, streamPrefix: Aws.STACK_NAME }),
             environment,
