@@ -3,9 +3,8 @@ import uuid
 from pathlib import Path
 
 import torchaudio
-
-from api import MODELS_DIR, TextToSpeech
-from utils.audio import load_voices
+from tortoise.api import MODELS_DIR, TextToSpeech
+from tortoise.utils.audio import load_voices
 
 SAMPLE_RATE = 24000
 
