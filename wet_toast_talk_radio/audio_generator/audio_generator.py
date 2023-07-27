@@ -7,18 +7,14 @@ from typing import Callable
 import nltk
 import numpy as np
 import structlog
-from bark import SAMPLE_RATE, generate_audio, preload_models
 from scipy.io.wavfile import write as write_wav
+from tortoise.api import MODELS_DIR, TextToSpeech
+from tortoise.utils.audio import load_voices
 
 from wet_toast_talk_radio.audio_generator.config import (
     AudioGeneratorConfig,
     validate_config,
 )
-from wet_toast_talk_radio.audio_generator.model_cache import (
-    cache_is_present,
-    download_model_cache,
-)
-from wet_toast_talk_radio.audio_generator.speakers import get_speaker_prompt
 from wet_toast_talk_radio.common.dialogue import Line, read_lines
 from wet_toast_talk_radio.common.log_ctx import task_log_ctx
 from wet_toast_talk_radio.common.path import delete_folder
@@ -27,6 +23,7 @@ from wet_toast_talk_radio.message_queue.message_queue import MessageQueue
 
 logger = structlog.get_logger()
 
+SAMPLE_RATE = 24000
 SILENCE = np.zeros(int(0.25 * SAMPLE_RATE))  # quarter second of silence
 
 
@@ -43,6 +40,7 @@ class AudioGenerator:
     ) -> None:
         validate_config(cfg)
         logger.info("Initializing audio_generator")
+        self.seed = 1337
         self._cfg = cfg
         self._media_store = media_store
         self._message_queue = message_queue
@@ -50,6 +48,10 @@ class AudioGenerator:
         self._tmp_dir = tmp_dir
         self._script_shows_dir = self._tmp_dir / "script"
         self._script_shows_dir.mkdir(parents=True, exist_ok=True)
+
+        self.tts = TextToSpeech(
+            models_dir=MODELS_DIR, use_deepspeed=False, kv_cache=True, half=True
+        )
 
         self._init_models()
 
@@ -142,6 +144,9 @@ class AudioGenerator:
         num_sentences = len(sentences)
         logger.debug(f"Tokenized {len(sentences)} sentences", count=num_sentences)
 
+        voice_sel = ["random"]
+        voice_samples, conditioning_latents = load_voices(voice_sel)
+
         pieces = []
         for i, sentence in enumerate(sentences):
             logger.info(
@@ -149,9 +154,17 @@ class AudioGenerator:
                 sentence=sentence,
                 progress=f"{i + 1}/{num_sentences}",
             )
-            audio_array = generate_audio(
-                sentence, history_prompt=get_speaker_prompt(line.speaker), silent=True
+            gen, dbg_state = self.tts.tts_with_preset(
+                text=sentence,
+                k=1,
+                voice_samples=voice_samples,
+                preset="ultra_fast",
+                use_deterministic_seed=self.seed,
+                return_deterministic_state=True,
+                cvvp_amount=0.0,
+                verbose=False,
             )
+            audio_array = gen.squeeze().cpu()
             pieces += [audio_array, SILENCE.copy()]
             if sentence_callbacks:
                 [c() for c in sentence_callbacks]
@@ -185,20 +198,3 @@ class AudioGenerator:
         """Download NLTK model from internet,
         download huggingface hub models from S3 if no local cache"""
         nltk.download("punkt")
-        if self._cfg.use_s3_model_cache:
-            if not cache_is_present():
-                try:
-                    download_model_cache()
-                except Exception as e:
-                    logger.error("Failed to download model cache, continuing", error=e)
-            else:
-                logger.info("Found local HF hub model cache")
-            assert cache_is_present(), "Cache must be complete"
-        logger.info(
-            "Preloading bark models", use_small_models=self._cfg.use_small_models
-        )
-        preload_models(
-            text_use_small=self._cfg.use_small_models,
-            coarse_use_small=self._cfg.use_small_models,
-            fine_use_small=self._cfg.use_small_models,
-        )

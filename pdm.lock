@@ -153,18 +153,6 @@ requires_python = ">=3.7"
 summary = "A new flavour of deep learning operations"
 
 [[package]]
-name = "encodec"
-version = "0.1.1"
-requires_python = ">=3.8.0"
-summary = "High fidelity neural audio codec"
-dependencies = [
-    "einops",
-    "numpy",
-    "torch",
-    "torchaudio",
-]
-
-[[package]]
 name = "exceptiongroup"
 version = "1.1.1"
 requires_python = ">=3.7"
@@ -187,11 +175,6 @@ name = "fsspec"
 version = "2023.5.0"
 requires_python = ">=3.8"
 summary = "File-system specification"
-
-[[package]]
-name = "funcy"
-version = "2.0"
-summary = "A fancy and practical functional tools"
 
 [[package]]
 name = "gptcache"
@@ -649,26 +632,6 @@ requires_python = ">=3.7"
 summary = "Structured Logging for Python"
 
 [[package]]
-name = "suno-bark"
-version = "0.0.1a"
-requires_python = ">=3.8"
-git = "https://github.com/suno-ai/bark.git"
-revision = "56b0ba13f7c281cbffa07ea9abf7b30273a60b6a"
-summary = "Bark text to audio model"
-dependencies = [
-    "boto3",
-    "encodec",
-    "funcy",
-    "huggingface-hub>=0.14.1",
-    "numpy",
-    "scipy",
-    "tokenizers",
-    "torch",
-    "tqdm",
-    "transformers",
-]
-
-[[package]]
 name = "sympy"
 version = "1.12"
 requires_python = ">=3.8"
@@ -808,7 +771,7 @@ dependencies = [
 lock_version = "4.2"
 cross_platform = true
 groups = ["default", "dev", "ide", "lint", "test"]
-content_hash = "sha256:ba93d3bc4d4ac0b241b5287b7d6453a6ac378491d05c763bca2f857988f94550"
+content_hash = "sha256:f3765ba3b15def4fa56f65db7ada301430efccfe5ac3ecd95655bb1252d35b23"
 
 [metadata.files]
 "aiohttp 3.8.4" = [
@@ -1146,9 +1109,6 @@ content_hash = "sha256:ba93d3bc4d4ac0b241b5287b7d6453a6ac378491d05c763bca2f85798
     {url = "https://files.pythonhosted.org/packages/68/24/b05452c986e8eff11f47e123a40798ae693f2fa1ed2f9546094997d2f6be/einops-0.6.1-py3-none-any.whl", hash = "sha256:99149e46cc808956b174932fe563d920db4d6e5dadb8c6ecdaa7483b7ef7cfc3"},
     {url = "https://files.pythonhosted.org/packages/ac/09/9d5fb513bda4845044802b389e0e1ecddb47b01a7934d33d3b406adf5073/einops-0.6.1.tar.gz", hash = "sha256:f95f8d00f4ded90dbc4b19b6f98b177332614b0357dde66997f3ae5d474dc8c8"},
 ]
-"encodec 0.1.1" = [
-    {url = "https://files.pythonhosted.org/packages/62/59/e47bbd0542d0e6f4ce9983d5eb458a01d4b42c81e5c410cb9e159b1061ae/encodec-0.1.1.tar.gz", hash = "sha256:36dde98ccfe6c51a15576476cadfcb3b35a63507b8b8555abd69889a6fba6772"},
-]
 "exceptiongroup 1.1.1" = [
     {url = "https://files.pythonhosted.org/packages/61/97/17ed81b7a8d24d8f69b62c0db37abbd8c0042d4b3fc429c73dab986e7483/exceptiongroup-1.1.1-py3-none-any.whl", hash = "sha256:232c37c63e4f682982c8b6459f33a8981039e5fb8756b2074364e5055c498c9e"},
     {url = "https://files.pythonhosted.org/packages/cc/38/57f14ddc8e8baeddd8993a36fe57ce7b4ba174c35048b9a6d270bb01e833/exceptiongroup-1.1.1.tar.gz", hash = "sha256:d484c3090ba2889ae2928419117447a14daf3c1231d5e30d0aae34f354f01785"},
@@ -1236,10 +1196,6 @@ content_hash = "sha256:ba93d3bc4d4ac0b241b5287b7d6453a6ac378491d05c763bca2f85798
 "fsspec 2023.5.0" = [
     {url = "https://files.pythonhosted.org/packages/4e/5f/faee1c6261997e5b0782f48db9d01dc8ce7aa817d2016dd5cd64c60b1d86/fsspec-2023.5.0.tar.gz", hash = "sha256:b3b56e00fb93ea321bc9e5d9cf6f8522a0198b20eb24e02774d329e9c6fb84ce"},
     {url = "https://files.pythonhosted.org/packages/ec/4e/397b234a369df06ec782666fcdf9791d125ca6de48729814b381af8c6c03/fsspec-2023.5.0-py3-none-any.whl", hash = "sha256:51a4ad01a5bb66fcc58036e288c0d53d3975a0df2a5dc59a93b59bade0391f2a"},
-]
-"funcy 2.0" = [
-    {url = "https://files.pythonhosted.org/packages/70/b8/c6081521ff70afdff55cd9512b2220bbf4fa88804dae51d1b57b4b58ef32/funcy-2.0.tar.gz", hash = "sha256:3963315d59d41c6f30c04bc910e10ab50a3ac4a225868bfa96feed133df075cb"},
-    {url = "https://files.pythonhosted.org/packages/d5/08/c2409cb01d5368dcfedcbaffa7d044cc8957d57a9d0855244a5eb4709d30/funcy-2.0-py2.py3-none-any.whl", hash = "sha256:53df23c8bb1651b12f095df764bfb057935d49537a56de211b098f4c79614bb0"},
 ]
 "gptcache 0.1.32" = [
     {url = "https://files.pythonhosted.org/packages/0d/03/553efe3225e637eed999f7b21e7a42f3aee2a75477329f8cd5af8f43f7a4/gptcache-0.1.32-py3-none-any.whl", hash = "sha256:e85eb40ac54ebd8c0db1d67ba962b505d87321f287446083cfd80c4f205d2d10"},
