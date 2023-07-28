@@ -359,18 +359,6 @@ requires_python = ">=3.8"
 summary = "Python package for creating and manipulating graphs and networks"
 
 [[package]]
-name = "nltk"
-version = "3.8.1"
-requires_python = ">=3.7"
-summary = "Natural Language Toolkit"
-dependencies = [
-    "click",
-    "joblib",
-    "regex>=2021.8.3",
-    "tqdm",
-]
-
-[[package]]
 name = "numba"
 version = "0.57.1"
 requires_python = ">=3.8"
@@ -771,7 +759,7 @@ dependencies = [
 lock_version = "4.2"
 cross_platform = true
 groups = ["default", "dev", "ide", "lint", "test"]
-content_hash = "sha256:f3765ba3b15def4fa56f65db7ada301430efccfe5ac3ecd95655bb1252d35b23"
+content_hash = "sha256:6c64ca151233d6600d02fa36bd381ea5b0166729cd5e35f525dc47ac6c26ff71"
 
 [metadata.files]
 "aiohttp 3.8.4" = [
@@ -1483,10 +1471,6 @@ content_hash = "sha256:f3765ba3b15def4fa56f65db7ada301430efccfe5ac3ecd95655bb125
 "networkx 3.1" = [
     {url = "https://files.pythonhosted.org/packages/a8/05/9d4f9b78ead6b2661d6e8ea772e111fc4a9fbd866ad0c81906c11206b55e/networkx-3.1-py3-none-any.whl", hash = "sha256:4f33f68cb2afcf86f28a45f43efc27a9386b535d567d2127f8f61d51dec58d36"},
     {url = "https://files.pythonhosted.org/packages/fd/a1/47b974da1a73f063c158a1f4cc33ed0abf7c04f98a19050e80c533c31f0c/networkx-3.1.tar.gz", hash = "sha256:de346335408f84de0eada6ff9fafafff9bcda11f0a0dfaa931133debb146ab61"},
-]
-"nltk 3.8.1" = [
-    {url = "https://files.pythonhosted.org/packages/57/49/51af17a2b0d850578d0022408802aa452644d40281a6c6e82f7cb0235ddb/nltk-3.8.1.zip", hash = "sha256:1834da3d0682cba4f2cede2f9aad6b0fafb6461ba451db0efb6f9c39798d64d3"},
-    {url = "https://files.pythonhosted.org/packages/a6/0a/0d20d2c0f16be91b9fa32a77b76c60f9baf6eba419e5ef5deca17af9c582/nltk-3.8.1-py3-none-any.whl", hash = "sha256:fd5c9109f976fa86bcadba8f91e47f5e9293bd034474752e92a520f81c93dda5"},
 ]
 "numba 0.57.1" = [
     {url = "https://files.pythonhosted.org/packages/23/21/644a5fb3f74ee8e63e59a8acc78f08ec281f5e11d07551209b02614aa6a2/numba-0.57.1-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:9a1b2b69448e510d672ff9a6b18d2db9355241d93c6a77677baa14bec67dc2a0"},

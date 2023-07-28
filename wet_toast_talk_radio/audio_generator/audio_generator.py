@@ -4,12 +4,12 @@ from io import BytesIO
 from pathlib import Path
 from typing import Callable
 
-import nltk
 import numpy as np
 import structlog
 from scipy.io.wavfile import write as write_wav
 from tortoise.api import MODELS_DIR, TextToSpeech
 from tortoise.utils.audio import load_voices
+from tortoise.utils.text import split_and_recombine_text
 
 from wet_toast_talk_radio.audio_generator.config import (
     AudioGeneratorConfig,
@@ -52,8 +52,6 @@ class AudioGenerator:
         self.tts = TextToSpeech(
             models_dir=MODELS_DIR, use_deepspeed=False, kv_cache=True, half=True
         )
-
-        self._init_models()
 
     def run(
         self,
@@ -140,22 +138,21 @@ class AudioGenerator:
     def _line_to_audio(
         self, line: Line, sentence_callbacks: list[Callable] | None
     ) -> np.ndarray:
-        sentences = nltk.sent_tokenize(line.content)
-        num_sentences = len(sentences)
-        logger.debug(f"Tokenized {len(sentences)} sentences", count=num_sentences)
+        chunks = split_and_recombine_text(line.content)
+        logger.debug("Split line into chunks", n_chunks=len(chunks))
 
         voice_sel = ["random"]
         voice_samples, conditioning_latents = load_voices(voice_sel)
 
         pieces = []
-        for i, sentence in enumerate(sentences):
+        for i, chunk in enumerate(chunks):
             logger.info(
-                "Generating audio for sentence",
-                sentence=sentence,
-                progress=f"{i + 1}/{num_sentences}",
+                "Generating audio for chunk",
+                chunk=chunk,
+                progress=f"{i + 1}/{len(chunks)}",
             )
             gen, dbg_state = self.tts.tts_with_preset(
-                text=sentence,
+                text=chunk,
                 k=1,
                 voice_samples=voice_samples,
                 preset="ultra_fast",
@@ -169,7 +166,7 @@ class AudioGenerator:
             if sentence_callbacks:
                 [c() for c in sentence_callbacks]
 
-        logger.debug("Concatenating sentence audio pieces")
+        logger.debug("Concatenating chunk audio pieces")
         audio_array = np.concatenate(pieces)
         return audio_array
 
@@ -193,8 +190,3 @@ class AudioGenerator:
         abs_max = 2 ** (i.bits - 1)
         offset = i.min + abs_max
         return (sig * abs_max + offset).clip(i.min, i.max).astype(dtype)
-
-    def _init_models(self):
-        """Download NLTK model from internet,
-        download huggingface hub models from S3 if no local cache"""
-        nltk.download("punkt")
