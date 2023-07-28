@@ -1,4 +1,5 @@
 import pytest
+from tortoise.utils.text import split_and_recombine_text
 
 from tests.conftests import (
     _clear_bucket,  # noqa: F401
@@ -65,6 +66,8 @@ class TestAudioGenerator:
         show666 = ShowId(666, today)
         n_sentences = 3
         content = "Hi there. " * n_sentences
+        chunks = split_and_recombine_text(content)
+
         line = Line(speaker=Speaker(name="John", gender="male"), content=content)
         media_store.put_script_show(show666, [line])
         message_queue.add_script_shows([show666])
@@ -76,7 +79,7 @@ class TestAudioGenerator:
         audio_generator.run()
 
         assert show666 in media_store.list_raw_shows()
-        assert heartbeat_spy.call_count == n_sentences
+        assert heartbeat_spy.call_count == len(chunks)
 
 
 def _init_bucket(store: MediaStore) -> list[ShowId]:

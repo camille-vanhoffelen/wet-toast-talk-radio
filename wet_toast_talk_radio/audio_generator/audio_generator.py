@@ -53,7 +53,6 @@ class AudioGenerator:
             models_dir=MODELS_DIR, use_deepspeed=False, kv_cache=True, half=True
         )
 
-
     def run(
         self,
     ) -> None:
