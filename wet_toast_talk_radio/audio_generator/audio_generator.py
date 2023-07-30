@@ -8,13 +8,13 @@ import numpy as np
 import structlog
 from scipy.io.wavfile import write as write_wav
 from tortoise.api import MODELS_DIR, TextToSpeech
-from tortoise.utils.audio import load_voices
 from tortoise.utils.text import split_and_recombine_text
 
 from wet_toast_talk_radio.audio_generator.config import (
     AudioGeneratorConfig,
     validate_config,
 )
+from wet_toast_talk_radio.audio_generator.speakers import get_conditioning_latents
 from wet_toast_talk_radio.common.dialogue import Line, read_lines
 from wet_toast_talk_radio.common.log_ctx import task_log_ctx
 from wet_toast_talk_radio.common.path import delete_folder
@@ -50,7 +50,11 @@ class AudioGenerator:
         self._script_shows_dir.mkdir(parents=True, exist_ok=True)
 
         self.tts = TextToSpeech(
-            models_dir=MODELS_DIR, use_deepspeed=False, kv_cache=True, half=True
+            models_dir=MODELS_DIR,
+            use_deepspeed=False,
+            kv_cache=True,
+            half=True,
+            enable_redaction=False,
         )
 
     def run(
@@ -141,8 +145,7 @@ class AudioGenerator:
         chunks = split_and_recombine_text(line.content)
         logger.debug("Split line into chunks", n_chunks=len(chunks))
 
-        voice_sel = ["random"]
-        voice_samples, conditioning_latents = load_voices(voice_sel)
+        conditioning_latents = get_conditioning_latents(speaker=line.speaker)
 
         pieces = []
         for i, chunk in enumerate(chunks):
@@ -151,13 +154,13 @@ class AudioGenerator:
                 chunk=chunk,
                 progress=f"{i + 1}/{len(chunks)}",
             )
-            gen, dbg_state = self.tts.tts_with_preset(
+            gen = self.tts.tts_with_preset(
                 text=chunk,
                 k=1,
-                voice_samples=voice_samples,
+                conditioning_latents=conditioning_latents,
                 preset="ultra_fast",
                 use_deterministic_seed=self.seed,
-                return_deterministic_state=True,
+                return_deterministic_state=False,
                 cvvp_amount=0.0,
                 verbose=False,
             )
