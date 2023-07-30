@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.18](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.17...v0.1.18) (2023-07-30)
+
+
+### Features
+
+* bark to tortoise ([#66](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/66)) ([a5beeec](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/a5beeec6a0522d88c940c7cb1dcfcfda387e1fb5))
+* Tortoise conditioning latents ([#69](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/69)) ([867bb8c](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/867bb8c2b2760b7cf74e817fff6961e9b4239a69))
+* Tortoise sentence batching ([#68](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/68)) ([7c84923](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/7c84923e71201b0bc79a52099918c47585914eb4))
+
 ## [0.1.17](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.16...v0.1.17) (2023-07-11)
 
 
