@@ -20,6 +20,7 @@ dependencies = [
     "torchaudio>=2.0.2",
     "guidance>=0.0.64",
     "TorToiSe @ git+https://github.com/camille-vanhoffelen/tortoise-tts.git",
+    "voicefixer @ git+https://github.com/camille-vanhoffelen/voicefixer.git",
 ]
 requires-python = ">=3.10"
 readme = "README.md"
