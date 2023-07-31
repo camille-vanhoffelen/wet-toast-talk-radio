@@ -62,7 +62,7 @@ export class CfnParameters {
 
         this.shoutClientInstanceType = new CfnParameter(scope, 'ShoutClientInstanceType', {
             type: 'String',
-            default: 't3.small',
+            default: 't3.micro',
             description: 'The instance type for the shout-client task',
         });
         this.shoutClientInstanceType.overrideLogicalId('ShoutClientInstanceType');
