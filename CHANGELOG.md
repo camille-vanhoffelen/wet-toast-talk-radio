@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.1.19](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.18...v0.1.19) (2023-07-31)
+
+
+### Features
+
+* added voicefixer ([#70](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/70)) ([7753b9a](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/7753b9a93dd332501ae3eefdc9ef534abe42d5d6))
+* made shout client use t3.micro ([#65](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/65)) ([5063d0d](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/5063d0db8fd47684b7dcad87c616bc22c9340d98))
+
+
+### Bug Fixes
+
+* fix memory limit ([5d869a7](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/5d869a79ec6c8e43469c7dab5fc3b7dc2db1df23))
+* fix message queue env ([d494941](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/d49494183544d672035d66fdbcb4d93384698716))
+
 ## [0.1.18](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.17...v0.1.18) (2023-07-30)
 
 
