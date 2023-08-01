@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.21](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.20...v0.1.21) (2023-08-01)
+
+
+### Bug Fixes
+
+* names and topics loading ([452681a](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/452681a198e0442a7823caf9d13fb3af60884e3b))
+
 ## [0.1.20](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.19...v0.1.20) (2023-08-01)
 
 
