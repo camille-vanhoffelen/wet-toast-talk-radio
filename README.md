@@ -1,4 +1,4 @@
-![Wet Toast Talk Radio logo](resources/wttr-logo-thin.png)
+![Wet Toast Talk Radio logo](resources/wet-toast-pool-low-res.jpg)
 
 # :bread: Wet Toast Talk Radio
 
