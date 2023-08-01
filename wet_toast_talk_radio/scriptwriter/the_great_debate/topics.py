@@ -185,9 +185,12 @@ def flatten(things: list) -> list:
 
 
 TOPICS_PATH = Path(__file__).parent / "resources" / "topics.json"
+TOPICS_CACHE = None
 
 
 def load_topics() -> list[str]:
-    with TOPICS_PATH.open() as f:
-        topics = json.load(f)
-    return topics
+    global TOPICS_CACHE  # noqa: PLW0603
+    if TOPICS_CACHE is not None:
+        with TOPICS_PATH.open() as f:
+            TOPICS_CACHE = json.load(f)
+    return TOPICS_CACHE

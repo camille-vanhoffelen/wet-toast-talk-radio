@@ -54,7 +54,6 @@ def init_voices(speakers: set[Speaker]) -> dict[str, tuple[torch.Tensor, torch.T
         voices[speaker.name] = load_conditioning_latent(
             VOICES_DIR / (voice_id + VOICE_EXT)
         )
-    # TODO also do pick without replacement for names ACROSS genders
 
     return voices
 

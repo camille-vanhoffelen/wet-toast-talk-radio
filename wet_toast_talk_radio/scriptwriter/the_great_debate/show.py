@@ -141,6 +141,16 @@ class Guest:
         )
 
 
+def random_guests():
+    """Return two random guests with opposite opinions.
+    Ensures unique guest names, to prevent confusion."""
+    guest_in_favor = Guest.random(polarity=Polarity.IN_FAVOR)
+    guest_against = Guest.random(polarity=Polarity.AGAINST)
+    while guest_against.name == guest_in_favor.name:
+        guest_against = Guest.random(polarity=Polarity.AGAINST)
+    return guest_in_favor, guest_against
+
+
 class TheGreatDebate(RadioShow):
     """Radio show where two call-in guests debate a topic, moderated by the host."""
 
@@ -148,28 +158,29 @@ class TheGreatDebate(RadioShow):
         self,
         llm: LLM,
         media_store: MediaStore,
-        guest_in_favor: Guest | None = None,
-        guest_against: Guest | None = None,
-        topic: str | None = None,
+        guest_in_favor: Guest,
+        guest_against: Guest,
+        topic: str,
     ):
         self._llm = llm
         self._media_store = media_store
-        self._topics = load_topics()
-        self.topic = topic if topic else random.choice(self._topics).lower()
-        self.guest_in_favor = (
-            guest_in_favor
-            if guest_in_favor
-            else Guest.random(polarity=Polarity.IN_FAVOR)
-        )
-        self.guest_against = (
-            guest_against if guest_against else Guest.random(polarity=Polarity.AGAINST)
-        )
+        self.guest_in_favor = guest_in_favor
+        self.guest_against = guest_against
+        self.topic = topic
         self.n_speakers = 3
         self.max_bad_lines_ratio = 0.1
 
     @classmethod
     def create(cls, llm: LLM, media_store: MediaStore) -> "TheGreatDebate":
-        return cls(llm=llm, media_store=media_store)
+        guest_in_favor, guest_against = random_guests()
+        topic = random.choice(load_topics()).lower()
+        return cls(
+            llm=llm,
+            media_store=media_store,
+            guest_in_favor=guest_in_favor,
+            guest_against=guest_against,
+            topic=topic,
+        )
 
     @show_id_log_ctx()
     async def awrite(self, show_id: ShowId) -> bool:
