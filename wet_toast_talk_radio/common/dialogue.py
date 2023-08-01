@@ -8,6 +8,7 @@ class Speaker(BaseModel):
 
     name: str
     gender: str
+    host: bool
 
 
 class Line(BaseModel):

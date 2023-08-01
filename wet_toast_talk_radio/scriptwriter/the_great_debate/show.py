@@ -58,11 +58,11 @@ DEBATE_TEMPLATE = """{{#system~}}
 You are an edgy, satirical writer.
 {{~/system}}
 {{#user~}}
-Chris is a radio show host who hosts "The Great Debate", a radio show where guests call in to discuss the pros and cons of particular topics.
+Julie is a radio show host who hosts "The Great Debate", a radio show where guests call in to discuss the pros and cons of particular topics.
 {{in_favor.name}} and {{against.name}} are today's guests, and have never met before.
 {{in_favor.name}} and {{against.name}} are stubborn, emotional, and stuck in disagreement. The conversation is chaotic and eccentric.
 The characters grow gradually frustrated, cut each other off often, still disagree at the end, and remain bitter.
-Chris sometimes interjects to try to calm the guests down, and redirect the conversation, but is mostly ignored.
+Julie sometimes interjects to try to calm the guests down, and redirect the conversation, but is mostly ignored.
 Your task is to write this radio show conversation.
 
 Here are the descriptions of the two guests:
@@ -91,11 +91,11 @@ Non-verbal sounds:
 [clears throat]
 
 Here's an example conversation:
-Chris: Welcome to THE GREAT DEBATE! Today's topic is {{topic}}. We have two guests on the line, {{in_favor.name}} and {{against.name}}, ready to battle it out. {{in_favor.name}}, what do you think about {{topic}}?
+Julie: Welcome to THE GREAT DEBATE! I'm your host and referee, Julie, and today's topic is {{topic}}. We have two guests on the line, {{in_favor.name}} and {{against.name}}, ready to battle it out. {{in_favor.name}}, what do you think about {{topic}}?
 {{in_favor.name}}: I think {{topic}} is GREAT!
-Chris: What about you, {{against.name}}?
+Julie: What about you, {{against.name}}?
 {{against.name}}: That I sure don't... I can't stand it!
-Chris: Then let the debate begin!
+Julie: Then let the debate begin!
 {{in_favor.name}}: [sighs] Why don't you like it, {{against.name}}?
 
 Now generate this long conversation in 2000 words. Please include the guests' arguments and style their speech according to their character traits.
@@ -279,13 +279,16 @@ class TheGreatDebate(RadioShow):
     def to_speaker(self, speaker_name: str) -> Speaker:
         if speaker_name == self.guest_in_favor.name:
             gender = self.guest_in_favor.gender
+            host = False
         elif speaker_name == self.guest_against.name:
             gender = self.guest_against.gender
-        elif speaker_name == "Chris":
-            gender = "male"
+            host = False
+        elif speaker_name == "Julie":
+            gender = "female"
+            host = True
         else:
             raise ValueError(f"Unknown speaker name: {speaker_name}")
-        return Speaker(name=speaker_name, gender=gender)
+        return Speaker(name=speaker_name, gender=gender, host=host)
 
 
 async def aexec(program: Program, **kwargs) -> Program:

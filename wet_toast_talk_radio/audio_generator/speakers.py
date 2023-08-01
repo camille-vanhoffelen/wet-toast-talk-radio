@@ -1,3 +1,4 @@
+import json
 import random
 from pathlib import Path
 
@@ -8,37 +9,45 @@ from wet_toast_talk_radio.common.dialogue import Speaker
 
 logger = structlog.get_logger()
 
-HOST = "alex-brodie.pth"
-GUESTS = {
-    "male": ["ian-lampert.pth", "sean-lenhart.pth"],
-    "female": ["karen-cenon.pth", "meghan-christian.pth"],
-}
-
 VOICES_DIR = Path(__file__).parent / "resources" / "voices"
+VOICES_METADATA_PATH = Path(__file__).parent / "resources" / "voices-metadata.json"
 
 
-def init_voice_cache():
-    """Load all host voices into memory."""
-    logger.info("Initiliazing voice cache")
-    return {"Chris": load_conditioning_latent(VOICES_DIR / HOST)}
+def read_voices_metadata() -> dict:
+    with VOICES_METADATA_PATH.open() as f:
+        return json.load(f)
 
 
-def get_conditioning_latents(
-    speaker: Speaker, voice_cache: dict[str, tuple[torch.Tensor, torch.Tensor]]
-) -> tuple[torch.Tensor, torch.Tensor]:
-    """For given speaker name and gender, return the conditioning latent to use for audio generation.
-    This determines the voice. Host names are given consistent voices, while guest names are randomly assigned voices.
-    A voice cache is used to keep consistent guest voices, and only load them once.
-    """
-    if voice_cache is None:
-        raise ValueError("Voice cache must be initialized before use")
-    if speaker.name in voice_cache:
-        return voice_cache[speaker.name]
-    else:
-        voice = random.choice(GUESTS[speaker.gender])
-        conditioning_latents = load_conditioning_latent(VOICES_DIR / voice)
-        voice_cache[speaker.name] = conditioning_latents
-        return conditioning_latents
+VOICES_METADATA = read_voices_metadata()
+HOSTS = VOICES_METADATA["hosts"]["female"] + VOICES_METADATA["hosts"]["male"]
+
+
+def init_voices(speakers: set[Speaker]) -> dict[str, tuple[torch.Tensor, torch.Tensor]]:
+    """Initialize voice conditioning latents for each speaker in the dialogue.
+    Assumes that each speaker has a unique name."""
+    voices = {}
+
+    hosts = [speaker for speaker in speakers if speaker.host]
+    for speaker in hosts:
+        voices[speaker.name] = load_conditioning_latent(VOICES_DIR / speaker.name)
+
+    guests = [speaker for speaker in speakers if not speaker.host]
+
+    female_guests = [guest for guest in guests if guest.gender == "female"]
+    # Picking without replacement ensures that each guest gets a unique voice
+    female_voice_ids = random.sample(
+        VOICES_METADATA["guests"]["female"], len(female_guests)
+    )
+    for speaker, voice_id in zip(female_guests, female_voice_ids, strict=True):
+        voices[speaker.name] = load_conditioning_latent(VOICES_DIR / voice_id)
+
+    male_guests = [guest for guest in guests if guest.gender == "male"]
+    male_voice_ids = random.sample(VOICES_METADATA["guests"]["male"], len(male_guests))
+    for speaker, voice_id in zip(male_guests, male_voice_ids, strict=True):
+        voices[speaker.name] = load_conditioning_latent(VOICES_DIR / voice_id)
+    # TODO also do pick without replacement for names ACROSS genders
+
+    return voices
 
 
 def load_conditioning_latent(path: Path) -> tuple[torch.Tensor, torch.Tensor]:

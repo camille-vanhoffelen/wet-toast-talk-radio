@@ -68,7 +68,7 @@ class TestAudioGenerator:
         content = "Hi there. " * n_sentences
         chunks = split_and_recombine_text(content)
 
-        line = Line(speaker=Speaker(name="John", gender="male"), content=content)
+        line = Line(speaker=Speaker(name="John", gender="male", host=False), content=content)
         media_store.put_script_show(show666, [line])
         message_queue.add_script_shows([show666])
 
@@ -87,10 +87,10 @@ def _init_bucket(store: MediaStore) -> list[ShowId]:
     show59 = ShowId(59, today)
     show60 = ShowId(60, today)
     john_line = Line(
-        speaker=Speaker(name="John", gender="male"), content="Toast is wet!"
+        speaker=Speaker(name="John", gender="male", host=False), content="Toast is wet!"
     )
     anna_line = Line(
-        speaker=Speaker(name="Anna", gender="female"), content="No, it's not."
+        speaker=Speaker(name="Anna", gender="female", host=False), content="No, it's not."
     )
     store.put_script_show(show59, [john_line])
     store.put_script_show(show60, [anna_line])

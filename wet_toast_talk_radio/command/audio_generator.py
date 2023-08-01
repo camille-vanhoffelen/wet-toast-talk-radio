@@ -63,7 +63,7 @@ def benchmark(ctx: dict, script: Path):
         if script
         else [
             Line(
-                speaker=Speaker(name="Chris", gender="male"),
+                speaker=Speaker(name="Orion", gender="male", host=True),
                 content="Hey there! I'm a dog! Woof woof!",
             )
         ]

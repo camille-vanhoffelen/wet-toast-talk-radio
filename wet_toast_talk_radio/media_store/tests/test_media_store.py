@@ -66,7 +66,7 @@ def _setup_bucket(media_store, today) -> list[str]:
     media_store.put_raw_show(ShowId(1, today), b"raw bytes")
     media_store.put_transcoded_show(ShowId(0, _FALLBACK_KEY), b"raw bytes")
     media_store.put_transcoded_show(ShowId(1, _FALLBACK_KEY), b"raw bytes")
-    line = Line(speaker=Speaker(name="John", gender="male"), content="raw bytes")
+    line = Line(speaker=Speaker(name="John", gender="male", host=False), content="raw bytes")
     media_store.put_script_show(show_id=ShowId(0, today), lines=[line])
 
 
@@ -89,7 +89,7 @@ class TestMediaStore:
         expected = 1
         assert len(media_store.list_script_shows()) == expected
         show_id = ShowId(666, today)
-        line = Line(speaker=Speaker(name="John", gender="male"), content="Toast is wet")
+        line = Line(speaker=Speaker(name="John", gender="male", host=False), content="Toast is wet")
         media_store.put_script_show(show_id, [line])
         assert len(media_store.list_script_shows()) == expected + 1
 
@@ -140,7 +140,7 @@ class TestMediaStore:
         d = tmp_path / "temp"
         d.mkdir()
         expected_line = Line(
-            speaker=Speaker(name="John", gender="male"), content="Toast is wet!"
+            speaker=Speaker(name="John", gender="male", host=False), content="Toast is wet!"
         )
         show_id = ShowId(666, today)
         media_store.put_script_show(show_id=show_id, lines=[expected_line])
@@ -204,14 +204,14 @@ class TestMediaStore:
         case.assertCountEqual(media_store.list_script_shows(), [show0])
         show666 = ShowId(666, today)
         line = Line(
-            speaker=Speaker(name="John", gender="male"), content="Toast is wet!"
+            speaker=Speaker(name="John", gender="male", host=False), content="Toast is wet!"
         )
         media_store.put_script_show(show_id=show666, lines=[line])
         case.assertCountEqual(media_store.list_script_shows(), [show0, show666])
 
         show999 = ShowId(999, tomorrow)
         line = Line(
-            speaker=Speaker(name="Anna", gender="female"), content="Toast is dry :("
+            speaker=Speaker(name="Anna", gender="female", host=False), content="Toast is dry :("
         )
         media_store.put_script_show(show999, lines=[line])
         case.assertCountEqual(
