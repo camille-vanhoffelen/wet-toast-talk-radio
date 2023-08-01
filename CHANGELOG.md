@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.25](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.24...v0.1.25) (2023-08-01)
+
+
+### Bug Fixes
+
+* Removed annotations in the great debate ([#84](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/84)) ([443df81](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/443df818c0c5a6aa7c37a979591cf24be5d3ca0c))
+
 ## [0.1.24](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.23...v0.1.24) (2023-08-01)
 
 
