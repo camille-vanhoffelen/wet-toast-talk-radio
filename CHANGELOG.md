@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.24](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.23...v0.1.24) (2023-08-01)
+
+
+### Features
+
+* new julie voice ([#82](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/82)) ([9558da4](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/9558da469a395da1cd83853514783fe58be0ac83))
+
 ## [0.1.23](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.22...v0.1.23) (2023-08-01)
 
 
