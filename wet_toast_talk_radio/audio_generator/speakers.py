@@ -40,6 +40,8 @@ def init_voices(speakers: set[Speaker]) -> dict[str, tuple[torch.Tensor, torch.T
     voices |= pick_guest_voices(guests=guests, gender="female")
     voices |= pick_guest_voices(guests=guests, gender="male")
 
+    logger.info("Initialized voices", voices=voices)
+
     return voices
 
 

@@ -12,7 +12,7 @@ NAMES_CACHE = None
 def load_names() -> dict:
     """Loads names.json file"""
     global NAMES_CACHE  # noqa: PLW0603
-    if NAMES_CACHE is not None:
+    if NAMES_CACHE is None:
         path = Path(__file__).with_name("resources") / "names-ascii.json"
         logger.info("Loading names", path=path)
         with path.open() as f:

@@ -190,7 +190,7 @@ TOPICS_CACHE = None
 
 def load_topics() -> list[str]:
     global TOPICS_CACHE  # noqa: PLW0603
-    if TOPICS_CACHE is not None:
+    if TOPICS_CACHE is None:
         with TOPICS_PATH.open() as f:
             TOPICS_CACHE = json.load(f)
     return TOPICS_CACHE
