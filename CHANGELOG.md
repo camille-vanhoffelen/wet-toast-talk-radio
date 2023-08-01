@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.20](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.19...v0.1.20) (2023-08-01)
+
+
+### Features
+
+* more guest voices ([#73](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/73)) ([fe3e9e7](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/fe3e9e743a4c25c81f3bdaa4dbf8170dcc12ab3c))
+* shorter chunk length ([#75](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/75)) ([30cbae9](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/30cbae91b8492c8deaaa3aa542587f528cb578a7))
+
 ## [0.1.19](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.18...v0.1.19) (2023-07-31)
 
 
