@@ -9,8 +9,8 @@ import structlog
 logger = structlog.get_logger()
 
 S3_MODEL_CACHE_BUCKET = "wet-toast-model-cache"
-S3_MODEL_CACHE_KEY = "model-cache-2023-06-11.tar.gz"
-LOCAL_MODEL_CACHE_FILE = ".cache.tar.gz"
+S3_MODEL_CACHE_KEY = "model-cache-2023-08-01.tar"
+LOCAL_MODEL_CACHE_FILE = ".cache.tar"
 
 
 def cache_is_present(cache_dir: str | Path | None = None) -> bool:
@@ -42,7 +42,7 @@ def download_model_cache(
     )
     logger.info("Finished downloading model cache")
     logger.info("Extracting model cache archive")
-    with tarfile.open(model_cache_archive, "r:gz") as f:
+    with tarfile.open(model_cache_archive, "r") as f:
         f.extractall(home_dir)
     logger.info("Removing model cache archive")
     model_cache_archive.unlink()
