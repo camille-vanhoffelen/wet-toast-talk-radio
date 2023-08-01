@@ -42,7 +42,7 @@ def download_model_cache(
     )
     logger.info("Finished downloading model cache")
     logger.info("Extracting model cache archive")
-    with tarfile.open(model_cache_archive, "r:gz") as f:
+    with tarfile.open(model_cache_archive, "r") as f:
         f.extractall(home_dir)
     logger.info("Removing model cache archive")
     model_cache_archive.unlink()
