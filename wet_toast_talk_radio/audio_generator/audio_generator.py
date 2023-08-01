@@ -154,7 +154,7 @@ class AudioGenerator:
         sentence_callbacks: list[Callable] | None,
         voices: dict[str, tuple[torch.Tensor, torch.Tensor]],
     ) -> np.ndarray:
-        chunks = split_and_recombine_text(line.content)
+        chunks = split_and_recombine_text(line.content, desired_length=150, max_length=250)
         logger.debug("Split line into chunks", n_chunks=len(chunks))
 
         conditioning_latents = voices[line.speaker.name]
