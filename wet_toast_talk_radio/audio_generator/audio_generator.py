@@ -7,9 +7,11 @@ from typing import Callable
 import numpy as np
 import structlog
 import torch
+from librosa import resample
 from scipy.io.wavfile import write as write_wav
 from tortoise.api import MODELS_DIR, TextToSpeech
 from tortoise.utils.text import split_and_recombine_text
+from voicefixer import VoiceFixer
 
 from wet_toast_talk_radio.audio_generator.config import (
     AudioGeneratorConfig,
@@ -30,6 +32,7 @@ logger = structlog.get_logger()
 
 SAMPLE_RATE = 24000
 SILENCE = np.zeros(int(0.25 * SAMPLE_RATE))  # quarter second of silence
+OUTPUT_SAMPLE_RATE = 44100
 
 
 @task_log_ctx("audio_generator")
@@ -63,6 +66,7 @@ class AudioGenerator:
             half=True,
             enable_redaction=False,
         )
+        self.vf = VoiceFixer()
 
     def run(
         self,
@@ -129,21 +133,19 @@ class AudioGenerator:
 
         logger.debug("Concatenating line audio pieces")
         audio_array = np.concatenate(pieces)
-
-        # np.int32 is needed in order for the wav file to end up begin 32bit width
-        # https://docs.scipy.org/doc/scipy/reference/generated/scipy.io.wavfile.write.html#scipy-io-wavfile-write
-        audio_array = self._to_pcm(audio_array)
+        audio_array = self._postprocess(audio_array)
+        print(audio_array.size)
 
         buffer = BytesIO()
         write_wav(
             filename=buffer,
-            rate=SAMPLE_RATE,
+            rate=OUTPUT_SAMPLE_RATE,
             data=audio_array,
         )
 
         end = time.perf_counter()
         run_time_in_s = end - start
-        duration_in_s = len(audio_array) / SAMPLE_RATE
+        duration_in_s = len(audio_array) / OUTPUT_SAMPLE_RATE
         speed_ratio = run_time_in_s / duration_in_s
         logger.info(
             "Benchmark results",
@@ -191,6 +193,20 @@ class AudioGenerator:
 
         logger.debug("Concatenating chunk audio pieces")
         audio_array = np.concatenate(pieces)
+        return audio_array
+
+    def _postprocess(self, audio_array: np.ndarray) -> np.ndarray:
+        """Resample, fix voice, and convert to PCM"""
+        logger.info("Postprocessing audio")
+        audio_array = resample(
+            y=audio_array, orig_sr=SAMPLE_RATE, target_sr=OUTPUT_SAMPLE_RATE
+        )
+        is_cuda = self.tts.device == "cuda"
+        audio_array = self.vf.restore_inmem(wav_10k=audio_array, cuda=is_cuda, mode=0)
+        audio_array = audio_array.squeeze()
+        # np.int32 is needed in order for the wav file to end up begin 32bit width
+        # https://docs.scipy.org/doc/scipy/reference/generated/scipy.io.wavfile.write.html#scipy-io-wavfile-write
+        audio_array = self._to_pcm(audio_array)
         return audio_array
 
     def _to_pcm(self, sig, dtype: str = "int32") -> np.ndarray:
