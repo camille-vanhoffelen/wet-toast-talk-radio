@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.23](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.22...v0.1.23) (2023-08-01)
+
+
+### Features
+
+* replaced orion voice with p237 ([#80](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/80)) ([03639e2](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/03639e2926e3ce8296d9379c33844e3dec72a237))
+
 ## [0.1.22](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.21...v0.1.22) (2023-08-01)
 
 
