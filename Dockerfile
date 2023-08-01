@@ -42,8 +42,7 @@ RUN apt-get update && apt-get -y upgrade && apt-get install -y \
     ffmpeg \
     libavcodec-extra \
     libgomp1 \
-    libshout3-dev \
-    vim
+    libshout3-dev
 
 RUN apt-get install -y software-properties-common && \
     add-apt-repository -y ppa:deadsnakes/ppa && \
