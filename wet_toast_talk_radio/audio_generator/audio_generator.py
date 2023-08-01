@@ -15,6 +15,10 @@ from wet_toast_talk_radio.audio_generator.config import (
     AudioGeneratorConfig,
     validate_config,
 )
+from wet_toast_talk_radio.audio_generator.model_cache import (
+    cache_is_present,
+    download_model_cache,
+)
 from wet_toast_talk_radio.audio_generator.speakers import init_voices
 from wet_toast_talk_radio.common.dialogue import Line, read_lines
 from wet_toast_talk_radio.common.log_ctx import task_log_ctx
@@ -49,6 +53,8 @@ class AudioGenerator:
         self._tmp_dir = tmp_dir
         self._script_shows_dir = self._tmp_dir / "script"
         self._script_shows_dir.mkdir(parents=True, exist_ok=True)
+
+        self._init_models()
 
         self.tts = TextToSpeech(
             models_dir=MODELS_DIR,
@@ -207,3 +213,15 @@ class AudioGenerator:
         abs_max = 2 ** (i.bits - 1)
         offset = i.min + abs_max
         return (sig * abs_max + offset).clip(i.min, i.max).astype(dtype)
+
+    def _init_models(self):
+        """download huggingface hub models from S3 if no local cache"""
+        if self._cfg.use_s3_model_cache:
+            if not cache_is_present():
+                try:
+                    download_model_cache()
+                except Exception as e:
+                    logger.error("Failed to download model cache, continuing", error=e)
+            else:
+                logger.info("Found local HF hub model cache")
+            assert cache_is_present(), "Cache must be complete"
