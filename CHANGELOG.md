@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.22](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.21...v0.1.22) (2023-08-01)
+
+
+### Features
+
+* Tortoise model cache ([#77](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/77)) ([528d0a3](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/528d0a3c8f2de8457b5c0393612038b1185b9255))
+
+
+### Bug Fixes
+
+* voicefixer post processing ([3c648d2](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/3c648d2d9e72df953e5752747e9229452ab9bf51))
+
 ## [0.1.21](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.20...v0.1.21) (2023-08-01)
 
 
