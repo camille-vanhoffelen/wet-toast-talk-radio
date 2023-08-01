@@ -30,6 +30,8 @@ def init_voices(speakers: set[Speaker]) -> dict[str, tuple[torch.Tensor, torch.T
 
     hosts = [speaker for speaker in speakers if speaker.host]
     for speaker in hosts:
+        if speaker.name.lower() not in HOSTS:
+            raise ValueError("Host name not found in host voices metadata")
         voices[speaker.name] = load_conditioning_latent(
             VOICES_DIR / (speaker.name.lower() + VOICE_EXT)
         )
