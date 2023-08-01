@@ -32,15 +32,15 @@ def init_voices(speakers: set[Speaker]) -> dict[str, tuple[torch.Tensor, torch.T
     for speaker in hosts:
         if speaker.name.lower() not in HOSTS:
             raise ValueError("Host name not found in host voices metadata")
+        voice_id = speaker.name.lower()
+        logger.info("Loading host voice", speaker=speaker.name, voice_id=voice_id)
         voices[speaker.name] = load_conditioning_latent(
-            VOICES_DIR / (speaker.name.lower() + VOICE_EXT)
+            VOICES_DIR / (voice_id + VOICE_EXT)
         )
 
     guests = [speaker for speaker in speakers if not speaker.host]
     voices |= pick_guest_voices(guests=guests, gender="female")
     voices |= pick_guest_voices(guests=guests, gender="male")
-
-    logger.info("Initialized voices", voices=voices)
 
     return voices
 
@@ -52,6 +52,7 @@ def pick_guest_voices(guests: list[Speaker], gender: str):
     # Picking without replacement ensures that each guest gets a unique voice
     voice_ids = random.sample(VOICES_METADATA["guests"][gender], len(guests))
     for speaker, voice_id in zip(guests, voice_ids, strict=True):
+        logger.info("Loading guest voice", speaker=speaker.name, voice_id=voice_id)
         voices[speaker.name] = load_conditioning_latent(
             VOICES_DIR / (voice_id + VOICE_EXT)
         )
