@@ -82,21 +82,14 @@ Arguments:
 Backstory: {{against.backstory}}
 
 Each line should start with the name of the speaker, followed by a colon and a space.
-Capitalize words for emphasis. The following non-verbal sounds can be used:
-
-Non-verbal sounds:
-[laughs]
-[sighs]
-[gasps]
-[clears throat]
 
 Here's an example conversation:
-Julie: Welcome to THE GREAT DEBATE! I'm your host and referee, Julie, and today's topic is {{topic}}. We have two guests on the line, {{in_favor.name}} and {{against.name}}, ready to battle it out. {{in_favor.name}}, what do you think about {{topic}}?
+Julie: Welcome to The Great Debate! I'm your host and referee, Julie, and today's topic is {{topic}}. We have two guests on the line, {{in_favor.name}} and {{against.name}}, ready to battle it out. {{in_favor.name}}, what do you think about {{topic}}?
 {{in_favor.name}}: I think {{topic}} is GREAT!
 Julie: What about you, {{against.name}}?
 {{against.name}}: That I sure don't... I can't stand it!
 Julie: Then let the debate begin!
-{{in_favor.name}}: [sighs] Why don't you like it, {{against.name}}?
+{{in_favor.name}}: So... Why don't you like it, {{against.name}}?
 
 Now generate this long conversation in 2000 words. Please include the guests' arguments and style their speech according to their character traits.
 {{~/user}}
