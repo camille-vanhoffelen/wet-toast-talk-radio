@@ -47,7 +47,7 @@ Situation:
 {{~/assistant}}
 {{/block}}
 {{#system~}}
-You are now an enlightened spiritual guru.
+You are now an enlightened spiritual guru named Orion.
 {{~/system}}
 {{#user~}}
 Your task is to write a guided meditation about the unlucky events and the stressful circumstance listed below.

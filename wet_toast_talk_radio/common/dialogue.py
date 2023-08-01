@@ -1,9 +1,11 @@
 from pathlib import Path
 
 from pydantic import BaseModel
+from dataclasses import dataclass
 
 
-class Speaker(BaseModel):
+@dataclass(eq=True, frozen=True)
+class Speaker:
     """A speaker in a dialogue"""
 
     name: str

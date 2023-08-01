@@ -20,6 +20,7 @@ def read_voices_metadata() -> dict:
 
 VOICES_METADATA = read_voices_metadata()
 HOSTS = VOICES_METADATA["hosts"]["female"] + VOICES_METADATA["hosts"]["male"]
+VOICE_EXT = ".pth"
 
 
 def init_voices(speakers: set[Speaker]) -> dict[str, tuple[torch.Tensor, torch.Tensor]]:
@@ -29,7 +30,9 @@ def init_voices(speakers: set[Speaker]) -> dict[str, tuple[torch.Tensor, torch.T
 
     hosts = [speaker for speaker in speakers if speaker.host]
     for speaker in hosts:
-        voices[speaker.name] = load_conditioning_latent(VOICES_DIR / speaker.name)
+        voices[speaker.name] = load_conditioning_latent(
+            VOICES_DIR / (speaker.name.lower() + VOICE_EXT)
+        )
 
     guests = [speaker for speaker in speakers if not speaker.host]
 
@@ -39,12 +42,16 @@ def init_voices(speakers: set[Speaker]) -> dict[str, tuple[torch.Tensor, torch.T
         VOICES_METADATA["guests"]["female"], len(female_guests)
     )
     for speaker, voice_id in zip(female_guests, female_voice_ids, strict=True):
-        voices[speaker.name] = load_conditioning_latent(VOICES_DIR / voice_id)
+        voices[speaker.name] = load_conditioning_latent(
+            VOICES_DIR / (voice_id + VOICE_EXT)
+        )
 
     male_guests = [guest for guest in guests if guest.gender == "male"]
     male_voice_ids = random.sample(VOICES_METADATA["guests"]["male"], len(male_guests))
     for speaker, voice_id in zip(male_guests, male_voice_ids, strict=True):
-        voices[speaker.name] = load_conditioning_latent(VOICES_DIR / voice_id)
+        voices[speaker.name] = load_conditioning_latent(
+            VOICES_DIR / (voice_id + VOICE_EXT)
+        )
     # TODO also do pick without replacement for names ACROSS genders
 
     return voices
