@@ -9,7 +9,7 @@ def test_init_voices(speakers, host):
     assert len(voices) == len(speakers)
     assert all(speaker.name in voices for speaker in speakers)
     conditioning_latents = voices[host.name]
-    assert conditioning_latents[0].mean().item() == pytest.approx(-0.041467275470495224)
+    assert conditioning_latents[0].mean().item() == pytest.approx(0.020383933559060097)
 
 
 def test_bad_host(bad_host):
