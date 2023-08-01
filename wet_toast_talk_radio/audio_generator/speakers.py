@@ -37,24 +37,22 @@ def init_voices(speakers: set[Speaker]) -> dict[str, tuple[torch.Tensor, torch.T
         )
 
     guests = [speaker for speaker in speakers if not speaker.host]
+    voices |= pick_guest_voices(guests=guests, gender="female")
+    voices |= pick_guest_voices(guests=guests, gender="male")
 
-    female_guests = [guest for guest in guests if guest.gender == "female"]
+    return voices
+
+
+def pick_guest_voices(guests: list[Speaker], gender: str):
+    """Randomly pick voices without replacement for given gender"""
+    voices = {}
+    guests = [guest for guest in guests if guest.gender == gender]
     # Picking without replacement ensures that each guest gets a unique voice
-    female_voice_ids = random.sample(
-        VOICES_METADATA["guests"]["female"], len(female_guests)
-    )
-    for speaker, voice_id in zip(female_guests, female_voice_ids, strict=True):
+    voice_ids = random.sample(VOICES_METADATA["guests"][gender], len(guests))
+    for speaker, voice_id in zip(guests, voice_ids, strict=True):
         voices[speaker.name] = load_conditioning_latent(
             VOICES_DIR / (voice_id + VOICE_EXT)
         )
-
-    male_guests = [guest for guest in guests if guest.gender == "male"]
-    male_voice_ids = random.sample(VOICES_METADATA["guests"]["male"], len(male_guests))
-    for speaker, voice_id in zip(male_guests, male_voice_ids, strict=True):
-        voices[speaker.name] = load_conditioning_latent(
-            VOICES_DIR / (voice_id + VOICE_EXT)
-        )
-
     return voices
 
 
