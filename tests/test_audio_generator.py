@@ -66,7 +66,7 @@ class TestAudioGenerator:
         show666 = ShowId(666, today)
         n_sentences = 3
         content = "Hi there. " * n_sentences
-        chunks = split_and_recombine_text(content)
+        chunks = split_and_recombine_text(content, desired_length=150, max_length=250)
 
         line = Line(
             speaker=Speaker(name="John", gender="male", host=False), content=content
