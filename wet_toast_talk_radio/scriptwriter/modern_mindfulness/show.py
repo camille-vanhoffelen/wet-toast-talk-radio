@@ -61,12 +61,13 @@ Unlucky events:
 
 This meditation is called "Modern Mindfulness". It is a mindfulness exercise combined with exposure therapy.
 Its purpose is for listeners to face and engage with their fears and anxieties in a safe environment.
-Include all events and circumstances in a order that makes chronological sense.
+First, introduce yourself as Orion, a spiritual guru who has transformed anxiety into enlightenment.
+Then, Include all events and circumstances in a order that makes chronological sense.
 Describe each event in great detail, and focus on their most stressful and frustrating aspects.
 You should encourage the listener to remain calm despite the challenges they encounter along the way.
-Regularly remind the listener to breathe and relax. Lead them through breathing exercises with "[breathes]".
+Regularly remind the listener to breathe and relax.
 Make the meditation long, descriptive, and in 5000 words.
-End your meditation with your mantra: "Life sucks, but I breathe" [breathes]
+Finally, end your meditation with your mantra: "Life sucks, but I breathe".
 {{~/user}}
 {{#assistant~}}
 {{gen 'meditation' temperature=0.9 max_tokens=2500}}
