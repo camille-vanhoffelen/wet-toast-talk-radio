@@ -1,7 +1,7 @@
+from dataclasses import dataclass
 from pathlib import Path
 
 from pydantic import BaseModel
-from dataclasses import dataclass
 
 
 @dataclass(eq=True, frozen=True)

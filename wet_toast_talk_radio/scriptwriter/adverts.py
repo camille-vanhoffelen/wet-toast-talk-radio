@@ -61,5 +61,7 @@ class Advert(RadioShow):
         product_description = program["product_description"]
         product_description = " ".join(product_description.split())
         content = PREFIX + product_description
-        line = Line(speaker=Speaker(name="Ian", gender="male", host=True), content=content)
+        line = Line(
+            speaker=Speaker(name="Ian", gender="male", host=True), content=content
+        )
         self._media_store.put_script_show(show_id=show_id, lines=[line])
