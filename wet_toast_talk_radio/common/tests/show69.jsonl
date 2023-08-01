@@ -1,2 +1,2 @@
-{"speaker": {"name": "John", "gender": "male"}, "content": "Toast is wet!"}
-{"speaker": {"name": "Anna", "gender": "female"}, "content": "No, it's not."}
+{"speaker": {"name": "John", "gender": "male", "host": false}, "content": "Toast is wet!"}
+{"speaker": {"name": "Anna", "gender": "female", "host": false}, "content": "No, it's not."}

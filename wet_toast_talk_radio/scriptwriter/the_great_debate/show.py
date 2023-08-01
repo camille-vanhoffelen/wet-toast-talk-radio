@@ -58,11 +58,11 @@ DEBATE_TEMPLATE = """{{#system~}}
 You are an edgy, satirical writer.
 {{~/system}}
 {{#user~}}
-Chris is a radio show host who hosts "The Great Debate", a radio show where guests call in to discuss the pros and cons of particular topics.
+Julie is a radio show host who hosts "The Great Debate", a radio show where guests call in to discuss the pros and cons of particular topics.
 {{in_favor.name}} and {{against.name}} are today's guests, and have never met before.
 {{in_favor.name}} and {{against.name}} are stubborn, emotional, and stuck in disagreement. The conversation is chaotic and eccentric.
 The characters grow gradually frustrated, cut each other off often, still disagree at the end, and remain bitter.
-Chris sometimes interjects to try to calm the guests down, and redirect the conversation, but is mostly ignored.
+Julie sometimes interjects to try to calm the guests down, and redirect the conversation, but is mostly ignored.
 Your task is to write this radio show conversation.
 
 Here are the descriptions of the two guests:
@@ -91,11 +91,11 @@ Non-verbal sounds:
 [clears throat]
 
 Here's an example conversation:
-Chris: Welcome to THE GREAT DEBATE! Today's topic is {{topic}}. We have two guests on the line, {{in_favor.name}} and {{against.name}}, ready to battle it out. {{in_favor.name}}, what do you think about {{topic}}?
+Julie: Welcome to THE GREAT DEBATE! I'm your host and referee, Julie, and today's topic is {{topic}}. We have two guests on the line, {{in_favor.name}} and {{against.name}}, ready to battle it out. {{in_favor.name}}, what do you think about {{topic}}?
 {{in_favor.name}}: I think {{topic}} is GREAT!
-Chris: What about you, {{against.name}}?
+Julie: What about you, {{against.name}}?
 {{against.name}}: That I sure don't... I can't stand it!
-Chris: Then let the debate begin!
+Julie: Then let the debate begin!
 {{in_favor.name}}: [sighs] Why don't you like it, {{against.name}}?
 
 Now generate this long conversation in 2000 words. Please include the guests' arguments and style their speech according to their character traits.
@@ -141,6 +141,16 @@ class Guest:
         )
 
 
+def random_guests():
+    """Return two random guests with opposite opinions.
+    Ensures unique guest names, to prevent confusion."""
+    guest_in_favor = Guest.random(polarity=Polarity.IN_FAVOR)
+    guest_against = Guest.random(polarity=Polarity.AGAINST)
+    while guest_against.name == guest_in_favor.name:
+        guest_against = Guest.random(polarity=Polarity.AGAINST)
+    return guest_in_favor, guest_against
+
+
 class TheGreatDebate(RadioShow):
     """Radio show where two call-in guests debate a topic, moderated by the host."""
 
@@ -148,28 +158,29 @@ class TheGreatDebate(RadioShow):
         self,
         llm: LLM,
         media_store: MediaStore,
-        guest_in_favor: Guest | None = None,
-        guest_against: Guest | None = None,
-        topic: str | None = None,
+        guest_in_favor: Guest,
+        guest_against: Guest,
+        topic: str,
     ):
         self._llm = llm
         self._media_store = media_store
-        self._topics = load_topics()
-        self.topic = topic if topic else random.choice(self._topics).lower()
-        self.guest_in_favor = (
-            guest_in_favor
-            if guest_in_favor
-            else Guest.random(polarity=Polarity.IN_FAVOR)
-        )
-        self.guest_against = (
-            guest_against if guest_against else Guest.random(polarity=Polarity.AGAINST)
-        )
+        self.guest_in_favor = guest_in_favor
+        self.guest_against = guest_against
+        self.topic = topic
         self.n_speakers = 3
         self.max_bad_lines_ratio = 0.1
 
     @classmethod
     def create(cls, llm: LLM, media_store: MediaStore) -> "TheGreatDebate":
-        return cls(llm=llm, media_store=media_store)
+        guest_in_favor, guest_against = random_guests()
+        topic = random.choice(load_topics()).lower()
+        return cls(
+            llm=llm,
+            media_store=media_store,
+            guest_in_favor=guest_in_favor,
+            guest_against=guest_against,
+            topic=topic,
+        )
 
     @show_id_log_ctx()
     async def awrite(self, show_id: ShowId) -> bool:
@@ -279,13 +290,16 @@ class TheGreatDebate(RadioShow):
     def to_speaker(self, speaker_name: str) -> Speaker:
         if speaker_name == self.guest_in_favor.name:
             gender = self.guest_in_favor.gender
+            host = False
         elif speaker_name == self.guest_against.name:
             gender = self.guest_against.gender
-        elif speaker_name == "Chris":
-            gender = "male"
+            host = False
+        elif speaker_name == "Julie":
+            gender = "female"
+            host = True
         else:
             raise ValueError(f"Unknown speaker name: {speaker_name}")
-        return Speaker(name=speaker_name, gender=gender)
+        return Speaker(name=speaker_name, gender=gender, host=host)
 
 
 async def aexec(program: Program, **kwargs) -> Program:

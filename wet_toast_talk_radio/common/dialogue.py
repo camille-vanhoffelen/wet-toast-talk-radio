@@ -1,13 +1,16 @@
+from dataclasses import dataclass
 from pathlib import Path
 
 from pydantic import BaseModel
 
 
-class Speaker(BaseModel):
+@dataclass(eq=True, frozen=True)
+class Speaker:
     """A speaker in a dialogue"""
 
     name: str
     gender: str
+    host: bool
 
 
 class Line(BaseModel):

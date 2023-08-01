@@ -6,13 +6,18 @@ import structlog
 
 logger = structlog.get_logger()
 
+NAMES_CACHE = None
+
 
 def load_names() -> dict:
-    path = Path(__file__).with_name("resources") / "names-ascii.json"
-    logger.info("Loading names", path=path)
-    with path.open() as f:
-        doc = json.load(f)
-    return doc
+    """Loads names.json file"""
+    global NAMES_CACHE  # noqa: PLW0603
+    if NAMES_CACHE is not None:
+        path = Path(__file__).with_name("resources") / "names-ascii.json"
+        logger.info("Loading names", path=path)
+        with path.open() as f:
+            NAMES_CACHE = json.load(f)
+    return NAMES_CACHE
 
 
 GENDERS = ["female", "male"]

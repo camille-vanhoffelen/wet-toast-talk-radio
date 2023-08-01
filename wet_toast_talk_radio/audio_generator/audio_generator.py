@@ -15,10 +15,7 @@ from wet_toast_talk_radio.audio_generator.config import (
     AudioGeneratorConfig,
     validate_config,
 )
-from wet_toast_talk_radio.audio_generator.speakers import (
-    get_conditioning_latents,
-    init_voice_cache,
-)
+from wet_toast_talk_radio.audio_generator.speakers import init_voices
 from wet_toast_talk_radio.common.dialogue import Line, read_lines
 from wet_toast_talk_radio.common.log_ctx import task_log_ctx
 from wet_toast_talk_radio.common.path import delete_folder
@@ -110,8 +107,9 @@ class AudioGenerator:
         logger.info("Starting audio generation")
         start = time.perf_counter()
 
-        # Reset voice cache for each new script
-        voice_cache = init_voice_cache()
+        # Reset voices for each new script
+        speakers = {line.speaker for line in lines}
+        voices = init_voices(speakers)
 
         pieces = []
         for line in lines:
@@ -119,7 +117,7 @@ class AudioGenerator:
                 self._line_to_audio(
                     line=line,
                     sentence_callbacks=sentence_callbacks,
-                    voice_cache=voice_cache,
+                    voices=voices,
                 )
             )
 
@@ -154,14 +152,12 @@ class AudioGenerator:
         self,
         line: Line,
         sentence_callbacks: list[Callable] | None,
-        voice_cache: dict[str, tuple[torch.Tensor, torch.Tensor]],
+        voices: dict[str, tuple[torch.Tensor, torch.Tensor]],
     ) -> np.ndarray:
         chunks = split_and_recombine_text(line.content)
         logger.debug("Split line into chunks", n_chunks=len(chunks))
 
-        conditioning_latents = get_conditioning_latents(
-            speaker=line.speaker, voice_cache=voice_cache
-        )
+        conditioning_latents = voices[line.speaker.name]
 
         pieces = []
         for i, chunk in enumerate(chunks):

@@ -47,7 +47,7 @@ Situation:
 {{~/assistant}}
 {{/block}}
 {{#system~}}
-You are now an enlightened spiritual guru.
+You are now an enlightened spiritual guru named Orion.
 {{~/system}}
 {{#user~}}
 Your task is to write a guided meditation about the unlucky events and the stressful circumstance listed below.
@@ -117,5 +117,7 @@ class ModernMindfulness(RadioShow):
     def _post_processing(self, program: Program) -> list[Line]:
         logger.debug("Post processing Modern Mindfulness")
         meditation = program["meditation"]
-        line = Line(speaker=Speaker(name="Chris", gender="male"), content=meditation)
+        line = Line(
+            speaker=Speaker(name="Orion", gender="male", host=True), content=meditation
+        )
         return [line]
