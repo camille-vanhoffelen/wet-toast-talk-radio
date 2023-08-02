@@ -1,6 +1,5 @@
 from pathlib import Path
 
-import huggingface_hub
 import pytest
 
 from wet_toast_talk_radio.audio_generator.model_cache import (
@@ -9,7 +8,7 @@ from wet_toast_talk_radio.audio_generator.model_cache import (
 )
 
 TEST_S3_MODEL_CACHE_BUCKET = "wet-toast-test-model-cache"
-TEST_S3_MODEL_CACHE_KEY = "test-model-cache-2023-08-01.tar"
+TEST_S3_MODEL_CACHE_KEY = "test-model-cache-2023-08-02.tar"
 REPO_ID = "test"
 NB_FILES = 2
 
@@ -24,10 +23,5 @@ class TestModelCache:
             key=TEST_S3_MODEL_CACHE_KEY,
             home_dir=home_dir,
         )
-        cache_dir = home_dir / ".cache" / "huggingface" / "hub"
+        cache_dir = home_dir / ".cache"
         assert cache_is_present(cache_dir=cache_dir)
-        cache_info = huggingface_hub.scan_cache_dir(cache_dir=cache_dir)
-        assert len(cache_info.repos) == 1
-        repo = list(cache_info.repos)[0]
-        assert repo.repo_id == REPO_ID
-        assert repo.nb_files == NB_FILES
