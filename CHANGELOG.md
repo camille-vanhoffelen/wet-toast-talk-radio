@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.26](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.25...v0.1.26) (2023-08-02)
+
+
+### Bug Fixes
+
+* cache_is_present for s3 model cache ([#86](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/86)) ([6ecd181](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/6ecd1811f3f86540022f58655fe8b36031bf8db2))
+
 ## [0.1.25](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.24...v0.1.25) (2023-08-01)
 
 
