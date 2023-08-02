@@ -3,7 +3,6 @@ import threading
 from pathlib import Path
 
 import boto3
-import huggingface_hub
 import structlog
 
 logger = structlog.get_logger()
@@ -11,15 +10,17 @@ logger = structlog.get_logger()
 S3_MODEL_CACHE_BUCKET = "wet-toast-model-cache"
 S3_MODEL_CACHE_KEY = "model-cache-2023-08-01.tar"
 LOCAL_MODEL_CACHE_FILE = ".cache.tar"
+DEFAULT_MODEL_CACHE_PATH = Path.home() / ".cache"
+MANDATORY_MODEL_CACHE_FILES = ["tortoise", "voicefixer"]
 
 
 def cache_is_present(cache_dir: str | Path | None = None) -> bool:
-    """Check if huggingface hub model cache is present"""
-    try:
-        cache_info = huggingface_hub.scan_cache_dir(cache_dir=cache_dir)
-        return bool(cache_info.repos)
-    except huggingface_hub.CacheNotFound:
-        return False
+    """Check if tortoise and voicefixer model caches are present"""
+    if not cache_dir:
+        cache_dir = DEFAULT_MODEL_CACHE_PATH
+    cache_files = list(cache_dir.iterdir())
+    cache_file_names = [f.stem for f in cache_files]
+    return all(f in cache_file_names for f in MANDATORY_MODEL_CACHE_FILES)
 
 
 def download_model_cache(
@@ -33,7 +34,7 @@ def download_model_cache(
 
     logger.info(f"Downloading model cache: {key}")
     if not home_dir:
-        home_dir = Path(huggingface_hub.constants.default_home).parent.absolute()
+        home_dir = Path.home()
     model_cache_archive = home_dir / LOCAL_MODEL_CACHE_FILE
     s3 = session.client("s3")
     callback = ProgressPercentage(client=s3, bucket=bucket, key=key)
