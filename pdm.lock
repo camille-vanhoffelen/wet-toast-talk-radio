@@ -2129,7 +2129,7 @@ name = "voicefixer"
 version = "0.1.2"
 requires_python = ">=3.7.0"
 git = "https://github.com/camille-vanhoffelen/voicefixer.git"
-revision = "97cb45ba1b8bc0456724eb18711f865668f143be"
+revision = "1636fd261233313b65bf0ac885606f6131a4ba90"
 summary = "This package is written for the restoration of degraded speech"
 dependencies = [
     "GitPython",
