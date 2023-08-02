@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.27](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.26...v0.1.27) (2023-08-02)
+
+
+### Features
+
+* voicefixer toggle ([#88](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/88)) ([604b9dd](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/604b9dd0e82b6cc73a38401c0140218224d52daf))
+
 ## [0.1.26](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.25...v0.1.26) (2023-08-02)
 
 
