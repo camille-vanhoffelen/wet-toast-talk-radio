@@ -18,6 +18,9 @@ from wet_toast_talk_radio.scriptwriter.modern_mindfulness import (
     ModernMindfulness,
     Situations,
 )
+from wet_toast_talk_radio.scriptwriter.the_expert_zone import (
+    TheExpertZone,
+)
 from wet_toast_talk_radio.scriptwriter.the_great_debate import (
     TheGreatDebate,
     Topics,
@@ -224,3 +227,19 @@ def circumstances(ctx: dict, n_circumstances: int, n_iter: int):
         llm=llm, n_circumstances=n_circumstances, n_iter=n_iter
     )
     asyncio.run(circumstances_writer.awrite())
+
+
+@scriptwriter.command(help="Write script for The Expert Zone")
+@click.pass_context
+def the_expert_zone(ctx: dict):
+    """Run command
+    scriptwriter the-expert-zone
+    """
+    logger.info("Writing script for The Expert Zone")
+    root_cfg = ctx.obj["root_cfg"]
+    sw_cfg = root_cfg.scriptwriter
+
+    llm = new_llm(cfg=sw_cfg.llm)
+    show = TheExpertZone.create(llm=llm, media_store=VirtualMediaStore())
+    show_id = ShowId(show_i=0, date="2012-12-21")
+    asyncio.run(show.awrite(show_id=show_id))
