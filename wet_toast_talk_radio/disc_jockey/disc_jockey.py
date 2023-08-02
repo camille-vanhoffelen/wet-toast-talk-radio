@@ -2,7 +2,7 @@ from typing import Optional
 
 import structlog
 
-from wet_toast_talk_radio.disc_jockey.config import DiscJockeyConfig, validate_config
+from wet_toast_talk_radio.disc_jockey.config import DiscJockeyConfig
 from wet_toast_talk_radio.disc_jockey.media_transcoder import MediaTranscoder
 from wet_toast_talk_radio.disc_jockey.playlist import Playlist
 from wet_toast_talk_radio.disc_jockey.shout_client import ShoutClient
@@ -23,7 +23,6 @@ class DiscJockey:
         media_store: Optional[MediaStore] = None,
         message_queue: Optional[MessageQueue] = None,
     ):
-        validate_config(cfg)
         self._cfg = cfg
         self._media_store = media_store
         self._message_queue = message_queue

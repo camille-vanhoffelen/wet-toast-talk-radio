@@ -11,7 +11,3 @@ class DiscJockeyConfig(BaseModel):
 
     media_transcoder: Optional[MediaTranscoderConfig] = None
     shout_client: Optional[ShoutClientConfig] = None
-
-
-def validate_config(cfg: DiscJockeyConfig):
-    assert cfg is not None, "DiscJockeyConfig is None"
