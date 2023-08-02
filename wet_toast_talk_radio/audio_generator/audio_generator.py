@@ -133,19 +133,18 @@ class AudioGenerator:
 
         logger.debug("Concatenating line audio pieces")
         audio_array = np.concatenate(pieces)
-        audio_array = self._postprocess(audio_array)
-        print(audio_array.size)
+        audio_array, sample_rate = self._postprocess(audio_array)
 
         buffer = BytesIO()
         write_wav(
             filename=buffer,
-            rate=OUTPUT_SAMPLE_RATE,
+            rate=sample_rate,
             data=audio_array,
         )
 
         end = time.perf_counter()
         run_time_in_s = end - start
-        duration_in_s = len(audio_array) / OUTPUT_SAMPLE_RATE
+        duration_in_s = len(audio_array) / sample_rate
         speed_ratio = run_time_in_s / duration_in_s
         logger.info(
             "Benchmark results",
@@ -195,19 +194,24 @@ class AudioGenerator:
         audio_array = np.concatenate(pieces)
         return audio_array
 
-    def _postprocess(self, audio_array: np.ndarray) -> np.ndarray:
-        """Resample, fix voice, and convert to PCM"""
+    def _postprocess(self, audio_array: np.ndarray) -> (np.ndarray, int):
+        """Convert to PCM, optionally resample and fix voice"""
         logger.info("Postprocessing audio")
-        audio_array = resample(
-            y=audio_array, orig_sr=SAMPLE_RATE, target_sr=OUTPUT_SAMPLE_RATE
-        )
-        is_cuda = self.tts.device == "cuda"
-        audio_array = self.vf.restore_inmem(wav_10k=audio_array, cuda=is_cuda, mode=0)
-        audio_array = audio_array.squeeze()
+        sample_rate = SAMPLE_RATE
+        if self._cfg.use_voice_fixer:
+            audio_array = resample(
+                y=audio_array, orig_sr=SAMPLE_RATE, target_sr=OUTPUT_SAMPLE_RATE
+            )
+            is_cuda = self.tts.device == "cuda"
+            audio_array = self.vf.restore_inmem(
+                wav_10k=audio_array, cuda=is_cuda, mode=0
+            )
+            audio_array = audio_array.squeeze()
+            sample_rate = OUTPUT_SAMPLE_RATE
         # np.int32 is needed in order for the wav file to end up begin 32bit width
         # https://docs.scipy.org/doc/scipy/reference/generated/scipy.io.wavfile.write.html#scipy-io-wavfile-write
         audio_array = self._to_pcm(audio_array)
-        return audio_array
+        return audio_array, sample_rate
 
     def _to_pcm(self, sig, dtype: str = "int32") -> np.ndarray:
         """Convert floating point signal with a range from -1 to 1 to PCM.
