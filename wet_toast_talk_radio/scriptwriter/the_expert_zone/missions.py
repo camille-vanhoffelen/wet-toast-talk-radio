@@ -25,6 +25,9 @@ HIJACK = (
     "You hijack the conversation and make it about yourself."
 )
 
+# Nick always wants to wrap up the show
+SUFFIX = " Do not end or wrap up the show."
+
 
 def random_host_missions(topic: str, k: int) -> list[str]:
     """Randomly sample k missions for the host.
@@ -42,8 +45,8 @@ def random_host_missions(topic: str, k: int) -> list[str]:
         PERSONAL_QUESTION,
         HIJACK,
     ]
-    missions = [mission.replace("{{topic}}", topic) for mission in missions]
+    missions = [mission.replace("{{topic}}", topic) + SUFFIX for mission in missions]
     counts = [4, 1, 1, 1, 1, 1, 1, 1, 1]
     random_missions = random.sample(population=missions, k=k-1, counts=counts)
     # always start with default
-    return [DEFAULT.replace("{{topic}}", topic), *random_missions]
+    return [missions[0], *random_missions]

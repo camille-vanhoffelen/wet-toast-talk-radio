@@ -125,7 +125,7 @@ class TopicGenerator:
             else:
                 logger.info(r)
                 topics = r["list"].split("\n")
-                topics = [t.strip() for t in topics]
+                topics = [t.strip().replace("-", " ") for t in topics]
                 all_topics.extend(topics)
         return all_topics
 

@@ -10,13 +10,12 @@ from wet_toast_talk_radio.scriptwriter.the_expert_zone.missions import (
     CONTROVERSIAL,
     DOOMSTER,
 )
+from wet_toast_talk_radio.scriptwriter.the_expert_zone.show import Guest
 
 
-def test_the_expert_zone(host_missions, fake_llm, virtual_media_store, show_id):
+def test_the_expert_zone(guest, host_missions, fake_llm, virtual_media_store, show_id):
     show = TheExpertZone(
-        topic="Dust dynamics",
-        trait="boring",
-        title="Professor Emeritus of",
+        guest=guest,
         host_missions=host_missions,
         llm=fake_llm,
         media_store=virtual_media_store,
@@ -24,6 +23,17 @@ def test_the_expert_zone(host_missions, fake_llm, virtual_media_store, show_id):
     asyncio.run(show.awrite(show_id=show_id))
     script_shows = virtual_media_store.list_script_shows()
     assert script_shows == [show_id]
+
+
+@pytest.fixture()
+def guest() -> Guest:
+    return Guest(
+        name="Jenny",
+        gender="female",
+        title="Professor Emeritus of",
+        trait="proud",
+        topic="Dust dynamics",
+    )
 
 
 @pytest.fixture()

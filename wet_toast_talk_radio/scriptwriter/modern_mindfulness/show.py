@@ -118,6 +118,7 @@ class ModernMindfulness(RadioShow):
     def _post_processing(self, program: Program) -> list[Line]:
         logger.debug("Post processing Modern Mindfulness")
         meditation = program["meditation"]
+        meditation = " ".join(meditation.strip().split())
         line = Line(
             speaker=Speaker(name="Orion", gender="male", host=True), content=meditation
         )

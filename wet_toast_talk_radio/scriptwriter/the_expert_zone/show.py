@@ -1,11 +1,18 @@
+import random
+import time
+from dataclasses import dataclass
+
 import structlog
 from guidance import Program
 from guidance.llms import LLM
-import time
 
 from wet_toast_talk_radio.common.dialogue import Line, Speaker
 from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.media_store import ShowId
+from wet_toast_talk_radio.scriptwriter.names import (
+    GENDERS,
+    random_name,
+)
 from wet_toast_talk_radio.scriptwriter.radio_show import RadioShow
 from wet_toast_talk_radio.scriptwriter.the_expert_zone.missions import (
     random_host_missions,
@@ -27,7 +34,7 @@ AGENT_TEMPLATE = """
 {{set 'this.question' (await 'question') hidden=False}}
 {{~/user}}
 {{#assistant~}}
-{{gen 'this.response' temperature=1.2 max_tokens=150}}
+{{gen 'this.response' temperature=1.3 max_tokens=150}}
 {{~/assistant}}
 {{~/geneach}}"""
 
@@ -38,21 +45,28 @@ SYSTEM_MESSAGE_TEMPLATE = (
 )
 
 
+@dataclass
+class Guest:
+    name: str
+    gender: str
+    title: str
+    trait: str
+    topic: str
+    # used to prevent biases in dialogue generation due to guest name
+    placeholder_name: str
+
+
 class TheExpertZone(RadioShow):
     """A radio show where expert guests are interviewed about their specialities."""
 
     def __init__(
         self,
-        topic: str,
-        trait: str,
-        title: str,
+        guest: Guest,
         host_missions: list[str],
         llm: LLM,
         media_store: MediaStore,
     ):
-        self.topic = topic
-        self.trait = trait
-        self.title = title
+        self.guest = guest
         self.host_missions = host_missions
         self._llm = llm
         self._media_store = media_store
@@ -74,7 +88,7 @@ class TheExpertZone(RadioShow):
         )
 
         # Intro
-        guest_identity = f"Ian, an expert researcher in {self.topic}. You are exceptionally {self.trait}"
+        guest_identity = f"{self.guest.placeholder_name}, an expert researcher in {self.guest.topic}. You are exceptionally {self.guest.trait}"
         guest_role = "the guest on a talk show"
         guest_mission = "Do not repeat yourself throughout the conversation."
         system_message_prompt = Program(text=SYSTEM_MESSAGE_TEMPLATE, llm=self._llm)
@@ -84,14 +98,13 @@ class TheExpertZone(RadioShow):
 
         intro = (
             f"Welcome to 'The Expert Zone', the show where we ask experts the difficult questions... "
-            f"This is your star host, Nick, and today we welcome Ian, {self.title} {self.topic}. Ian, how are you?"
+            f"This is your star host, Nick, and today we welcome {self.guest.placeholder_name}, {self.guest.title} {self.guest.topic}. {self.guest.placeholder_name}, how are you?"
         )
         guest = await guest(system_message=guest_system_message, question=intro)
 
         host_identity = "Nick, a stupid and rude radio celebrity who hates their job"
         host_role = "the host of a talk show"
 
-        print(self.host_missions)
         # Body
         for i, host_mission in enumerate(self.host_missions):
             # first question needed for conversation context
@@ -109,67 +122,71 @@ class TheExpertZone(RadioShow):
                 question=host["conversation"][-2]["response"],
             )
 
-            # TODO remove
-            time.sleep(0.5)
-
         # Outro
         outro = (
             "Well, that's all the time we have today! "
-            "Ian, thank you for sharing your knowledge with us, "
+            f"{self.guest.placeholder_name}, thank you for sharing your knowledge with us, "
             "and I wish you all the best in your groundbreaking research. "
             "Join us next time on 'The Expert Zone', where we ask the experts the difficult questions!"
         )
         guest = await guest(system_message=guest_system_message, question=outro)
-
-        print("HOST:")
-        print(host)
-        print("GUEST:")
-        print(guest)
 
         logger.debug("Written script", conversation=guest["conversation"])
         logger.info("Finished writing The Expert Zone")
 
         lines = self._post_processing(guest)
 
-        # TODO remove
-        print(lines)
-        n_words = sum([len(line.content.split(" ")) for line in lines])
-        print(f"Number of words: {n_words}")
-
         self._media_store.put_script_show(show_id=show_id, lines=lines)
         return True
 
     def _post_processing(self, program: Program) -> list[Line]:
+        """Converts the guidance program into a list of Lines.
+        Cleans up the content for each line."""
         logger.debug("Post processing The Expert Zone")
-        # TODO randomize host and guest
         host = Speaker(name="Nick", gender="male", host=True)
-        guest = Speaker(name="Ian", gender="male", host=False)
+        guest = Speaker(name=self.guest.name, gender=self.guest.gender, host=False)
 
-        # TODO remove new lines from questions and responses
-        # TODO also for other shows
         conversation = program["conversation"]
         lines = []
         # last exchange is always empty
         for exchange in conversation[:-1]:
-            lines.append(Line(speaker=host, content=exchange["question"]))
-            lines.append(Line(speaker=guest, content=exchange["response"]))
+            lines.append(
+                Line(speaker=host, content=self._clean_content(exchange["question"]))
+            )
+            lines.append(
+                Line(speaker=guest, content=self._clean_content(exchange["response"]))
+            )
         return lines
+
+    def _clean_content(self, content: str) -> str:
+        """Replace placeholder names, remove new lines and extra whitespace."""
+        content = content.replace(self.guest.placeholder_name, self.guest.name)
+        content = " ".join(content.strip().split())
+        return content
 
     @classmethod
     def create(cls, llm: LLM, media_store: MediaStore) -> "RadioShow":
+        guest_gender = random.choice(GENDERS)
+        guest_name = random_name(guest_gender)
+        guest_placeholder_name = random_name(guest_gender)
         topic = random_topic()
-        logger.info("Random topic", topic=topic)
         trait = random_trait()
-        logger.info("Random trait", trait=trait)
         title = random_title()
-        logger.info("Random title", title=title)
+        guest = Guest(
+            name=guest_name,
+            gender=guest_gender,
+            title=title,
+            trait=trait,
+            topic=topic,
+            placeholder_name=guest_placeholder_name,
+        )
+        logger.info("Random guest", guest=guest)
+
         host_missions = random_host_missions(topic=topic, k=8)
         logger.info("Random host missions", missions=host_missions)
 
         return cls(
-            topic=topic,
-            trait=trait,
-            title=title,
+            guest=guest,
             host_missions=host_missions,
             llm=llm,
             media_store=media_store,

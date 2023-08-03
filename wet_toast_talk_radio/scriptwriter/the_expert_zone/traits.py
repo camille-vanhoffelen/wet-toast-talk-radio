@@ -22,7 +22,7 @@ TRAITS = [
     "narcissistic",
     "tactless",
     "obnoxious",
-    "inarticulate",
+    "confusing",
     "aloof",
     "starstruck",
     "irritable",
