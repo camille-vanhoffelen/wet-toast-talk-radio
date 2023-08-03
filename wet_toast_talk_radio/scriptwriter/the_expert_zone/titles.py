@@ -10,15 +10,10 @@ TITLES = [
     "Distinguished Professor of",
     "Endowed Chair Professor of",
     "Professor Emeritus of",
-    "Endowed Chair Professor of",
     "Nobel Prize Laureate in",
-    "Dean of the Faculty of",
     "Distinguished Scholar in",
-    "Fellow of the Academy of",
     "Chair of the Royal Society of",
     "Chair of the World Institute of",
-    "President of the National Center of",
-    "President of the National Academy of",
 ]
 
 

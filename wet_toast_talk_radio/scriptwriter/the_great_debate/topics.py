@@ -176,7 +176,7 @@ class Topics:
         return [harmless, taboo, stupid, common]
 
     def save(self, topics: list[str]) -> None:
-        with (self._output_dir / "topics.json").open("w") as f:
+        with (self._output_dir / "the-great-debate-topics.json").open("w") as f:
             json.dump(topics, f, indent=2)
 
 
@@ -184,7 +184,7 @@ def flatten(things: list) -> list:
     return [e for nested_things in things for e in nested_things]
 
 
-TOPICS_PATH = Path(__file__).parent / "resources" / "topics.json"
+TOPICS_PATH = Path(__file__).parent / "resources" / "the-great-debate-topics.json"
 TOPICS_CACHE = None
 
 

@@ -1,5 +1,6 @@
 import asyncio
 import json
+import random
 from pathlib import Path
 
 import structlog
@@ -12,53 +13,63 @@ TOPIC_TEMPLATE = """{{#system~}}
 You are an edgy, satirical author.
 {{~/system}}
 {{#user~}}
-Your task is to generate lists of fake academic research topics.
+Your task is to generate lists of fake academic fields.
 {{topic_description}}
-List the topics one per line. Don't number them or print any other text, just print a topic on each line.
+List the fields one per line. Don't number them or print any other text, just print a field on each line.
 
 Here is an example:
 {{#each examples~}}
 {{this}}
 {{/each}}
-Now generate a list of {{n_topics}} topics.
+Now generate a list of {{n_topics}} academic fields.
 {{~/user}}
 {{#assistant~}}
 {{gen 'list' temperature=0.95 max_tokens=1000}}
 {{~/assistant}}"""
 
-STUPID_EXAMPLES = [
-    "Eating Tide Pods as a dietary supplement",
-    "Using a plastic bag as a condom",
-    "Juggling knives blindfolded",
+FAKE_EXAMPLES = [
+    "Nanoeconomics",
+    "Oval Universe Theory",
+    "Metabiology",
+    "Geometric Theology",
 ]
-STUPID_DESCRIPTION = (
-    "The topics should be absurd and stupid actions with obvious dire consequences."
+FAKE_DESCRIPTION = "The academic fields should sound like real academic research fields, but be completely fake."
+
+ABSURD_EXAMPLES = [
+    "Time Travel Philosophy",
+    "Plant Linguistics",
+    "Cooties Virology",
+    "Perpetual Motion Physics",
+]
+ABSURD_DESCRIPTION = (
+    "The academic fields should be studies of things that are impossible and absurd."
 )
 
-HARMLESS_EXAMPLES = [
-    "Using toilet paper",
-    "Using a spoon to eat your soup",
-    "Brushing your hair",
-    "Taking naps",
+MODERN_EXAMPLES = [
+    "Tiktok Dance Studies",
+    "Selfie Engineering",
+    "Meme Anthropology",
+    "Fast Fashion Economics",
 ]
-HARMLESS_DESCRIPTION = "The topics should be everyday things that people do without ever thinking about it. These things should be harmless and commonplace"  # noqa: E501
-
-TABOO_EXAMPLES = [
-    "Eating your boogers",
-    "Looking at your poop after pooping",
-    "Licking the yogurt lid",
-]
-TABOO_DESCRIPTION = (
-    "The topics should be things that most people do, but aren't talked openly about."
+MODERN_DESCRIPTION = (
+    "The academic fields should be studies of modern phenomena that define millennial and gen-z culture. "
+    "The fields should sound like real academic research fields."
 )
 
-COMMON_EXAMPLES = [
-    "Texting while driving on the highway",
-    "Investing all your life savings in bitcoin",
-    "Binge-watching TV shows until 3 am every night",
-    "Ignoring medical symptoms and hoping they go away",
+MUNDANE_EXAMPLES = [
+    "Lemonade Stand Economics",
+    "Tea Infusion Chemistry",
+    "History of Flatulence",
+    "Dust Dynamics",
+    "Yawn Physiology",
+    "Handshake Mechanics",
+    "Potato Aerodynamics",
 ]
-COMMON_DESCRIPTION = "The topics should be things that a lot of people do, but that are actually a terrible idea."
+MUNDANE_DESCRIPTION = (
+    "The academic fields should be studies of common objects or mundane occurrences "
+    "that people experience in their everyday lives. "
+    "These should not be traditionally associated with serious research."
+)
 
 
 class TopicGenerator:
@@ -145,38 +156,38 @@ class Topics:
         return True
 
     def init_generators(self) -> list[TopicGenerator]:
-        harmless = TopicGenerator(
+        fake = TopicGenerator(
             llm=self._llm,
             n_topics=self.n_topics,
             n_iter=self.n_iter,
-            examples=HARMLESS_EXAMPLES,
-            topic_description=HARMLESS_DESCRIPTION,
+            examples=FAKE_EXAMPLES,
+            topic_description=FAKE_DESCRIPTION,
         )
-        taboo = TopicGenerator(
+        absurd = TopicGenerator(
             llm=self._llm,
             n_topics=self.n_topics,
             n_iter=self.n_iter,
-            examples=TABOO_EXAMPLES,
-            topic_description=TABOO_DESCRIPTION,
+            examples=ABSURD_EXAMPLES,
+            topic_description=ABSURD_DESCRIPTION,
         )
-        stupid = TopicGenerator(
+        modern = TopicGenerator(
             llm=self._llm,
             n_topics=self.n_topics,
             n_iter=self.n_iter,
-            examples=STUPID_EXAMPLES,
-            topic_description=STUPID_DESCRIPTION,
+            examples=MODERN_EXAMPLES,
+            topic_description=MODERN_DESCRIPTION,
         )
-        common = TopicGenerator(
+        mundane = TopicGenerator(
             llm=self._llm,
             n_topics=self.n_topics,
             n_iter=self.n_iter,
-            examples=COMMON_EXAMPLES,
-            topic_description=COMMON_DESCRIPTION,
+            examples=MUNDANE_EXAMPLES,
+            topic_description=MUNDANE_DESCRIPTION,
         )
-        return [harmless, taboo, stupid, common]
+        return [fake, absurd, modern, mundane]
 
     def save(self, topics: list[str]) -> None:
-        with (self._output_dir / "topics.json").open("w") as f:
+        with (self._output_dir / "the-expert-zone-topics.json").open("w") as f:
             json.dump(topics, f, indent=2)
 
 
@@ -184,7 +195,7 @@ def flatten(things: list) -> list:
     return [e for nested_things in things for e in nested_things]
 
 
-TOPICS_PATH = Path(__file__).parent / "resources" / "topics.json"
+TOPICS_PATH = Path(__file__).parent / "resources" / "the-expert-zone-topics.json"
 TOPICS_CACHE = None
 
 
@@ -194,3 +205,8 @@ def load_topics() -> list[str]:
         with TOPICS_PATH.open() as f:
             TOPICS_CACHE = json.load(f)
     return TOPICS_CACHE
+
+
+def random_topic() -> str:
+    """Return a random topic from the list of topics"""
+    return random.choice(load_topics())

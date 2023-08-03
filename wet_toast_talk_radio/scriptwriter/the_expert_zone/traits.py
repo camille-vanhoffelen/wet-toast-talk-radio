@@ -3,7 +3,6 @@ import random
 TRAITS = [
     "boring",
     "hysterical",
-    "forgetful",
     "arrogant",
     "offended",
     "proud",
@@ -18,7 +17,6 @@ TRAITS = [
     "witty",
     "charismatic",
     "pessimistic",
-    "awkward",
     "boastful",
     "condescending",
     "narcissistic",
