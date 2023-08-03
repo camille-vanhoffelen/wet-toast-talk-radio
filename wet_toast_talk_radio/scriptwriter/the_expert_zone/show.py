@@ -1,5 +1,4 @@
 import random
-import time
 from dataclasses import dataclass
 
 import structlog
@@ -88,7 +87,10 @@ class TheExpertZone(RadioShow):
         )
 
         # Intro
-        guest_identity = f"{self.guest.placeholder_name}, an expert researcher in {self.guest.topic}. You are exceptionally {self.guest.trait}"
+        guest_identity = (
+            f"{self.guest.placeholder_name}, an expert researcher in {self.guest.topic}. "
+            f"You are exceptionally {self.guest.trait}"
+        )
         guest_role = "the guest on a talk show"
         guest_mission = "Do not repeat yourself throughout the conversation."
         system_message_prompt = Program(text=SYSTEM_MESSAGE_TEMPLATE, llm=self._llm)
@@ -98,7 +100,9 @@ class TheExpertZone(RadioShow):
 
         intro = (
             f"Welcome to 'The Expert Zone', the show where we ask experts the difficult questions... "
-            f"This is your star host, Nick, and today we welcome {self.guest.placeholder_name}, {self.guest.title} {self.guest.topic}. {self.guest.placeholder_name}, how are you?"
+            f"This is your star host, Nick, "
+            f"and today we welcome {self.guest.placeholder_name}, {self.guest.title} {self.guest.topic}. "
+            f"{self.guest.placeholder_name}, how are you?"
         )
         guest = await guest(system_message=guest_system_message, question=intro)
 

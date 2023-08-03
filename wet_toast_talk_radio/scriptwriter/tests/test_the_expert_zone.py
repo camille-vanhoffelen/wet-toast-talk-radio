@@ -33,6 +33,7 @@ def guest() -> Guest:
         title="Professor Emeritus of",
         trait="proud",
         topic="Dust dynamics",
+        placeholder_name="Linda",
     )
 
 
