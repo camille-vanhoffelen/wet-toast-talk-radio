@@ -18,13 +18,13 @@ PERSONAL_STORY = (
     "then you try to relate it to {{topic}}."
 )
 DOOMSTER = "You try to spin the guest's words into something concerning and worrying."
-KNOW_BETTER = "You suggest an alternative explanation to the answer the guest just gave you, as if you knew better."
+KNOW_BETTER = "You disagree with the guest's answer, and offer an alternative explanation as if you knew better."
 PERSONAL_QUESTION = (
     "You ask a rude intrusive personal question that is irrelevant to {{topic}}."
 )
 
 
-def random_host_missions(topic: str, k: int):
+def random_host_missions(topic: str, k: int) -> list[str]:
     """Randomly sample k missions for the host.
     Sampling without replacement to avoid repetition.
     Oversampling DEFAULT to make it more likely."""

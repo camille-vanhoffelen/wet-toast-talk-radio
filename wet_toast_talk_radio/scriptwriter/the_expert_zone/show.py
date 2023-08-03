@@ -9,6 +9,8 @@ from wet_toast_talk_radio.scriptwriter.radio_show import RadioShow
 from wet_toast_talk_radio.scriptwriter.the_expert_zone.missions import (
     random_host_missions,
 )
+from wet_toast_talk_radio.scriptwriter.the_expert_zone.titles import random_title
+from wet_toast_talk_radio.scriptwriter.the_expert_zone.traits import random_trait
 
 logger = structlog.get_logger()
 
@@ -32,10 +34,6 @@ You are {{role}}.
 You always answer in four sentences or less."""
 
 
-# TODO remove
-# You keep the show going
-
-
 class TheExpertZone(RadioShow):
     """A radio show where expert guests are interviewed about their specialities."""
 
@@ -43,12 +41,14 @@ class TheExpertZone(RadioShow):
         self,
         topic: str,
         trait: str,
+        title: str,
         host_missions: list[str],
         llm: LLM,
         media_store: MediaStore,
     ):
         self.topic = topic
         self.trait = trait
+        self.title = title
         self.host_missions = host_missions
         self._llm = llm
         self._media_store = media_store
@@ -71,7 +71,10 @@ class TheExpertZone(RadioShow):
         # Intro
         guest_identity = f"Ian, a {self.trait} expert researcher in {self.topic}"
         guest_role = "the guest on a talk show"
-        guest_mission = "You answer each question informatively and politely. Do not repeat yourself throughout the conversation."
+        guest_mission = (
+            "You answer each question informatively and politely. "
+            "Do not repeat yourself throughout the conversation."
+        )
         system_message_prompt = Program(text=SYSTEM_MESSAGE_TEMPLATE, llm=self._llm)
         guest_system_message = system_message_prompt(
             identity=guest_identity, role=guest_role, mission=guest_mission
@@ -79,7 +82,7 @@ class TheExpertZone(RadioShow):
 
         intro = (
             f"Welcome to 'The Expert Zone', the show where we ask experts the difficult questions... "
-            f"This is your star host, Nick, and today we welcome Ian, an expert researcher in {self.topic}. Ian, how are you?"
+            f"This is your star host, Nick, and today we welcome Ian, {self.title} {self.topic}. Ian, how are you?"
         )
         guest = await guest(system_message=guest_system_message, question=intro)
 
@@ -106,7 +109,12 @@ class TheExpertZone(RadioShow):
         logger.info("Finished writing The Expert Zone")
 
         lines = self._post_processing(guest)
+
+        # TODO remove
         print(lines)
+        n_chars = sum([len(line.content.split(" ")) for line in lines])
+        print(f"Number of characters: {n_chars}")
+
         self._media_store.put_script_show(show_id=show_id, lines=lines)
         return True
 
@@ -127,15 +135,18 @@ class TheExpertZone(RadioShow):
     @classmethod
     def create(cls, llm: LLM, media_store: MediaStore) -> "RadioShow":
         topic = "Dust Dynamics"
-        # trait = "boring"
-        trait = "arrogant"
-        host_missions = random_host_missions(topic=topic, k=10)
         logger.info("Random topic", topic=topic)
+        trait = random_trait()
         logger.info("Random trait", trait=trait)
+        title = random_title()
+        logger.info("Random title", title=title)
+        host_missions = random_host_missions(topic=topic, k=10)
         logger.info("Random host missions", missions=host_missions)
+
         return cls(
             topic=topic,
             trait=trait,
+            title=title,
             host_missions=host_missions,
             llm=llm,
             media_store=media_store,

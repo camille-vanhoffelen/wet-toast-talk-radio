@@ -6,18 +6,29 @@ from guidance.llms import Mock
 from wet_toast_talk_radio.media_store import MediaStore, VirtualMediaStore
 from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.scriptwriter.the_expert_zone import TheExpertZone
+from wet_toast_talk_radio.scriptwriter.the_expert_zone.missions import (
+    CONTROVERSIAL,
+    DOOMSTER,
+)
 
 
-def test_the_expert_zone(fake_llm, virtual_media_store, show_id):
+def test_the_expert_zone(host_missions, fake_llm, virtual_media_store, show_id):
     show = TheExpertZone(
         topic="Dust dynamics",
         trait="boring",
+        title="Professor Emeritus of",
+        host_missions=host_missions,
         llm=fake_llm,
         media_store=virtual_media_store,
     )
     asyncio.run(show.awrite(show_id=show_id))
     script_shows = virtual_media_store.list_script_shows()
     assert script_shows == [show_id]
+
+
+@pytest.fixture()
+def host_missions() -> list[str]:
+    return [CONTROVERSIAL, DOOMSTER]
 
 
 @pytest.fixture()
