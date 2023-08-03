@@ -15,10 +15,10 @@ AGENT_TEMPLATE = """
 {{await 'system_message'}}
 {{~/system}}
 {{#user~}}
-{{set 'this.user_text' (await 'user_text') hidden=False}}
+{{set 'this.question' (await 'question') hidden=False}}
 {{~/user}}
 {{#assistant~}}
-{{gen 'this.ai_text' temperature=0.9 max_tokens=150}}
+{{gen 'this.response' temperature=0.9 max_tokens=150}}
 {{~/assistant}}
 {{~/geneach}}"""
 
@@ -26,7 +26,8 @@ AGENT_TEMPLATE = """
 SYSTEM_MESSAGE_TEMPLATE = """You are {{identity}}.
 You are {{role}}.
 {{mission}}
-You always answer in four sentences or less."""
+You always answer in four sentences or less.
+Keep the show going."""
 
 
 class TheExpertZone(RadioShow):
@@ -45,6 +46,7 @@ class TheExpertZone(RadioShow):
         self._media_store = media_store
 
     async def awrite(self, show_id: ShowId) -> bool:
+        logger.info("Async writing The Expert Zone")
         guest = Program(
             text=AGENT_TEMPLATE,
             llm=self._llm,
@@ -61,7 +63,7 @@ class TheExpertZone(RadioShow):
         # Intro
         guest_identity = f"Ian, a {self.trait} expert researcher in {self.expertise}"
         guest_role = "the guest on a talk show"
-        guest_mission = "You answer each question informatively and politely. Do not repeat yourself."
+        guest_mission = "You answer each question informatively and politely. Do not repeat yourself throughout the conversation."
         system_message_prompt = Program(text=SYSTEM_MESSAGE_TEMPLATE, llm=self._llm)
         guest_system_message = system_message_prompt(
             identity=guest_identity, role=guest_role, mission=guest_mission
@@ -78,15 +80,15 @@ class TheExpertZone(RadioShow):
             f"Welcome to 'The Expert Zone', the show where we ask experts the difficult questions... "
             f"This is your star host, Nick, and today we welcome Ian, an expert researcher in {self.expertise}. Ian, how are you?"
         )
-        guest = await guest(system_message=guest_system_message, user_text=intro)
+        guest = await guest(system_message=guest_system_message, question=intro)
         for _i in range(2):
             host = await host(
                 system_message=host_system_message,
-                user_text=guest["conversation"][-2]["ai_text"],
+                question=guest["conversation"][-2]["response"],
             )
             guest = await guest(
                 system_message=guest_system_message,
-                user_text=host["conversation"][-2]["ai_text"],
+                question=host["conversation"][-2]["response"],
             )
 
         # Metaphor
@@ -96,11 +98,11 @@ class TheExpertZone(RadioShow):
         )
         host = await host(
             system_message=host_system_message,
-            user_text=guest["conversation"][-2]["ai_text"],
+            question=guest["conversation"][-2]["response"],
         )
         guest = await guest(
             system_message=guest_system_message,
-            user_text=host["conversation"][-2]["ai_text"],
+            question=host["conversation"][-2]["response"],
         )
 
         # Conspiracy Theory
@@ -110,39 +112,41 @@ class TheExpertZone(RadioShow):
         )
         host = await host(
             system_message=host_system_message,
-            user_text=guest["conversation"][-2]["ai_text"],
+            question=guest["conversation"][-2]["response"],
         )
         guest = await guest(
             system_message=guest_system_message,
-            user_text=host["conversation"][-2]["ai_text"],
+            question=host["conversation"][-2]["response"],
         )
 
         # Fake Fact
-        host_mission = f"You make up a fact about {self.expertise} and ask the guest about it."
+        host_mission = (
+            f"You make up a plausible yet farfetched fact about {self.expertise} and ask the guest about it. Do not reveal that the fact is made up."
+        )
         host_system_message = system_message_prompt(
             identity=host_identity, role=host_role, mission=host_mission
         )
         host = await host(
             system_message=host_system_message,
-            user_text=guest["conversation"][-2]["ai_text"],
+            question=guest["conversation"][-2]["response"],
         )
         guest = await guest(
             system_message=guest_system_message,
-            user_text=host["conversation"][-2]["ai_text"],
+            question=host["conversation"][-2]["response"],
         )
 
         # Controversial
-        host_mission = "You try to spin the guest's words into something controversial."
+        host_mission = "You try to make it seem like the guest's answer was highly controversial."
         host_system_message = system_message_prompt(
             identity=host_identity, role=host_role, mission=host_mission
         )
         host = await host(
             system_message=host_system_message,
-            user_text=guest["conversation"][-2]["ai_text"],
+            question=guest["conversation"][-2]["response"],
         )
         guest = await guest(
             system_message=guest_system_message,
-            user_text=host["conversation"][-2]["ai_text"],
+            question=host["conversation"][-2]["response"],
         )
 
         # Random Personal Story
@@ -152,39 +156,41 @@ class TheExpertZone(RadioShow):
         )
         host = await host(
             system_message=host_system_message,
-            user_text=guest["conversation"][-2]["ai_text"],
+            question=guest["conversation"][-2]["response"],
         )
         guest = await guest(
             system_message=guest_system_message,
-            user_text=host["conversation"][-2]["ai_text"],
+            question=host["conversation"][-2]["response"],
         )
 
         # Doomster
-        host_mission = "You try to spin the guest's words into something dystopian and alarming for the population."
+        host_mission = (
+            "You try to spin the guest's words into something concerning and worrying."
+        )
         host_system_message = system_message_prompt(
             identity=host_identity, role=host_role, mission=host_mission
         )
         host = await host(
             system_message=host_system_message,
-            user_text=guest["conversation"][-2]["ai_text"],
+            question=guest["conversation"][-2]["response"],
         )
         guest = await guest(
             system_message=guest_system_message,
-            user_text=host["conversation"][-2]["ai_text"],
+            question=host["conversation"][-2]["response"],
         )
 
         # I know better
-        host_mission = f"You suggest a stupid alternative explanation or interpretation to the answer the guest just gave you."
+        host_mission = "You suggest a stupid alternative explanation or interpretation to the answer the guest just gave you."
         host_system_message = system_message_prompt(
             identity=host_identity, role=host_role, mission=host_mission
         )
         host = await host(
             system_message=host_system_message,
-            user_text=guest["conversation"][-2]["ai_text"],
+            question=guest["conversation"][-2]["response"],
         )
         guest = await guest(
             system_message=guest_system_message,
-            user_text=host["conversation"][-2]["ai_text"],
+            question=host["conversation"][-2]["response"],
         )
 
         # Personal Question
@@ -194,45 +200,41 @@ class TheExpertZone(RadioShow):
         )
         host = await host(
             system_message=host_system_message,
-            user_text=guest["conversation"][-2]["ai_text"],
+            question=guest["conversation"][-2]["response"],
         )
         guest = await guest(
             system_message=guest_system_message,
-            user_text=host["conversation"][-2]["ai_text"],
+            question=host["conversation"][-2]["response"],
         )
-
-
 
         print("HOST:")
         print(host)
-        print("GUEST:")
-        print(guest)
-        print("Converation:")
-        print(guest["conversation"])
 
-        return True
-
-    async def awrite_old(self, show_id: ShowId) -> bool:
-        logger.info("Async writing The Expert Zone")
-        program = Program(text=ZONE_TEMPLATE, llm=self._llm, async_mode=True)
-        written_program = await program(expertise=self.expertise)
-        logger.debug("Written script", debate=written_program)
+        logger.debug("Written script", conversation=guest["conversation"])
         logger.info("Finished writing The Expert Zone")
-        lines = self._post_processing(written_program)
+
+        lines = self._post_processing(guest)
+        print(lines)
         self._media_store.put_script_show(show_id=show_id, lines=lines)
         return True
 
     def _post_processing(self, program: Program) -> list[Line]:
         logger.debug("Post processing The Expert Zone")
-        script = program["script"]
-        # TODO fix
-        line = Line(
-            speaker=Speaker(name="Orion", gender="male", host=True), content=script
-        )
-        return [line]
+        # TODO randomize host and guest
+        host = Speaker(name="Nick", gender="male", host=True)
+        guest = Speaker(name="Ian", gender="male", host=False)
+
+        conversation = program["conversation"]
+        lines = []
+        # last exchange is always empty
+        for exchange in conversation[:-1]:
+            lines.append(Line(speaker=host, content=exchange["question"]))
+            lines.append(Line(speaker=guest, content=exchange["response"]))
+        return lines
 
     @classmethod
     def create(cls, llm: LLM, media_store: MediaStore) -> "RadioShow":
         expertise = "Dust Dynamics"
-        trait = "boring"
+        # trait = "boring"
+        trait = "arrogant"
         return cls(expertise=expertise, trait=trait, llm=llm, media_store=media_store)
