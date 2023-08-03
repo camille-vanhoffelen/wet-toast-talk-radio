@@ -18,10 +18,18 @@ from wet_toast_talk_radio.scriptwriter.modern_mindfulness import (
     ModernMindfulness,
     Situations,
 )
+from wet_toast_talk_radio.scriptwriter.the_expert_zone import (
+    TheExpertZone,
+)
+from wet_toast_talk_radio.scriptwriter.the_expert_zone import (
+    Topics as TheExpertZoneTopics,
+)
 from wet_toast_talk_radio.scriptwriter.the_great_debate import (
     TheGreatDebate,
-    Topics,
     Traits,
+)
+from wet_toast_talk_radio.scriptwriter.the_great_debate import (
+    Topics as TheGreatDebateTopics,
 )
 
 logger = structlog.get_logger()
@@ -144,11 +152,11 @@ def traits(ctx: dict, n_traits: int, n_iter: int):
     type=int,
     help="Number of parallel generations to be aggregated",
 )
-def topics(ctx: dict, n_topics: int, n_iter: int):
+def the_great_debate_topics(ctx: dict, n_topics: int, n_iter: int):
     """Run command
-    scriptwriter topics
+    scriptwriter the-great-debate-topics
 
-    Write unique character topics for guests, writes them in /tmp/topics.json
+    Write unique character topics for guests, writes them in /tmp/the-great-debate-topics.json
     """
     structlog.configure(
         wrapper_class=structlog.make_filtering_bound_logger(logging.DEBUG),
@@ -158,7 +166,7 @@ def topics(ctx: dict, n_topics: int, n_iter: int):
     sw_cfg = root_cfg.scriptwriter
     llm = new_llm(cfg=sw_cfg.llm)
 
-    topics_writer = Topics(llm=llm, n_topics=n_topics, n_iter=n_iter)
+    topics_writer = TheGreatDebateTopics(llm=llm, n_topics=n_topics, n_iter=n_iter)
     asyncio.run(topics_writer.awrite())
 
 
@@ -224,3 +232,48 @@ def circumstances(ctx: dict, n_circumstances: int, n_iter: int):
         llm=llm, n_circumstances=n_circumstances, n_iter=n_iter
     )
     asyncio.run(circumstances_writer.awrite())
+
+
+@scriptwriter.command(help="Write script for The Expert Zone")
+@click.pass_context
+def the_expert_zone(ctx: dict):
+    """Run command
+    scriptwriter the-expert-zone
+    """
+    logger.info("Writing script for The Expert Zone")
+    root_cfg = ctx.obj["root_cfg"]
+    sw_cfg = root_cfg.scriptwriter
+
+    llm = new_llm(cfg=sw_cfg.llm)
+    show = TheExpertZone.create(llm=llm, media_store=VirtualMediaStore())
+    show_id = ShowId(show_i=0, date="2012-12-21")
+    asyncio.run(show.awrite(show_id=show_id))
+
+
+@scriptwriter.command(help="Write topics for The Expert Zone")
+@click.pass_context
+@click.option(
+    "--n-topics", default=30, type=int, help="Number of topics generated per iteration"
+)
+@click.option(
+    "--n-iter",
+    default=10,
+    type=int,
+    help="Number of parallel generations to be aggregated",
+)
+def the_expert_zone_topics(ctx: dict, n_topics: int, n_iter: int):
+    """Run command
+    scriptwriter the-expert-zone-topics
+
+    Write unique character topics for guests, writes them in /tmp/the-expert-zone-topics.json
+    """
+    structlog.configure(
+        wrapper_class=structlog.make_filtering_bound_logger(logging.DEBUG),
+    )
+    logger.info("Writing topics for The Great Debate")
+    root_cfg = ctx.obj["root_cfg"]
+    sw_cfg = root_cfg.scriptwriter
+    llm = new_llm(cfg=sw_cfg.llm)
+
+    topics_writer = TheExpertZoneTopics(llm=llm, n_topics=n_topics, n_iter=n_iter)
+    asyncio.run(topics_writer.awrite())
