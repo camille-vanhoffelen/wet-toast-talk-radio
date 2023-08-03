@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.29](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.28...v0.1.29) (2023-08-03)
+
+
+### Features
+
+* nick has a voice ([#93](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/93)) ([155a061](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/155a061f62a38cad8d5ae95110319cbbd80d7be0))
+
 ## [0.1.28](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.27...v0.1.28) (2023-08-03)
 
 
