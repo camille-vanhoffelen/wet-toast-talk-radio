@@ -10,7 +10,7 @@ from wet_toast_talk_radio.scriptwriter.the_expert_zone import TheExpertZone
 
 def test_the_expert_zone(fake_llm, virtual_media_store, show_id):
     show = TheExpertZone(
-        expertise="Dust dynamics",
+        topic="Dust dynamics",
         trait="boring",
         llm=fake_llm,
         media_store=virtual_media_store,
