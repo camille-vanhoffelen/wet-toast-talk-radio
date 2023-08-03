@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.28](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.27...v0.1.28) (2023-08-03)
+
+
+### Features
+
+* The expert zone v1 ([#91](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/91)) ([8a48c18](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/8a48c18fd0741ce019aae9f1ce92ea789d84c63a))
+
 ## [0.1.27](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.26...v0.1.27) (2023-08-02)
 
 
