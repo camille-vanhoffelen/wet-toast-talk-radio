@@ -17,6 +17,7 @@ from wet_toast_talk_radio.scriptwriter.prolove.genders import Gender
 from wet_toast_talk_radio.scriptwriter.prolove.sexual_orientations import random_sexual_orientation
 from wet_toast_talk_radio.scriptwriter.prolove.traits import random_trait
 from wet_toast_talk_radio.scriptwriter.prolove.topics import random_topic
+from wet_toast_talk_radio.scriptwriter.prolove.anecdotes import random_anecdote
 from wet_toast_talk_radio.scriptwriter.radio_show import RadioShow
 
 logger = structlog.get_logger()
@@ -332,9 +333,11 @@ class Prolove(RadioShow):
         )
         logger.info("Random guest", guest=guest)
 
-        intro_host_missions = host_missions()
+        anecdote = random_anecdote()
+        logger.info("Random anecdote", anecdote=anecdote)
+        intro_host_missions = host_missions(anecdote)
         convo_host_missions = random_host_missions(k=4)
-        logger.info("Random host missions", missions=host_missions)
+        logger.info("Random convo host missions", missions=convo_host_missions)
 
         return cls(
             guest=guest,

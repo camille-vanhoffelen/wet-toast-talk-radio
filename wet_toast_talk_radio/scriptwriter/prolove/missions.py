@@ -111,7 +111,7 @@ LESSONS = [
     "independence",
 ]
 
-def host_missions() -> list[str]:
+def host_missions(anecdote: str) -> list[str]:
     """Randomly sample k missions for the host.
     Sampling without replacement to avoid repetition.
     Oversampling DEFAULT to make it more likely.
@@ -120,9 +120,9 @@ def host_missions() -> list[str]:
     lesson = random.choice(LESSONS)
     # TODO has to read like cards against humanity
     # TODO see chatgpt UI
-    # anecdote = "You rejected someone because they were wearing a v-neck t-shirt. "
-    anecdote = "You left a date because they weren't impressed by your sudoku high scores. "
-    anecdote += "It was a great decision. "
+    # anecdote += " It was a great decision. "
+    # anecdote += " You are happy with how it turned out. "
+    anecdote += " It turned out great. "
     story = STORY.replace("{{lesson}}", lesson).replace("{{anecdote}}", anecdote)
     # always start with default
     # TODO fix
