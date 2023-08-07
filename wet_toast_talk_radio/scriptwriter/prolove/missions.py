@@ -14,20 +14,24 @@ CALL = (
     "You always answer in six sentences or less."
 )
 
-# TODO funnier anecdotes
-# TODO has to seemingly be a love failure, but be very particular
-# TODO factor out
 STORY = (
-    "In the meantime, you tell the following personal story: {{anecdote}} "
-    "You describe what you saw and what you felt in great detail. "
-    "Then, you turn this into a lesson about love and {{lesson}}. "
-    "You always answer in eight sentences or less."
+    "In the meantime, you tell the following personal story: "
+    "Last week, {{anecdote}} "
+    "You are proud of this story, and believe that your behaviour was great. "
+    "You describe the events in chronological order and in great visual detail, in 10 sentences. "
+    # "You always answer in 12 sentences or less."
 )
 
 # TODO We have our first caller on the line. -> hardcode this, and loops? have two guests on the show?
 
 DEFAULT = (
     "You keep the conversation going with caller. "
+    "You refer to the caller as 'sweetie'. "
+    "You always answer in four sentences or less."
+)
+
+FOLLOW_UP = (
+    "You ask a follow up question to the caller. "
     "You refer to the caller as 'sweetie'. "
     "You always answer in four sentences or less."
 )
@@ -63,9 +67,13 @@ METAPHOR = (
     "This metaphor supports your point of view. "
 )
 
-LESSON = (
+SOLOSEXUAL = (
     "You wonder if the caller might be solosexual. "
     "You provide evidence based on the caller's situation and comments. "
+)
+
+LESSON = (
+    "You give the caller a lesson about {{lesson}} in love. "
 )
 
 PROMOTION = (
@@ -117,13 +125,7 @@ def host_missions(anecdote: str) -> list[str]:
     Oversampling DEFAULT to make it more likely.
     Always start with DEFAULT."""
     # TODO better
-    lesson = random.choice(LESSONS)
-    # TODO has to read like cards against humanity
-    # TODO see chatgpt UI
-    # anecdote += " It was a great decision. "
-    # anecdote += " You are happy with how it turned out. "
-    anecdote += " It turned out great. "
-    story = STORY.replace("{{lesson}}", lesson).replace("{{anecdote}}", anecdote)
+    story = STORY.replace("{{anecdote}}", anecdote)
     # always start with default
     # TODO fix
     return [INTRO, CALL, story, DEFAULT]
@@ -133,17 +135,19 @@ def random_host_missions(k: int) -> list[str]:
     Sampling without replacement to avoid repetition.
     Oversampling DEFAULT to make it more likely.
     Always start with DEFAULT."""
+    lesson = random.choice(LESSONS)
     missions = [
         # DEFAULT,
         METAPHOR,
-        LESSON,
+        LESSON.replace("{{lesson}}", lesson),
+        SOLOSEXUAL,
         PROMOTION,
         FAKE_FACT,
         PAST_EXPERIENCE,
         PERSONAL_QUESTION,
         HIJACK,
     ]
-    counts = [1, 1, 1, 1, 1, 1, 1]
+    counts = [1] * len(missions)
     random_missions = random.sample(population=missions, k=k, counts=counts)
     # TODO better
     # always start with default

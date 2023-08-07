@@ -96,20 +96,16 @@ class Prolove(RadioShow):
         # Intro
         intro = (
             "Welcome to 'Prolove', the dating advice show where we say YES to love! "
-            "This is your dearest host, Zara, ready to answer all your questions about love and connection. "
+            "I'm your host, Zara, ready to answer all your questions about love and connection. "
         )
         host_identity = (
-            "You are Zara, a kind and caring dating coach who is unconsciously self-obsessed. "
-            # "You are Zara, a kind and caring dating coach who is self-obsessed. "
-            "You speak calmly yet confidently."
-            # TODO Keep this.
-            # "You don't realise that you give terrible dating advice."
-            # TODO keep this below as a particular mission where you mention solosexuality. Keep this identity section light and persona based.
-            # "You are proudly solosexual, and you think relationships and sex are all about yourself. "
-            # "You are proudly solosexual, and you think it fosters self-empowerment and self-love. "
-            # TODO keep this below too DEFAULT should be just her character and keeping the conversation going, like Nick
-            # TODO the juice comes from combos of specific missions
-            # "You secretly have never had a serious relationship, and don't admit that you'd rather masturbate alone than have sex. "
+            # "You are Zara, a kind and caring dating coach who is unconsciously self-obsessed. "
+            # "You are Zara, a dating coach who is unconsciously self-obsessed. "
+            "You are Zara, a sassy and confident dating coach who unintentionally gives terrible advice. "
+            # "You are Zara, a sassy and confident dating coach who unwittingly gives terrible advice. "
+            # "You speak calmly yet confidently."
+            "You speak in a friendly and informal manner. "
+            # "You speak with sass and confidence. "
         )
         host_role = "You are the host of a radio talk show."
         system_message_prompt = Program(text=SYSTEM_MESSAGE_TEMPLATE, llm=self._llm)
@@ -174,6 +170,8 @@ class Prolove(RadioShow):
         )
         guest = await guest(system_message=guest_system_message, question=host["conversation"][-2]["response"])
 
+# TODO replace this by randomly selecting from a list of pre written short alts, eg
+        # TODO Could you tell me more about that? Can you tell me more details? Tell me what happened? etc, generate with openai online chat
         host_system_message = system_message_prompt(
             identity="",
             role="",
@@ -258,6 +256,8 @@ class Prolove(RadioShow):
             )
 
             guest_mission = (
+                #TODO try
+                #" React to Zara in one sentence."
                 # TODO maybe?
                 # "You keep the conversation going with Zara. "
                 "Do not thank Zara. "
