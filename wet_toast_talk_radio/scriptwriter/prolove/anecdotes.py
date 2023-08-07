@@ -10,30 +10,29 @@ from guidance.llms import LLM
 logger = structlog.get_logger()
 
 DATING_EXAMPLES = [
-    "I cancelled a date to go to the spa.",
-    "I left a tinder date because they weren't impressed by my sudoku high scores.",
-    "I put up outdated photos on my dating profile.",
-    "I lied about my sexual history to make myself seem more experienced.",
-    "I broke up with someone because they didn't like my favorite movie.",
+    # "I left a date because they weren't impressed by my sudoku high scores.",
+    # "I ghosted someone I had been dating for months because they changed perfume.",
+    "I went on a date with someone who only communicated through interpretive dance.",
+    "I went on a date with someone who brought their pet tarantula along in their purse.",
 ]
 
 TOPIC_TEMPLATE = """{{#system~}}
-You are petty, insecure, self-obsessed, and emotionally immature.
+You are an edgy, satirical writer.
 {{~/system}}
 {{#user~}}
-Your task is to generate lists of your most unique {{anecdote_type}} experiences.
-Describe the experiences in a specific and personal way.
-List the fields one per line. Don't number them or print any other text, just print a field on each line.
+Your task is to generate lists of weird and unusual dating experiences.
+The experiences must be specific and personal.
+List the experiences one per line. Don't number them or print any other text, just print a field on each line.
 
 Here is an example:
 {{#each examples~}}
 {{this}}
 {{/each}}
 
-Now generate a list of {{n_anecdotes}} experiences.
+Now generate a list of {{n_anecdotes}} dating experiences.
 {{~/user}}
 {{#assistant~}}
-{{gen 'list' temperature=1.3 max_tokens=1000}}
+{{gen 'list' temperature=1.0 max_tokens=1000}}
 {{~/assistant}}"""
 
 
@@ -43,13 +42,11 @@ class AnecdoteGenerator:
         llm: LLM,
         n_anecdotes: int,
         n_iter: int,
-        anecdote_type: str,
         examples: list[str],
     ):
         self._llm = llm
         self.n_anecdotes = n_anecdotes
         self.n_iter = n_iter
-        self.anecdote_type = anecdote_type
         self.examples = examples
         logger.info("Initialized anecdotes", n_anecdotes=n_anecdotes, n_iter=n_iter)
 
@@ -67,7 +64,6 @@ class AnecdoteGenerator:
                 asyncio.create_task(
                     self.awrite_anecdote(
                         anecdote,
-                        anecdote_type=self.anecdote_type,
                         examples=self.examples,
                         n_anecdotes=self.n_anecdotes,
                     )
@@ -126,7 +122,6 @@ class Anecdotes:
             llm=self._llm,
             n_anecdotes=self.n_anecdotes,
             n_iter=self.n_iter,
-            anecdote_type="dating",
             examples=DATING_EXAMPLES,
         )
         return [dating]

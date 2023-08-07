@@ -8,41 +8,49 @@ INTRO = (
 )
 
 CALL = (
-    "You continue your introduction by asking the listeners what has been going on in their love life. "
-    "You then ask the listeners to call in and share their stories or questions. "
+    "You ask the listeners what has been going on in their love life. "
+    "Then, you ask the listeners to call in and share their stories or questions. "
     "You refer to listeners as 'my hearts'. "
-    "You answer in six sentences or less."
+    "You ask in six sentences or less."
 )
 
 STORY = (
-    "In the meantime, you tell the following personal story about a date: "
-    "Last week, {{anecdote}} "
-    "You are proud of this story, and believe that your behaviour was great. "
-    "You describe the events in chronological order and in great visual detail, in 10 sentences. "
-    # "You answer in 12 sentences or less."
+    "Tell the following personal story about a date: "
+    '\"Last week, {{anecdote}}\" '
+    "You think the date was weird but kinda cute. "
+    "Describe the events in chronological order and in great visual detail. "
+    "The story should be 15 sentences long. "
+    "After the story, ask the listeners to tell you what they think by calling the show. "
 )
 
 # TODO We have our first caller on the line. -> hardcode this, and loops? have two guests on the show?
 
-DEFAULT = (
-    "You keep the conversation going with caller. "
-    "You refer to the caller as 'sweetie'. "
-    "You answer in four sentences or less."
+WHY = (
+    "You ask the caller why they called the show. "
+    "You ask in two sentences or less."
 )
 
-FOLLOW_UP = (
-    "You ask a follow up personal question to the caller. "
-    "You refer to the caller as 'sweetie'. "
+DEFAULT = (
+    "You keep the conversation going with caller. "
     "You answer in four sentences or less."
 )
 
 
 ADVICE = (
     "You give unconventional and terrible dating advice to the caller. "
+    # "You give unconventional and terrible dating advice to the caller. "
     # "You give petty, selfish, and immature dating advice to the caller. "
     "You don't realise that your advice is awful. "
-    "You refer to the caller as 'sweetie'. "
-    "You answer in 8 sentences or less."
+    "You answer in 6 sentences or less."
+)
+
+MORE_ADVICE = (
+    "You double-down on the terrible dating advice you gave to the caller. "
+    "You describe it more detail. "
+    # "You give unconventional and terrible dating advice to the caller. "
+    # "You give petty, selfish, and immature dating advice to the caller. "
+    "You still don't realise that your advice is awful. "
+    "You answer in 6 sentences or less."
 )
 
 # Randoms
@@ -51,41 +59,35 @@ ADVICE = (
 # TODO How to avoid wrapping up / wishing good luck?
 
 METAPHOR = (
-    "You make a stupid irrelevant metaphor about the caller's situation. "
-    "This metaphor supports your point of view. "
-)
-
-SOLOSEXUAL = (
-    "You wonder if the caller might be solosexual. "
-    "You provide evidence based on the caller's situation and comments. "
+    "Change the topic of conversation by making a stupid irrelevant metaphor about love. "
+    "You don't realise that your metaphor is stupid. "
+    "Do it in 8 sentences or less."
 )
 
 LESSON = (
-    "You give the caller an unconventional and terrible lesson about {{lesson}} in love. "
+    "Change the topic of conversation by giving the caller an unconventional and terrible lesson about {{lesson}} in love. "
     "You don't realise that your advice is awful. "
+    "Do it in 8 sentences or less."
 )
 
 PROMOTION = (
-    # TODO factor out medium book podcast webseries blog panel standup merch
-    "You promote your new book about dating. "
+    "Change the topic of conversation by promoting your new {{product}} about dating and love. "
+    "You describe its contents and why it's special. "
+    "Do it in 8 sentences or less."
 )
 
 FAKE_FACT = (
-    "You make up a plausible yet farfetched statistic about dating to support your point of view. "
-    "Do not reveal that the stat is made up."
+    "Change the topic of conversation by making up a plausible yet farfetched statistic about dating. "
+    "Do not reveal that the stat is made up. "
+    "Infer some kind of lesson from the stat. "
+    "Do it in 8 sentences or less."
 )
 
-PAST_EXPERIENCE = (
-    "You relate the caller's situation to your own past experience. "
-    "You describe what you saw and what you felt in great detail. "
-    "Pick a story that makes you look good."
-)
 
-PERSONAL_QUESTION = (
-    "You ask an intrusive personal question. "
+HIJACK = (
+    "Change the topic of conversation by hijacking the conversation and making it about yourself. "
+    "Do it in 8 sentences or less."
 )
-
-HIJACK = "You hijack the conversation and make it about yourself."
 
 LESSONS = [
     "self-empowerment",
@@ -100,6 +102,30 @@ LESSONS = [
     "independence",
 ]
 
+PRODUCTS = [
+    "book",
+    "podcast",
+    "webseries",
+    "blog",
+    "essay",
+    "nano degree",
+    "standup comedy show",
+    "merch",
+    "hydration drink",
+    "video game",
+    "dating app",
+    "magazine",
+    "instagram",
+    "tiktok post",
+    "love coaching online course",
+    "dating online course",
+    "online dating seminar",
+    "workshop",
+    "blind date service",
+    "speed dating app",
+
+]
+
 def host_missions(anecdote: str) -> list[str]:
     """Randomly sample k missions for the host.
     Sampling without replacement to avoid repetition.
@@ -109,7 +135,7 @@ def host_missions(anecdote: str) -> list[str]:
     story = STORY.replace("{{anecdote}}", anecdote)
     # always start with default
     # TODO fix
-    return [INTRO, CALL, story, DEFAULT]
+    return [INTRO, CALL, story]
 
 def random_host_missions(k: int) -> list[str]:
     """Randomly sample k missions for the host.
@@ -117,16 +143,12 @@ def random_host_missions(k: int) -> list[str]:
     Oversampling DEFAULT to make it more likely.
     Always start with DEFAULT."""
     lesson = random.choice(LESSONS)
+    product = random.choice(PRODUCTS)
     missions = [
-        # DEFAULT,
-        FOLLOW_UP,
         METAPHOR,
         LESSON.replace("{{lesson}}", lesson),
-        SOLOSEXUAL,
-        PROMOTION,
+        PROMOTION.replace("{{product}}", product),
         FAKE_FACT,
-        PAST_EXPERIENCE,
-        PERSONAL_QUESTION,
         HIJACK,
     ]
     counts = [1] * len(missions)

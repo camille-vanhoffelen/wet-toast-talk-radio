@@ -335,7 +335,7 @@ def prolove_topics(ctx: dict, n_topics: int, n_iter: int):
 @click.pass_context
 @click.option(
     "--n-anecdotes",
-    default=30,
+    default=50,
     type=int,
     help="Number of anecdotes generated per iteration",
 )
