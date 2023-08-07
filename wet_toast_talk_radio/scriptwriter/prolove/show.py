@@ -12,7 +12,7 @@ from wet_toast_talk_radio.scriptwriter.names import (
     GENDERS,
     random_name,
 )
-from wet_toast_talk_radio.scriptwriter.prolove.missions import host_missions, random_host_missions, DETAILS, ADVICE
+from wet_toast_talk_radio.scriptwriter.prolove.missions import host_missions, random_host_missions, ADVICE
 from wet_toast_talk_radio.scriptwriter.prolove.genders import Gender
 from wet_toast_talk_radio.scriptwriter.prolove.sexual_orientations import random_sexual_orientation
 from wet_toast_talk_radio.scriptwriter.prolove.traits import random_trait
@@ -34,14 +34,14 @@ AGENT_TEMPLATE = """
 {{set 'this.question' (await 'question') hidden=False}}
 {{~/user}}
 {{#assistant~}}
-{{gen 'this.response' temperature=1.3 max_tokens=400}}
+{{gen 'this.response' temperature=1.2 max_tokens=500}}
 {{~/assistant}}
 {{~/geneach}}"""
 
 # This doesn't require a llm, but using template language for clarity.
 SYSTEM_MESSAGE_TEMPLATE = (
     "{{identity}} {{role}} {{mission}} "
-    # "You always answer in {{n_sentences}} sentences or less."
+    # "You answer in {{n_sentences}} sentences or less."
 )
 
 
@@ -110,6 +110,7 @@ class Prolove(RadioShow):
         host_role = "You are the host of a radio talk show."
         system_message_prompt = Program(text=SYSTEM_MESSAGE_TEMPLATE, llm=self._llm)
 
+        first_question = intro
         for mission in self.intro_host_missions[:-1]:
             host_system_message = system_message_prompt(
                 identity=host_identity,
@@ -119,8 +120,9 @@ class Prolove(RadioShow):
             host = await host(
                 system_message=host_system_message,
                 question="",
-                first_question=intro,
+                first_question=first_question,
             )
+            first_question = None
 
         # TODO extract conversation part 1 here
         conversation = host["conversation"][:-1]
@@ -130,13 +132,13 @@ class Prolove(RadioShow):
         guest_identity = (
             f"Your name is {self.guest.placeholder_name}, and you are {self.guest.age} years old. "
             f"You are {self.guest.gender.to_noun()} and you are {self.guest.sexual_orientation}. "
-            f"You are very {self.guest.trait}."
+            f"You are very {self.guest.trait}, and you speak in a friendly and informal manner."
         )
         guest_role = "You are the guest on a talk show."
         guest_mission = (
                         "You introduce yourself to the host and listeners. "
                         "You mention your age, gender, and sexual orientation."
-                        "You always answer in four sentences or less."
+                        "You answer in four sentences or less."
         )
         guest_system_message = system_message_prompt(
             identity=guest_identity,
@@ -161,7 +163,7 @@ class Prolove(RadioShow):
 
         guest_mission = (
             f"You are to ask Zara about {self.guest.topic}."
-            "You always answer in four sentences or less."
+            "You answer in four sentences or less."
         )
         guest_system_message = system_message_prompt(
             identity=guest_identity,
@@ -170,30 +172,22 @@ class Prolove(RadioShow):
         )
         guest = await guest(system_message=guest_system_message, question=host["conversation"][-2]["response"])
 
-# TODO replace this by randomly selecting from a list of pre written short alts, eg
-        # TODO Could you tell me more about that? Can you tell me more details? Tell me what happened? etc, generate with openai online chat
-        host_system_message = system_message_prompt(
-            identity="",
-            role="",
-            mission=DETAILS
-        )
-        host = await host(
-            system_message=host_system_message,
-            question=guest["conversation"][-2]["response"],
-            first_question=None,
-        )
+        DETAILS = [
+            "Could you tell me more about that, sweetie? What happened?",
+            "Oh sweetie, can you tell me more details?",
+            "Tell me what happened, sweetie."]
 
         guest_mission = (
             "You describe your concern in great details. "
             "Refer to specific events and your emotions. "
-            "You always answer in six sentences or less."
+            "You answer in 8 sentences or less."
         )
         guest_system_message = system_message_prompt(
             identity=guest_identity,
             role=guest_role,
             mission=guest_mission,
         )
-        guest = await guest(system_message=guest_system_message, question=host["conversation"][-2]["response"])
+        guest = await guest(system_message=guest_system_message, question=random.choice(DETAILS))
 
         host_system_message = system_message_prompt(
             identity=host_identity,
@@ -207,10 +201,8 @@ class Prolove(RadioShow):
         )
 
         guest_mission = (
-            "You appreciate Zara's advice, and compliment her for it. "
-            # TODO maybe not
-            "You ask for clarification on a specific point. "
-            "You always answer in four sentences or less."
+            "You compliment the good advice, but you ask for clarification on a specific point. "
+            "You answer in four sentences or less."
         )
         guest_system_message = system_message_prompt(
             identity=guest_identity,
@@ -232,9 +224,9 @@ class Prolove(RadioShow):
         )
 
         guest_mission = (
-            "You agree with Zara's advice, and compliment her for it. "
+            "You thank Zara for her perspective. "
             "You mention that you'll try your best. "
-            "You always answer in four sentences or less."
+            "You answer in four sentences or less."
         )
         guest_system_message = system_message_prompt(
             identity=guest_identity,
@@ -243,6 +235,7 @@ class Prolove(RadioShow):
         )
         guest = await guest(system_message=guest_system_message, question=host["conversation"][-2]["response"])
 
+        # THINGS GET MIXED UP
         for mission in self.convo_host_missions:
             host_system_message = system_message_prompt(
                 identity=host_identity,
@@ -256,16 +249,15 @@ class Prolove(RadioShow):
             )
 
             guest_mission = (
-                #TODO try
-                #" React to Zara in one sentence."
+                "You react to Zara in one sentence. "
                 # TODO maybe?
+                "You speak in a friendly and informal manner. "
                 # "You keep the conversation going with Zara. "
-                "Do not thank Zara. "
-                "You always answer in two sentences or less."
+                "You do not thank Zara. "
             )
             guest_system_message = system_message_prompt(
-                identity=guest_identity,
-                role=guest_role,
+                identity="",
+                role="",
                 mission=guest_mission,
             )
             guest = await guest(system_message=guest_system_message, question=host["conversation"][-2]["response"])
@@ -308,17 +300,12 @@ class Prolove(RadioShow):
 
     @classmethod
     def create(cls, llm: LLM, media_store: MediaStore) -> "RadioShow":
-        # TODO careful redefine variable
         guest_gender = Gender.random()
-        if guest_gender == Gender.NON_BINARY:
-            guest_voice_gender = random.choice(GENDERS)
-        else:
-            guest_voice_gender = guest_gender.value
+        guest_voice_gender = random.choice(GENDERS) if guest_gender == Gender.NON_BINARY else guest_gender.value
         guest_name = random_name(guest_voice_gender)
         guest_placeholder_name = random_name(guest_voice_gender)
         guest_sexual_orientation = random_sexual_orientation(guest_gender)
-        # TODO random distribution (triangle?)
-        age = random.randint(18, 85)
+        age = int(abs(random.gauss(0.0, 1.0)*15) + 18)
         topic = random_topic()
         trait = random_trait()
         guest = Guest(
@@ -336,7 +323,7 @@ class Prolove(RadioShow):
         anecdote = random_anecdote()
         logger.info("Random anecdote", anecdote=anecdote)
         intro_host_missions = host_missions(anecdote)
-        convo_host_missions = random_host_missions(k=4)
+        convo_host_missions = random_host_missions(k=3)
         logger.info("Random convo host missions", missions=convo_host_missions)
 
         return cls(
