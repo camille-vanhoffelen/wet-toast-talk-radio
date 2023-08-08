@@ -12,9 +12,9 @@ from wet_toast_talk_radio.scriptwriter import new_llm
 from wet_toast_talk_radio.scriptwriter.adverts import Advert
 from wet_toast_talk_radio.scriptwriter.config import ScriptwriterConfig, validate_config
 from wet_toast_talk_radio.scriptwriter.modern_mindfulness import ModernMindfulness
+from wet_toast_talk_radio.scriptwriter.prolove import Prolove
 from wet_toast_talk_radio.scriptwriter.the_expert_zone import TheExpertZone
 from wet_toast_talk_radio.scriptwriter.the_great_debate import TheGreatDebate
-from wet_toast_talk_radio.scriptwriter.prolove import Prolove
 
 logger = structlog.get_logger()
 
