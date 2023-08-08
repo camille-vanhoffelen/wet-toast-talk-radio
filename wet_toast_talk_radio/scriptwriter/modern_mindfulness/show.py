@@ -67,7 +67,7 @@ Describe each event in great detail, and focus on their most stressful and frust
 You should encourage the listener to remain calm despite the challenges they encounter along the way.
 Regularly remind the listener to breathe and relax.
 Make the meditation long, descriptive, and in 5000 words.
-Finally, end your meditation with your mantra: "Life sucks, but I breathe".
+Finally, end your meditation with your mantra: "Life sucks, but I breathe...".
 {{~/user}}
 {{#assistant~}}
 {{gen 'meditation' temperature=0.9 max_tokens=2500}}
