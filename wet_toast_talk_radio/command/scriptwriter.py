@@ -324,7 +324,6 @@ def prolove_topics(ctx: dict, n_topics: int, n_iter: int):
 @click.option(
     "--n-iter",
     default=20,
-    # TODO replace
     type=int,
     help="Number of parallel generations to be aggregated",
 )
