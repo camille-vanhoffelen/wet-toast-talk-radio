@@ -70,7 +70,7 @@ Make the meditation long, descriptive, and in 5000 words.
 Finally, end your meditation with your mantra: "Life sucks, but I breathe...".
 {{~/user}}
 {{#assistant~}}
-{{gen 'meditation' temperature=1.3 max_tokens=2500}}
+{{gen 'meditation' temperature=0.6 max_tokens=2500}}
 {{~/assistant}}
 """
 
