@@ -155,7 +155,9 @@ class Prolove(RadioShow):
 
         # Bias the guest towards terse responses
         placeholder_response = "Ah yes, I see... I'll try my best, Zara."
-        history_pt3 = History([history_pt2.messages[-2], placeholder_response])
+        history_pt3 = History(
+            [history_pt2.messages[-2], guest_message(placeholder_response)]
+        )
         for host_mission, guest_mission in zip(
             self.host_missions.pt3_missions,
             self.guest_missions.pt3_missions,
