@@ -4,6 +4,7 @@ from io import BytesIO
 from pathlib import Path
 from typing import Callable
 
+import librosa
 import numpy as np
 import structlog
 import torch
@@ -14,6 +15,7 @@ from tortoise.utils.text import split_and_recombine_text
 from voicefixer import VoiceFixer
 
 from wet_toast_talk_radio.audio_generator.cache import (
+    MODERN_MINDFULNESS_BACKGROUND_PATH,
     cache_is_present,
     download_model_cache,
 )
@@ -122,7 +124,7 @@ class AudioGenerator:
     def _script_to_audio(
         self,
         lines: list[Line],
-        background_music: bool = False,
+        background_music: bool = False,  # noqa: FBT001, FBT002
         sentence_callbacks: list[Callable] | None = None,
     ) -> bytes:
         logger.info("Starting audio generation")
@@ -145,10 +147,9 @@ class AudioGenerator:
         logger.debug("Concatenating line audio pieces")
         audio_array = np.concatenate(pieces)
 
-        if background_music:
-            audio_array = self._add_background_music(audio_array)
-
-        audio_array, sample_rate = self._postprocess(audio_array)
+        audio_array, sample_rate = self._postprocess(
+            audio_array, background_music=background_music
+        )
 
         buffer = BytesIO()
         write_wav(
@@ -212,14 +213,24 @@ class AudioGenerator:
         audio_array = np.concatenate(pieces)
         return audio_array
 
-    def _add_background_music(self, audio_array: np.ndarray) -> np.ndarray:
+    @staticmethod
+    def _add_background_music(audio_array: np.ndarray) -> np.ndarray:
+        """Add background music to audio"""
         logger.info("Adding background music")
-        pass
+        background = librosa.load(MODERN_MINDFULNESS_BACKGROUND_PATH)
+        # cropping to match audio length
+        background = background[: len(audio_array)]
+        # voices 2x louder than background
+        return (2 * audio_array + background) / 3
 
-    def _postprocess(self, audio_array: np.ndarray) -> (np.ndarray, int):
+    def _postprocess(
+        self, audio_array: np.ndarray, background_music: bool  # noqa: FBT001
+    ) -> (np.ndarray, int):
         """Convert to PCM, optionally resample and fix voice"""
         logger.info("Postprocessing audio")
         sample_rate = SAMPLE_RATE
+        if background_music:
+            audio_array = self._add_background_music(audio_array)
         if self._cfg.use_voice_fixer:
             audio_array = resample(
                 y=audio_array, orig_sr=SAMPLE_RATE, target_sr=OUTPUT_SAMPLE_RATE
