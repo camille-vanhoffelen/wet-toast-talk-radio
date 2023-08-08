@@ -8,10 +8,12 @@ import structlog
 logger = structlog.get_logger()
 
 S3_MODEL_CACHE_BUCKET = "wet-toast-model-cache"
-S3_MODEL_CACHE_KEY = "model-cache-2023-08-01.tar"
+S3_MODEL_CACHE_KEY = "model-cache-2023-08-08.tar"
 LOCAL_MODEL_CACHE_FILE = ".cache.tar"
 DEFAULT_MODEL_CACHE_PATH = Path.home() / ".cache"
-MANDATORY_MODEL_CACHE_FILES = ["tortoise", "voicefixer"]
+MANDATORY_MODEL_CACHE_FILES = ["tortoise", "voicefixer", "background.wav", "jingle.wav"]
+BACKGROUND_PATH = DEFAULT_MODEL_CACHE_PATH / "background.wav"
+JINGLE_PATH = DEFAULT_MODEL_CACHE_PATH / "jingle.wav"
 
 
 def cache_is_present(cache_dir: str | Path | None = None) -> bool:
@@ -19,7 +21,7 @@ def cache_is_present(cache_dir: str | Path | None = None) -> bool:
     if not cache_dir:
         cache_dir = DEFAULT_MODEL_CACHE_PATH
     cache_files = list(cache_dir.iterdir())
-    cache_file_names = [f.stem for f in cache_files]
+    cache_file_names = [f.name for f in cache_files]
     return all(f in cache_file_names for f in MANDATORY_MODEL_CACHE_FILES)
 
 

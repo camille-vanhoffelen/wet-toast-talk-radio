@@ -11,6 +11,7 @@ class Speaker:
     name: str
     gender: str
     host: bool
+    speaking_rate: float = 0.95
 
 
 class Line(BaseModel):

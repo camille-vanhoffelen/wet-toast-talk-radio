@@ -1,3 +1,4 @@
+import json
 import unittest
 from datetime import timedelta
 from pathlib import Path
@@ -15,6 +16,8 @@ from wet_toast_talk_radio.media_store.config import MediaStoreConfig
 from wet_toast_talk_radio.media_store.media_store import (
     _FALLBACK_KEY,
     ShowId,
+    ShowMetadata,
+    ShowName,
     ShowUploadInput,
 )
 from wet_toast_talk_radio.media_store.new_media_store import new_media_store
@@ -70,6 +73,9 @@ def _setup_bucket(media_store, today) -> list[str]:
         speaker=Speaker(name="John", gender="male", host=False), content="raw bytes"
     )
     media_store.put_script_show(show_id=ShowId(0, today), lines=[line])
+    media_store.put_script_show_metadata(
+        show_id=ShowId(0, today), metadata=ShowMetadata(ShowName.ADVERTS)
+    )
 
 
 class TestMediaStore:
@@ -96,6 +102,14 @@ class TestMediaStore:
             content="Toast is wet",
         )
         media_store.put_script_show(show_id, [line])
+        assert len(media_store.list_script_shows()) == expected + 1
+
+    def test_put_script_show_metadata(self, media_store, today):
+        expected = 1
+        assert len(media_store.list_script_shows()) == expected
+        show_id = ShowId(666, today)
+        metadata = ShowMetadata(ShowName.THE_EXPERT_ZONE)
+        media_store.put_script_show_metadata(show_id, metadata=metadata)
         assert len(media_store.list_script_shows()) == expected + 1
 
     def test_put_transcoded_shows(
@@ -138,6 +152,20 @@ class TestMediaStore:
         media_store.download_script_show(show_id=wanted_show, dir_output=d)
         today_dir = d / today
         assert len(list(today_dir.iterdir())) == 1
+
+    def test_download_script_show_metadata(
+        self, media_store, tmp_path: Generator[Path, None, None], today
+    ):
+        d = tmp_path / "temp"
+        d.mkdir()
+        wanted_show = ShowId(0, today)
+        media_store.download_script_show_metadata(show_id=wanted_show, dir_output=d)
+        today_dir = d / today
+        assert len(list(today_dir.iterdir())) == 1
+        metadata_path = d / wanted_show.store_key() / "metadata.json"
+        metadata_dict = json.loads(metadata_path.read_text())
+        metadata = ShowMetadata(**metadata_dict)
+        assert metadata.show_name == ShowName.ADVERTS
 
     def test_script_show_encoding(
         self, media_store, tmp_path: Generator[Path, None, None], today

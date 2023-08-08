@@ -1,4 +1,6 @@
 import concurrent.futures
+import dataclasses
+import json
 import pathlib
 from datetime import datetime
 from pathlib import Path
@@ -12,6 +14,7 @@ from wet_toast_talk_radio.media_store.media_store import (
     _FALLBACK_KEY,
     MediaStore,
     ShowId,
+    ShowMetadata,
     ShowUploadInput,
 )
 from wet_toast_talk_radio.media_store.virtual.bucket import (
@@ -94,6 +97,18 @@ class VirtualMediaStore(MediaStore):
             show_type=ShowType.SCRIPT,
         )
 
+    def put_script_show_metadata(self, show_id: ShowId, metadata: ShowMetadata):
+        content = json.dumps(dataclasses.asdict(metadata))
+        data = content.encode(TXT_ENCODING)
+        self._bucket[
+            f"{ShowType.SCRIPT.value}/{show_id.store_key()}/metadata.json"
+        ] = VirtualObject(
+            show_id=show_id,
+            data=data,
+            last_modified=datetime.now(),
+            show_type=ShowType.SCRIPT,
+        )
+
     def upload_transcoded_shows(self, shows: list[ShowUploadInput]):
         def upload_file(show: ShowUploadInput, key: str):
             with show.path.open("rb") as f:
@@ -152,6 +167,20 @@ class VirtualMediaStore(MediaStore):
         with (new_dir / "show.jsonl").open("w") as f:
             f.write(content)
 
+    def download_script_show_metadata(self, show_id: ShowId, dir_output: Path):
+        obj = self._bucket.get(
+            f"{ShowType.SCRIPT.value}/{show_id.store_key()}/metadata.json", None
+        )
+        if not obj:
+            raise Exception(f"Show metadata {show_id} not found")
+
+        content = obj.data.decode(TXT_ENCODING)
+        new_dir = dir_output / show_id.store_key()
+        if not new_dir.exists():
+            new_dir.mkdir(parents=True)
+        with (new_dir / "metadata.json").open("w") as f:
+            f.write(content)
+
     def get_transcoded_show(self, show_id: str) -> bytes:
         obj = self._bucket.get(
             f"{ShowType.TRANSCODED.value}/{show_id.store_key()}/show.mp3", None
@@ -187,4 +216,4 @@ class VirtualMediaStore(MediaStore):
                         ret.append(obj.show_id)
                 else:
                     ret.append(obj.show_id)
-        return ret
+        return list(set(ret))

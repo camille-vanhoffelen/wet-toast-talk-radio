@@ -11,7 +11,7 @@ from guidance.llms import LLM
 from wet_toast_talk_radio.common.dialogue import Line, Speaker
 from wet_toast_talk_radio.common.log_ctx import show_id_log_ctx
 from wet_toast_talk_radio.media_store import MediaStore
-from wet_toast_talk_radio.media_store.media_store import ShowId
+from wet_toast_talk_radio.media_store.media_store import ShowId, ShowMetadata, ShowName
 from wet_toast_talk_radio.scriptwriter.names import (
     GENDERS,
     random_name,
@@ -225,6 +225,9 @@ class TheGreatDebate(RadioShow):
         logger.info("Finished writing The Great Debate")
         logger.debug("Final script", content=lines)
         self._media_store.put_script_show(show_id=show_id, lines=lines)
+        self._media_store.put_script_show_metadata(
+            show_id=show_id, metadata=ShowMetadata(ShowName.THE_GREAT_DEBATE)
+        )
         return True
 
     def _post_processing(self, script: str) -> list[Line]:

@@ -11,7 +11,7 @@ from wet_toast_talk_radio.audio_generator import AudioGenerator
 from wet_toast_talk_radio.audio_generator.config import AudioGeneratorConfig
 from wet_toast_talk_radio.common.dialogue import Line, Speaker
 from wet_toast_talk_radio.media_store import MediaStore
-from wet_toast_talk_radio.media_store.media_store import ShowId
+from wet_toast_talk_radio.media_store.media_store import ShowId, ShowMetadata, ShowName
 
 
 class TestAudioGenerator:
@@ -72,6 +72,7 @@ class TestAudioGenerator:
             speaker=Speaker(name="John", gender="male", host=False), content=content
         )
         media_store.put_script_show(show666, [line])
+        media_store.put_script_show_metadata(show666, ShowMetadata(ShowName.ADVERTS))
         message_queue.add_script_shows([show666])
 
         cfg = AudioGeneratorConfig(use_s3_model_cache=False, use_small_models=True)
@@ -96,5 +97,7 @@ def _init_bucket(store: MediaStore) -> list[ShowId]:
         content="No, it's not.",
     )
     store.put_script_show(show59, [john_line])
+    store.put_script_show_metadata(show59, ShowMetadata(ShowName.THE_EXPERT_ZONE))
     store.put_script_show(show60, [anna_line])
+    store.put_script_show_metadata(show60, ShowMetadata(ShowName.ADVERTS))
     return [show59, show60]

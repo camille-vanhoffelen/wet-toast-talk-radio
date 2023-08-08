@@ -8,7 +8,7 @@ from guidance.llms import LLM
 from wet_toast_talk_radio.common.dialogue import Line, Speaker
 from wet_toast_talk_radio.common.log_ctx import show_id_log_ctx
 from wet_toast_talk_radio.media_store import MediaStore
-from wet_toast_talk_radio.media_store.media_store import ShowId
+from wet_toast_talk_radio.media_store.media_store import ShowId, ShowMetadata, ShowName
 from wet_toast_talk_radio.scriptwriter.modern_mindfulness.circumstances import (
     load_circumstances,
 )
@@ -43,7 +43,7 @@ Situation:
 {{situation}}.
 {{~/user}}
 {{#assistant~}}
-{{gen 'events' temperature=0.9 max_tokens=500}}
+{{gen 'events' temperature=1.3 max_tokens=500}}
 {{~/assistant}}
 {{/block}}
 {{#system~}}
@@ -67,10 +67,10 @@ Describe each event in great detail, and focus on their most stressful and frust
 You should encourage the listener to remain calm despite the challenges they encounter along the way.
 Regularly remind the listener to breathe and relax.
 Make the meditation long, descriptive, and in 5000 words.
-Finally, end your meditation with your mantra: "Life sucks, but I breathe".
+Finally, end your meditation with your mantra: "Life sucks, but I breathe...".
 {{~/user}}
 {{#assistant~}}
-{{gen 'meditation' temperature=0.9 max_tokens=2500}}
+{{gen 'meditation' temperature=0.6 max_tokens=2500}}
 {{~/assistant}}
 """
 
@@ -113,6 +113,9 @@ class ModernMindfulness(RadioShow):
         logger.info("Finished writing Modern Mindfulness")
         lines = self._post_processing(written_meditation)
         self._media_store.put_script_show(show_id=show_id, lines=lines)
+        self._media_store.put_script_show_metadata(
+            show_id=show_id, metadata=ShowMetadata(ShowName.MODERN_MINDFULNESS)
+        )
         return True
 
     def _post_processing(self, program: Program) -> list[Line]:
@@ -120,6 +123,7 @@ class ModernMindfulness(RadioShow):
         meditation = program["meditation"]
         meditation = " ".join(meditation.strip().split())
         line = Line(
-            speaker=Speaker(name="Orion", gender="male", host=True), content=meditation
+            speaker=Speaker(name="Orion", gender="male", host=True, speaking_rate=1.3),
+            content=meditation,
         )
         return [line]

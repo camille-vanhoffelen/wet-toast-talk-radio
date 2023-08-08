@@ -7,7 +7,7 @@ from guidance.llms import LLM
 
 from wet_toast_talk_radio.common.dialogue import Line, Speaker
 from wet_toast_talk_radio.media_store import MediaStore
-from wet_toast_talk_radio.media_store.media_store import ShowId
+from wet_toast_talk_radio.media_store.media_store import ShowId, ShowMetadata, ShowName
 from wet_toast_talk_radio.scriptwriter.names import (
     GENDERS,
     random_name,
@@ -141,6 +141,9 @@ class TheExpertZone(RadioShow):
         lines = self._post_processing(guest)
 
         self._media_store.put_script_show(show_id=show_id, lines=lines)
+        self._media_store.put_script_show_metadata(
+            show_id=show_id, metadata=ShowMetadata(ShowName.THE_EXPERT_ZONE)
+        )
         return True
 
     def _post_processing(self, program: Program) -> list[Line]:

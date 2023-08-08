@@ -1,9 +1,11 @@
+import json
 import time
 import uuid
 from io import BytesIO
 from pathlib import Path
 from typing import Callable
 
+import librosa
 import numpy as np
 import structlog
 import torch
@@ -13,25 +15,29 @@ from tortoise.api import MODELS_DIR, TextToSpeech
 from tortoise.utils.text import split_and_recombine_text
 from voicefixer import VoiceFixer
 
+from wet_toast_talk_radio.audio_generator.cache import (
+    BACKGROUND_PATH,
+    JINGLE_PATH,
+    cache_is_present,
+    download_model_cache,
+)
 from wet_toast_talk_radio.audio_generator.config import (
     AudioGeneratorConfig,
     validate_config,
-)
-from wet_toast_talk_radio.audio_generator.model_cache import (
-    cache_is_present,
-    download_model_cache,
 )
 from wet_toast_talk_radio.audio_generator.speakers import init_voices
 from wet_toast_talk_radio.common.dialogue import Line, read_lines
 from wet_toast_talk_radio.common.log_ctx import task_log_ctx
 from wet_toast_talk_radio.common.path import delete_folder
 from wet_toast_talk_radio.media_store import MediaStore
+from wet_toast_talk_radio.media_store.media_store import ShowMetadata, ShowName
 from wet_toast_talk_radio.message_queue.message_queue import MessageQueue
 
 logger = structlog.get_logger()
 
 SAMPLE_RATE = 24000
 SILENCE = np.zeros(int(0.25 * SAMPLE_RATE))  # quarter second of silence
+LONG_SILENCE = np.zeros(int(1 * SAMPLE_RATE))  # second of silence
 OUTPUT_SAMPLE_RATE = 44100
 
 
@@ -82,8 +88,14 @@ class AudioGenerator:
             self._media_store.download_script_show(
                 show_id=show_id, dir_output=self._script_shows_dir
             )
+            self._media_store.download_script_show_metadata(
+                show_id=show_id, dir_output=self._script_shows_dir
+            )
             script = read_lines(
                 self._script_shows_dir / show_id.store_key() / "show.jsonl"
+            )
+            metadata = read_metadata(
+                self._script_shows_dir / show_id.store_key() / "metadata.json"
             )
 
             def heartbeat():
@@ -92,7 +104,12 @@ class AudioGenerator:
                     timeout_in_s=self._cfg.heartbeat_interval_in_s,
                 )
 
-            data = self._script_to_audio(lines=script, sentence_callbacks=[heartbeat])
+            background_music = bool(metadata.show_name == ShowName.MODERN_MINDFULNESS)
+            data = self._script_to_audio(
+                lines=script,
+                background_music=background_music,
+                sentence_callbacks=[heartbeat],
+            )
             self._media_store.put_raw_show(show_id=show_id, data=data)
             self._message_queue.delete_script_show(script_show_message.receipt_handle)
             logger.info("Show deleted from message_queue", show_id=show_id)
@@ -112,7 +129,10 @@ class AudioGenerator:
         logger.info("Audio generator benchmark finished!")
 
     def _script_to_audio(
-        self, lines: list[Line], sentence_callbacks: list[Callable] | None = None
+        self,
+        lines: list[Line],
+        background_music: bool = False,  # noqa: FBT001, FBT002
+        sentence_callbacks: list[Callable] | None = None,
     ) -> bytes:
         logger.info("Starting audio generation")
         start = time.perf_counter()
@@ -133,7 +153,10 @@ class AudioGenerator:
 
         logger.debug("Concatenating line audio pieces")
         audio_array = np.concatenate(pieces)
-        audio_array, sample_rate = self._postprocess(audio_array)
+
+        audio_array, sample_rate = self._postprocess(
+            audio_array, background_music=background_music
+        )
 
         buffer = BytesIO()
         write_wav(
@@ -164,7 +187,9 @@ class AudioGenerator:
         chunks = split_and_recombine_text(
             line.content, desired_length=150, max_length=250
         )
+        chunks = [c.replace("-", " ") for c in chunks]
         logger.debug("Split line into chunks", n_chunks=len(chunks))
+        # Replace hyphens with spaces to avoid weird pauses
 
         conditioning_latents = voices[line.speaker.name]
 
@@ -179,6 +204,7 @@ class AudioGenerator:
                 text=chunk,
                 k=1,
                 conditioning_latents=conditioning_latents,
+                speaking_rate=line.speaker.speaking_rate,
                 preset="ultra_fast",
                 use_deterministic_seed=self.seed,
                 return_deterministic_state=False,
@@ -194,10 +220,38 @@ class AudioGenerator:
         audio_array = np.concatenate(pieces)
         return audio_array
 
-    def _postprocess(self, audio_array: np.ndarray) -> (np.ndarray, int):
+    @staticmethod
+    def _add_background_music(audio_array: np.ndarray) -> np.ndarray:
+        """Add background music to audio
+        Everything done @ 24 kHz sample rate"""
+        logger.info("Adding background music")
+        background, sr = librosa.load(BACKGROUND_PATH, sr=None)
+        assert sr == SAMPLE_RATE, "Background music sample rate must match audio"
+        # cropping to match audio length
+        background = background[: len(audio_array)]
+        # voices 2x louder than background
+        return (2 * audio_array + background) / 3
+
+    @staticmethod
+    def _add_prefix_jingle(audio_array: np.ndarray) -> np.ndarray:
+        """Add jingle prefix to audio.
+        Everything done @ 24 kHz sample rate"""
+        logger.info("Adding jingle")
+        jingle, sr = librosa.load(JINGLE_PATH, sr=None)
+        assert sr == SAMPLE_RATE, "Jingle sample rate must match audio"
+        return np.concatenate([SILENCE, jingle, LONG_SILENCE, audio_array])
+
+    def _postprocess(
+        self, audio_array: np.ndarray, background_music: bool  # noqa: FBT001
+    ) -> (np.ndarray, int):
         """Convert to PCM, optionally resample and fix voice"""
         logger.info("Postprocessing audio")
         sample_rate = SAMPLE_RATE
+        if background_music:
+            audio_array = self._add_background_music(audio_array)
+
+        audio_array = self._add_prefix_jingle(audio_array)
+
         if self._cfg.use_voice_fixer:
             audio_array = resample(
                 y=audio_array, orig_sr=SAMPLE_RATE, target_sr=OUTPUT_SAMPLE_RATE
@@ -244,4 +298,13 @@ class AudioGenerator:
                     logger.error("Failed to download model cache, continuing", error=e)
             else:
                 logger.info("Found local HF hub model cache")
-            assert cache_is_present(), "Cache must be complete"
+            assert cache_is_present(), "Model cache must be complete"
+
+
+def read_metadata(metadata_path: Path):
+    if metadata_path.is_file():
+        metadata_dict = json.loads(metadata_path.read_text())
+        return ShowMetadata(**metadata_dict)
+    else:
+        # TODO remove, temporary default until all shows have metadata
+        return ShowMetadata(ShowName.ADVERTS)

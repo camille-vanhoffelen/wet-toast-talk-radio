@@ -1,3 +1,4 @@
+import json
 import re
 import time
 from pathlib import Path
@@ -13,6 +14,7 @@ from wet_toast_talk_radio.media_store.media_store import (
     _FALLBACK_KEY,
     MediaStore,
     ShowId,
+    ShowMetadata,
 )
 from wet_toast_talk_radio.media_store.new_media_store import new_media_store
 from wet_toast_talk_radio.media_store.s3.config import S3Config
@@ -75,13 +77,20 @@ def setup_bucket(_clear_bucket) -> dict[str, list[ShowId]]:
             lines = read_lines(file)
             media_store.put_script_show(show_id=show, lines=lines)
             ret["script"].append(show)
+        if file.is_file() and file.suffix == ".json":
+            show_i = _parse_show_id(file.name)
+            show = ShowId(show_i=show_i, date=today)
+            metadata_dict = json.loads(file.read_text())
+            metadata = ShowMetadata(**metadata_dict)
+            media_store.put_script_show_metadata(show_id=show, metadata=metadata)
+            ret["script"].append(show)
 
     return ret
 
 
 def _parse_show_id(filename: str) -> int:
     """Parse show id from filename in the format: show<show_id>.<ext>"""
-    pattern = r"show(\d+)\.(ogg|jsonl|wav|mp3)"
+    pattern = r"show(\d+)\.(ogg|jsonl|wav|mp3|json)"
     match = re.search(pattern, filename)
     if match:
         return int(match.group(1))
