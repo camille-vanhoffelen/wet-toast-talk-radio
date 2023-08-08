@@ -12,43 +12,28 @@ from wet_toast_talk_radio.scriptwriter.names import (
     GENDERS,
     random_name,
 )
-from wet_toast_talk_radio.scriptwriter.prolove.missions import host_missions, random_host_missions, ADVICE, MORE_ADVICE, WHY
-from wet_toast_talk_radio.scriptwriter.prolove.genders import Gender
-from wet_toast_talk_radio.scriptwriter.prolove.sexual_orientations import random_sexual_orientation
-from wet_toast_talk_radio.scriptwriter.prolove.traits import random_trait
-from wet_toast_talk_radio.scriptwriter.prolove.topics import random_topic
 from wet_toast_talk_radio.scriptwriter.prolove.anecdotes import random_anecdote
 from wet_toast_talk_radio.scriptwriter.prolove.conversation import History, Role
+from wet_toast_talk_radio.scriptwriter.prolove.genders import Gender
+from wet_toast_talk_radio.scriptwriter.prolove.host_messages import random_host_messages
+from wet_toast_talk_radio.scriptwriter.prolove.lessons import random_lesson
+from wet_toast_talk_radio.scriptwriter.prolove.missions import (
+    GuestMissions,
+    HostMissions,
+)
+from wet_toast_talk_radio.scriptwriter.prolove.products import random_product
+from wet_toast_talk_radio.scriptwriter.prolove.sexual_orientations import (
+    random_sexual_orientation,
+)
+from wet_toast_talk_radio.scriptwriter.prolove.topics import random_topic
+from wet_toast_talk_radio.scriptwriter.prolove.traits import random_trait
 from wet_toast_talk_radio.scriptwriter.radio_show import RadioShow
 
 logger = structlog.get_logger()
 
 # Not using geneach to have more control of conversation history
-# TODO do I have to move the last user message after the system message?
-AGENT_TEMPLATE = """
-{{#system~}}
-{{system_message}}
-{{~/system}}
-{{~#each history}}
-{{#role this.role~}}
-{{this.message}}{{~/role}}{{/each}}
-{{#assistant~}}
-{{gen 'response' temperature=1.2 max_tokens=500}}
-{{~/assistant}}"""
-
-OLD_AGENT_TEMPLATE = """
-{{~#each history}}
-{{#role this.role~}}
-{{this.message}}{{~/role}}{{/each}}
-{{#system~}}
-{{system_message}}
-{{~/system}}
-{{#assistant~}}
-{{gen 'response' temperature=1.2 max_tokens=500}}
-{{~/assistant}}"""
-
-# Intro has successive assistant messages
-INTRO_AGENT_TEMPLATE = """
+# More guided by conversation
+TOP_SYSTEM_TEMPLATE = """
 {{#system~}}
 {{system_message}}
 {{~/system}}
@@ -59,7 +44,8 @@ INTRO_AGENT_TEMPLATE = """
 {{gen 'response' temperature=1.2 max_tokens=800}}
 {{~/assistant}}"""
 
-LOW_TMP_AGENT_TEMPLATE = """
+# More guided by system message
+BOTTOM_SYSTEM_TEMPLATE = """
 {{~#each history}}
 {{#role this.role~}}
 {{this.message}}{{~/role}}{{/each}}
@@ -67,14 +53,24 @@ LOW_TMP_AGENT_TEMPLATE = """
 {{system_message}}
 {{~/system}}
 {{#assistant~}}
-{{gen 'response' temperature=0.6 max_tokens=500}}
+{{gen 'response' temperature=1.2 max_tokens=500}}
 {{~/assistant}}"""
 
+SYSTEM_MESSAGE_TEMPLATE = "{{identity}} {{role}} {{mission}} "
 
-# This doesn't require a llm, but using template language for clarity.
-SYSTEM_MESSAGE_TEMPLATE = (
-    "{{identity}} {{role}} {{mission}} "
+HOST_IDENTITY = (
+    "You are Zara, a sassy and confident dating coach who unintentionally gives terrible advice. "
+    "You speak in a friendly and informal manner. "
 )
+
+HOST_ROLE = "You are the host of a radio talk show."
+
+GUEST_IDENTITY = (
+    "Your name is {{name}}, and you are {{age}} years old. "
+    "You are {{gender}} and you are {{sexual_orientation}}. "
+    "You are very {{trait}}, and you speak in a friendly and informal manner."
+)
+GUEST_ROLE = "You are the guest on a talk show."
 
 
 @dataclass
@@ -90,290 +86,116 @@ class Guest:
     placeholder_name: str
 
 
-
-
 class Prolove(RadioShow):
     """A dating advice radio show."""
 
     def __init__(
         self,
         guest: Guest,
-        intro_host_missions: list[str],
-        convo_host_missions: list[str],
+        host_missions: HostMissions,
+        guest_missions: GuestMissions,
+        host_messages: list[str],
         llm: LLM,
         media_store: MediaStore,
     ):
         self.guest = guest
-        self.intro_host_missions = intro_host_missions
-        self.convo_host_missions = convo_host_missions
+        self.host_missions = host_missions
+        self.guest_missions = guest_missions
+        self.host_messages_buffer = host_messages
         self._llm = llm
         self._media_store = media_store
 
     async def awrite(self, show_id: ShowId) -> bool:
         logger.info("Async writing Prolove")
 
-        # Intro
-        host_identity = (
-            # "You are Zara, a kind and caring dating coach who is unconsciously self-obsessed. "
-            # "You are Zara, a dating coach who is unconsciously self-obsessed. "
-            "You are Zara, a sassy and confident dating coach who unintentionally gives terrible advice. "
-            # "You are Zara, a sassy and confident dating coach who unwittingly gives terrible advice. "
-            # "You speak calmly yet confidently."
-            "You speak in a friendly and informal manner. "
-            # "You speak with sass and confidence. "
-        )
-        host_role = "You are the host of a radio talk show."
+        # PART 1
+        # The host introduces the show and themselves, then tells an anecdote about their dating life.
 
-        intro_1 = (
-            "Hey there, my hearts! Welcome to 'Prolove', the dating advice show where we say YES to love! "
-        )
-        intro_2 = (
-            "I'm your host, Zara, ready to answer all your questions about love and connection. "
-        )
-        history = History()
-        history.append(role=Role.HOST, message=intro_1)
-        history.append(role=Role.HOST, message=intro_2)
-        for mission in self.intro_host_missions:
-            host = Program(
-                text=INTRO_AGENT_TEMPLATE,
-                llm=self._llm,
-                async_mode=True,
+        intro_1 = "Hey there, my hearts! Welcome to 'Prolove', the dating advice show where we say YES to love! "
+        intro_2 = "I'm your host, Zara, ready to answer all your questions about love and connection. "
+        history_pt1 = History()
+        history_pt1.append(role=Role.HOST, message=intro_1)
+        history_pt1.append(role=Role.HOST, message=intro_2)
+
+        for mission in self.host_missions.pt1_missions:
+            host = await self.new_top_program()(
+                system_message=self.host_system_message(mission),
+                history=history_pt1.host_history,
             )
-            host_system_message = system_message_prompt(
-                identity=host_identity,
-                role=host_role,
-                mission=mission
+            history_pt1.append(role=Role.HOST, message=host["response"])
+
+        # PART 2
+        # A caller is on the line. They explain their concern and the host gives them advice.
+
+        # Don't keep any messages from part 1
+        history_pt2 = History()
+        for host_mission, guest_mission in zip(
+            self.host_missions.pt2_missions,
+            self.guest_missions.pt2_missions,
+            strict=True,
+        ):
+            if host_mission is None:
+                message = self.host_messages_buffer.pop(0)
+            else:
+                host = await self.new_top_program()(
+                    system_message=self.host_system_message(host_mission),
+                    history=history_pt2.host_history,
+                )
+                message = host["response"]
+            history_pt2.append(role=Role.HOST, message=message)
+
+            guest = await self.new_top_program()(
+                system_message=self.guest_system_message(guest_mission),
+                history=history_pt2.guest_history,
             )
-            host = await host(
-                system_message=host_system_message,
-                history=history.host_history,
+            history_pt2.append(role=Role.GUEST, message=guest["response"])
+
+        # PART 3
+        # The host changes topics and chats about random things.
+
+        # Bias the guest towards terse responses
+        placeholder_response = "Ah yes, I see... I'll try my best, Zara."
+        history_pt3 = History([history_pt2.messages[-2], placeholder_response])
+        for host_mission, guest_mission in zip(
+            self.host_missions.pt3_missions,
+            self.guest_missions.pt3_missions,
+            strict=True,
+        ):
+            host = await self.new_bottom_program()(
+                system_message=self.host_system_message(host_mission),
+                history=history_pt3.host_history,
             )
-            history.append(role=Role.HOST, message=host["response"])
+            history_pt3.append(role=Role.HOST, message=host["response"])
 
-
-        # Convo
-
-        # TODO remove
-        print(history.messages)
-        # reset history
-        history = History()
-        new_caller = "Oh! It looks like we have a caller on the line. Hello sweetie, you're on the air."
-        history.append(role=Role.HOST, message=new_caller)
-
-        guest = Program(
-            text=AGENT_TEMPLATE,
-            llm=self._llm,
-            async_mode=True,
-        )
-        guest_identity = (
-            f"Your name is {self.guest.placeholder_name}, and you are {self.guest.age} years old. "
-            f"You are {self.guest.gender.to_noun()} and you are {self.guest.sexual_orientation}. "
-            f"You are very {self.guest.trait}, and you speak in a friendly and informal manner."
-        )
-        guest_role = "You are the guest on a talk show."
-        guest_mission = (
-                        "You introduce yourself to the host, Zara. "
-                        "You mention your age, gender, and sexual orientation."
-                        "You answer in three sentences or less."
-        )
-        guest_system_message = system_message_prompt(
-            identity=guest_identity,
-            role=guest_role,
-            mission=guest_mission,
-        )
-        guest = await guest(system_message=guest_system_message, history=history.guest_history)
-        history.append(role=Role.GUEST, message=guest["response"])
-
-        host = Program(
-            text=AGENT_TEMPLATE,
-            llm=self._llm,
-            async_mode=True,
-        )
-        host_system_message = system_message_prompt(
-            identity=host_identity,
-            role=host_role,
-            mission=WHY,
-        )
-        host = await host(
-            system_message=host_system_message,
-            history=history.host_history,
-        )
-        history.append(role=Role.HOST, message=host["response"])
-
-        guest = Program(
-            text=AGENT_TEMPLATE,
-            llm=self._llm,
-            async_mode=True,
-        )
-        guest_mission = (
-            f"You ask the host, Zara, about your concern: \"{self.guest.topic}\". "
-            "You ask in four sentences or less."
-        )
-        guest_system_message = system_message_prompt(
-            identity=guest_identity,
-            role=guest_role,
-            mission=guest_mission,
-        )
-        guest = await guest(system_message=guest_system_message, history=history.guest_history)
-        history.append(role=Role.GUEST, message=guest["response"])
-
-        DETAILS = [
-            "Could you tell me more about that, {{name}}? What happened?",
-            "I see, {{name}}... can you tell me more details?",
-            "Tell me what going on, {{name}}."]
-
-        history.append(role=Role.HOST, message=random.choice(DETAILS).replace("{{name}}", self.guest.placeholder_name))
-
-        guest = Program(
-            text=AGENT_TEMPLATE,
-            llm=self._llm,
-            async_mode=True,
-        )
-        guest_mission = (
-            "You describe your concern in great detail. "
-            "You describe specific events and emotions. "
-            # "Refer to specific events and your emotions. "
-            "You answer in 8 sentences or less."
-        )
-        guest_system_message = system_message_prompt(
-            identity=guest_identity,
-            role=guest_role,
-            mission=guest_mission,
-        )
-        guest = await guest(system_message=guest_system_message, history=history.guest_history)
-        history.append(role=Role.GUEST, message=guest["response"])
-
-
-        host = Program(
-            text=AGENT_TEMPLATE,
-            llm=self._llm,
-            async_mode=True,
-        )
-        host_system_message = system_message_prompt(
-            identity=host_identity,
-            role=host_role,
-            mission=ADVICE,
-        )
-        host = await host(
-            system_message=host_system_message,
-            history=history.host_history,
-        )
-        history.append(role=Role.HOST, message=host["response"])
-
-        guest = Program(
-            text=AGENT_TEMPLATE,
-            llm=self._llm,
-            async_mode=True,
-        )
-        guest_mission = (
-            "You compliment the good advice, but you ask for clarification on a specific point. "
-            "You ask in four sentences or less."
-        )
-        guest_system_message = system_message_prompt(
-            identity=guest_identity,
-            role=guest_role,
-            mission=guest_mission,
-        )
-        guest = await guest(system_message=guest_system_message, history=history.guest_history)
-        history.append(role=Role.GUEST, message=guest["response"])
-
-        host = Program(
-            text=AGENT_TEMPLATE,
-            llm=self._llm,
-            async_mode=True,
-        )
-        host_system_message = system_message_prompt(
-            identity=host_identity,
-            role=host_role,
-            mission=MORE_ADVICE,
-        )
-        host = await host(
-            system_message=host_system_message,
-            history=history.host_history,
-        )
-        history.append(role=Role.HOST, message=host["response"])
-
-        guest = Program(
-            text=AGENT_TEMPLATE,
-            llm=self._llm,
-            async_mode=True,
-        )
-        guest_mission = (
-            "You thank Zara for her perspective. "
-            "You mention that you'll try your best. "
-            "You answer in four sentences or less."
-        )
-        guest_system_message = system_message_prompt(
-            identity=guest_identity,
-            role=guest_role,
-            mission=guest_mission,
-        )
-        guest = await guest(system_message=guest_system_message, history=history.guest_history)
-        history.append(role=Role.GUEST, message=guest["response"])
-
-        history.messages = history.messages[-2:]
-        for mission in self.convo_host_missions:
-            host = Program(
-                text=OLD_AGENT_TEMPLATE,
-                llm=self._llm,
-                async_mode=True,
+            guest = await self.new_bottom_program()(
+                system_message=self.guest_system_message(guest_mission),
+                history=history_pt3.guest_history,
             )
-            host_system_message = system_message_prompt(
-                identity=host_identity,
-                role=host_role,
-                mission=mission,
-            )
-            host = await host(
-                system_message=host_system_message,
-                history=history.host_history,
-            )
-            history.append(role=Role.HOST, message=host["response"])
+            history_pt3.append(role=Role.GUEST, message=guest["response"])
 
-            guest = Program(
-                text=OLD_AGENT_TEMPLATE,
-                llm=self._llm,
-                async_mode=True,
-            )
-            guest_mission = (
-                "React to what Zara said in two sentences. "
-            )
-            guest_system_message = system_message_prompt(
-                identity=guest_identity,
-                role=guest_role,
-                mission=guest_mission,
-            )
-            guest = await guest(system_message=guest_system_message, history=history.guest_history)
-            history.append(role=Role.GUEST, message=guest["response"])
-
-        # TODO extract more conversation here
-
-
+        # Collect all messages
+        conversation = (
+            history_pt1.messages + history_pt2.messages + history_pt3.messages[2:]
+        )
         logger.debug("Written script", conversation=conversation)
-        logger.info("Finished writing The Expert Zone")
-
-        # TODO collect all messages
+        logger.info("Finished writing Prolove")
         lines = self._post_processing(conversation)
-
         self._media_store.put_script_show(show_id=show_id, lines=lines)
         return True
 
-    def _post_processing(self, conversation: list) -> list[Line]:
+    def _post_processing(self, conversation: list[dict[str, str]]) -> list[Line]:
         """Converts the guidance program into a list of Lines.
         Cleans up the content for each line."""
-        logger.debug("Post processing The Expert Zone")
+        logger.debug("Post processing Prolove")
         host = Speaker(name="Nick", gender="male", host=True)
-        guest = Speaker(name=self.guest.name, gender=self.guest.voice_gender, host=False)
-
+        guest = Speaker(
+            name=self.guest.name, gender=self.guest.voice_gender, host=False
+        )
         lines = []
-        # last exchange is always empty
-        for exchange in conversation[:-1]:
-            # TODO non-binary voice selection
-            lines.append(
-                Line(speaker=host, content=self._clean_content(exchange["question"]))
-            )
-            lines.append(
-                Line(speaker=guest, content=self._clean_content(exchange["response"]))
-            )
+        for message in conversation:
+            speaker = host if message["role"] == Role.HOST else guest
+            content = self._clean_content(message["message"])
+            lines.append(Line(speaker=speaker, content=content))
         return lines
 
     def _clean_content(self, content: str) -> str:
@@ -382,14 +204,64 @@ class Prolove(RadioShow):
         content = " ".join(content.strip().split())
         return content
 
+    @staticmethod
+    def system_message_prompt(identity: str, role: str, mission: str) -> str:
+        return (
+            SYSTEM_MESSAGE_TEMPLATE.replace("{{identity}}", identity)
+            .replace("{{role}}", role)
+            .replace("{{mission}}", mission)
+        )
+
+    def host_system_message(self, mission: str) -> str:
+        """System message for host"""
+        return self.system_message_prompt(
+            identity=HOST_IDENTITY, role=HOST_ROLE, mission=mission
+        )
+
+    def guest_system_message(self, mission: str) -> str:
+        """System message for guest"""
+        guest_identity = GUEST_IDENTITY.replace("{{name}}", self.guest.placeholder_name)
+        guest_identity = guest_identity.replace("{{age}}", str(self.guest.age))
+        guest_identity = guest_identity.replace(
+            "{{gender}}", self.guest.gender.to_noun()
+        )
+        guest_identity = guest_identity.replace(
+            "{{sexual_orientation}}", self.guest.sexual_orientation
+        )
+        guest_identity = guest_identity.replace("{{trait}}", self.guest.trait)
+        return self.system_message_prompt(
+            identity=guest_identity, role=GUEST_ROLE, mission=mission
+        )
+
+    def new_top_program(self) -> Program:
+        """Creates a new program from top system template"""
+        return Program(
+            text=TOP_SYSTEM_TEMPLATE,
+            llm=self._llm,
+            async_mode=True,
+        )
+
+    def new_bottom_program(self) -> Program:
+        """Creates a new program from bottom system template"""
+        return Program(
+            text=BOTTOM_SYSTEM_TEMPLATE,
+            llm=self._llm,
+            async_mode=True,
+        )
+
     @classmethod
     def create(cls, llm: LLM, media_store: MediaStore) -> "RadioShow":
         guest_gender = Gender.random()
-        guest_voice_gender = random.choice(GENDERS) if guest_gender == Gender.NON_BINARY else guest_gender.value
+        guest_voice_gender = (
+            random.choice(GENDERS)
+            if guest_gender == Gender.NON_BINARY
+            else guest_gender.value
+        )
         guest_name = random_name(guest_voice_gender)
         guest_placeholder_name = random_name(guest_voice_gender)
         guest_sexual_orientation = random_sexual_orientation(guest_gender)
-        age = int(abs(random.gauss(0.0, 1.0)*15) + 18)
+        # Mostly young adults, some middle aged
+        age = int(abs(random.gauss(0.0, 1.0) * 15) + 18)
         topic = random_topic()
         trait = random_trait()
         guest = Guest(
@@ -406,24 +278,29 @@ class Prolove(RadioShow):
 
         anecdote = random_anecdote()
         logger.info("Random anecdote", anecdote=anecdote)
-        intro_host_missions = host_missions(anecdote)
-        convo_host_missions = random_host_missions(k=2)
-        logger.info("Random convo host missions", missions=convo_host_missions)
-
+        lesson = random_lesson()
+        logger.info("Random lesson", lesson=lesson)
+        product = random_product()
+        logger.info("Random product", product=product)
+        k = 2
+        host_missions = HostMissions(
+            anecdote=anecdote, lesson=lesson, product=product, k=k
+        )
+        guest_missions = GuestMissions(topic=guest.topic, k=k)
+        host_messages = random_host_messages(name=guest.placeholder_name)
         return cls(
             guest=guest,
-            intro_host_missions=intro_host_missions,
-            convo_host_missions=convo_host_missions,
+            host_missions=host_missions,
+            guest_missions=guest_missions,
+            host_messages=host_messages,
             llm=llm,
             media_store=media_store,
         )
 
+
 def guest_message(content: str):
     return {"role": "user", "message": content}
 
+
 def host_message(content: str):
     return {"role": "assistant", "message": content}
-
-
-def system_message_prompt(identity: str, role: str, mission: str):
-    return SYSTEM_MESSAGE_TEMPLATE.replace("{{identity}}", identity).replace("{{role}}", role).replace("{{mission}}", mission)

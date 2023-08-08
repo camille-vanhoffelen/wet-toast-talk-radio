@@ -8,11 +8,16 @@ class Role(Enum):
 
 
 class History:
-    def __init__(self):
-        self.messages = []
+    def __init__(self, messages: list[dict[str, str]] | None = None):
+        if messages is None:
+            messages = []
+        self.messages = messages
 
     def append(self, role: Role, message: str):
         self.messages.append({"role": role, "message": message})
+
+    def __repr__(self):
+        return f"<History {self.messages}>"
 
     @property
     def guest_history(self):
