@@ -1,3 +1,4 @@
+# ruff: noqa: E501
 import asyncio
 import json
 import random

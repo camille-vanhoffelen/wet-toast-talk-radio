@@ -89,7 +89,7 @@ class Guest:
 class Prolove(RadioShow):
     """A dating advice radio show."""
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         guest: Guest,
         host_missions: HostMissions,

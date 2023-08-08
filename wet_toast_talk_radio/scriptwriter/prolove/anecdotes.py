@@ -37,8 +37,8 @@ Now generate a list of {{n_anecdotes}} dating experiences.
 
 
 class AnecdoteGenerator:
-    def __init__(  # noqa: PLR0913
-            self,
+    def __init__(
+        self,
         llm: LLM,
         n_anecdotes: int,
         n_iter: int,

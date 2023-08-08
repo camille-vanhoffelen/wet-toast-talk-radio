@@ -147,9 +147,7 @@ class GuestMissions:
         "You answer in four sentences or less."
     )
 
-    REACT = (
-        "React to what Zara said in two sentences. "
-    )
+    REACT = "React to what Zara said in two sentences. "
 
     def __init__(self, topic: str, k: int):
         self.topic = topic
@@ -172,4 +170,3 @@ class GuestMissions:
         """Return ordered missions for the guest.
         Used in part 3 of the show."""
         return [self.REACT] * self.k
-

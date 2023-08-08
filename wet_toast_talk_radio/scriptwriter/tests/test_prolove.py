@@ -14,7 +14,7 @@ from wet_toast_talk_radio.scriptwriter.prolove.missions import (
 from wet_toast_talk_radio.scriptwriter.prolove.show import Guest
 
 
-def test_prolove(
+def test_prolove(  # noqa: PLR0913
     guest,
     host_missions,
     guest_missions,
