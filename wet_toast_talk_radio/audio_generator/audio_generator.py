@@ -164,7 +164,9 @@ class AudioGenerator:
         chunks = split_and_recombine_text(
             line.content, desired_length=150, max_length=250
         )
+        chunks = [c.replace("-", " ") for c in chunks]
         logger.debug("Split line into chunks", n_chunks=len(chunks))
+        # Replace hyphens with spaces to avoid weird pauses
 
         conditioning_latents = voices[line.speaker.name]
 
