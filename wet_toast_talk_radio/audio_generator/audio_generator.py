@@ -16,8 +16,8 @@ from tortoise.utils.text import split_and_recombine_text
 from voicefixer import VoiceFixer
 
 from wet_toast_talk_radio.audio_generator.cache import (
+    BACKGROUND_PATH,
     JINGLE_PATH,
-    MODERN_MINDFULNESS_BACKGROUND_PATH,
     cache_is_present,
     download_model_cache,
 )
@@ -225,7 +225,7 @@ class AudioGenerator:
         """Add background music to audio
         Everything done @ 24 kHz sample rate"""
         logger.info("Adding background music")
-        background, sr = librosa.load(MODERN_MINDFULNESS_BACKGROUND_PATH, sr=None)
+        background, sr = librosa.load(BACKGROUND_PATH, sr=None)
         assert sr == SAMPLE_RATE, "Background music sample rate must match audio"
         # cropping to match audio length
         background = background[: len(audio_array)]

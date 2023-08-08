@@ -12,7 +12,7 @@ S3_MODEL_CACHE_KEY = "model-cache-2023-08-08.tar"
 LOCAL_MODEL_CACHE_FILE = ".cache.tar"
 DEFAULT_MODEL_CACHE_PATH = Path.home() / ".cache"
 MANDATORY_MODEL_CACHE_FILES = ["tortoise", "voicefixer", "background.wav", "jingle.wav"]
-MODERN_MINDFULNESS_BACKGROUND_PATH = DEFAULT_MODEL_CACHE_PATH / "background.wav"
+BACKGROUND_PATH = DEFAULT_MODEL_CACHE_PATH / "background.wav"
 JINGLE_PATH = DEFAULT_MODEL_CACHE_PATH / "jingle.wav"
 
 
