@@ -72,6 +72,7 @@ class TestAudioGenerator:
             speaker=Speaker(name="John", gender="male", host=False), content=content
         )
         media_store.put_script_show(show666, [line])
+        media_store.put_script_show_metadata(show666, ShowMetadata(ShowName.ADVERTS))
         message_queue.add_script_shows([show666])
 
         cfg = AudioGeneratorConfig(use_s3_model_cache=False, use_small_models=True)
