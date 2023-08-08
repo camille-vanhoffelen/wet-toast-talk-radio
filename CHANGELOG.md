@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.30](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.29...v0.1.30) (2023-08-08)
+
+
+### Features
+
+* show Prolove ([#95](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/95)) ([a00073a](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/a00073ab5420d69ef2f32385b18592f10a7ab133))
+
 ## [0.1.29](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.28...v0.1.29) (2023-08-03)
 
 
