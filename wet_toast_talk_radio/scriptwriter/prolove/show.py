@@ -56,7 +56,7 @@ INTRO_AGENT_TEMPLATE = """
 {{#role this.role~}}
 {{this.message}}{{~/role}}{{/each}}
 {{#assistant~}}
-{{gen 'response' temperature=1.2 max_tokens=500}}
+{{gen 'response' temperature=1.2 max_tokens=800}}
 {{~/assistant}}"""
 
 LOW_TMP_AGENT_TEMPLATE = """
@@ -311,10 +311,7 @@ class Prolove(RadioShow):
         guest = await guest(system_message=guest_system_message, history=history.guest_history)
         history.append(role=Role.GUEST, message=guest["response"])
 
-        # THINGS GET MIXED UP
-        # TODO SHORT CUT TO INTRO, REMOVE LAST PART!
-        # TODO 2 or 1 last messages?
-        history.messages = history.messages[-1:]
+        history.messages = history.messages[-2:]
         for mission in self.convo_host_missions:
             host = Program(
                 text=OLD_AGENT_TEMPLATE,
@@ -369,7 +366,7 @@ class Prolove(RadioShow):
 
         lines = []
         # last exchange is always empty
-        for exchange in conversation[:-2]:
+        for exchange in conversation[:-1]:
             # TODO non-binary voice selection
             lines.append(
                 Line(speaker=host, content=self._clean_content(exchange["question"]))

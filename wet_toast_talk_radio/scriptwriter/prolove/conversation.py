@@ -12,8 +12,6 @@ class History:
         self.messages = []
 
     def append(self, role: Role, message: str):
-        # TODO remove stupid
-        time.sleep(0.2)
         self.messages.append({"role": role, "message": message})
 
     @property

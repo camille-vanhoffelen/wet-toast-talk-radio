@@ -71,7 +71,7 @@ LESSON = (
 )
 
 PROMOTION = (
-    "Change the topic of conversation by promoting your new {{product}} about dating and love. "
+    "Change the topic of conversation by talking about your new {{product}} about dating and love. "
     "You describe its contents and why it's special. "
     "Do it in 8 sentences or less."
 )
