@@ -11,8 +11,9 @@ S3_MODEL_CACHE_BUCKET = "wet-toast-model-cache"
 S3_MODEL_CACHE_KEY = "model-cache-2023-08-01.tar"
 LOCAL_MODEL_CACHE_FILE = ".cache.tar"
 DEFAULT_MODEL_CACHE_PATH = Path.home() / ".cache"
-MANDATORY_MODEL_CACHE_FILES = ["tortoise", "voicefixer", "modern_mindfulness_background.wav"]
-MODERN_MINDFULNESS_BACKGROUND_PATH = DEFAULT_MODEL_CACHE_PATH / "modern_mindfulness_background.wav"
+MANDATORY_MODEL_CACHE_FILES = ["tortoise", "voicefixer", "background.wav", "jingle.wav"]
+MODERN_MINDFULNESS_BACKGROUND_PATH = DEFAULT_MODEL_CACHE_PATH / "background.wav"
+JINGLE_PATH = DEFAULT_MODEL_CACHE_PATH / "jingle.wav"
 
 
 def cache_is_present(cache_dir: str | Path | None = None) -> bool:

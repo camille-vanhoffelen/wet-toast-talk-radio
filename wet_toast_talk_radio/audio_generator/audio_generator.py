@@ -16,6 +16,7 @@ from voicefixer import VoiceFixer
 
 from wet_toast_talk_radio.audio_generator.cache import (
     MODERN_MINDFULNESS_BACKGROUND_PATH,
+    JINGLE_PATH,
     cache_is_present,
     download_model_cache,
 )
@@ -34,6 +35,7 @@ logger = structlog.get_logger()
 
 SAMPLE_RATE = 24000
 SILENCE = np.zeros(int(0.25 * SAMPLE_RATE))  # quarter second of silence
+LONG_SILENCE = np.zeros(int(1 * SAMPLE_RATE))  # second of silence
 OUTPUT_SAMPLE_RATE = 44100
 
 
@@ -215,13 +217,24 @@ class AudioGenerator:
 
     @staticmethod
     def _add_background_music(audio_array: np.ndarray) -> np.ndarray:
-        """Add background music to audio"""
+        """Add background music to audio
+        Everything done @ 24 kHz sample rate"""
         logger.info("Adding background music")
-        background = librosa.load(MODERN_MINDFULNESS_BACKGROUND_PATH)
+        background, sr = librosa.load(MODERN_MINDFULNESS_BACKGROUND_PATH, sr=None)
+        assert sr == SAMPLE_RATE, "Background music sample rate must match audio"
         # cropping to match audio length
         background = background[: len(audio_array)]
         # voices 2x louder than background
         return (2 * audio_array + background) / 3
+
+    @staticmethod
+    def _add_prefix_jingle(audio_array: np.ndarray) -> np.ndarray:
+        """Add jingle prefix to audio.
+        Everything done @ 24 kHz sample rate"""
+        logger.info("Adding jingle")
+        jingle, sr = librosa.load(JINGLE_PATH, sr=None)
+        assert sr == SAMPLE_RATE, "Jingle sample rate must match audio"
+        return np.concatenate([SILENCE, jingle, LONG_SILENCE, audio_array])
 
     def _postprocess(
         self, audio_array: np.ndarray, background_music: bool  # noqa: FBT001
@@ -231,6 +244,9 @@ class AudioGenerator:
         sample_rate = SAMPLE_RATE
         if background_music:
             audio_array = self._add_background_music(audio_array)
+
+        audio_array = self._add_prefix_jingle(audio_array)
+
         if self._cfg.use_voice_fixer:
             audio_array = resample(
                 y=audio_array, orig_sr=SAMPLE_RATE, target_sr=OUTPUT_SAMPLE_RATE
