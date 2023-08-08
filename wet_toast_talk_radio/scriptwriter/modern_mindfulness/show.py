@@ -8,7 +8,7 @@ from guidance.llms import LLM
 from wet_toast_talk_radio.common.dialogue import Line, Speaker
 from wet_toast_talk_radio.common.log_ctx import show_id_log_ctx
 from wet_toast_talk_radio.media_store import MediaStore
-from wet_toast_talk_radio.media_store.media_store import ShowId
+from wet_toast_talk_radio.media_store.media_store import ShowId, ShowMetadata, ShowName
 from wet_toast_talk_radio.scriptwriter.modern_mindfulness.circumstances import (
     load_circumstances,
 )
@@ -113,6 +113,9 @@ class ModernMindfulness(RadioShow):
         logger.info("Finished writing Modern Mindfulness")
         lines = self._post_processing(written_meditation)
         self._media_store.put_script_show(show_id=show_id, lines=lines)
+        self._media_store.put_script_show_metadata(
+            show_id=show_id, metadata=ShowMetadata(ShowName.MODERN_MINDFULNESS)
+        )
         return True
 
     def _post_processing(self, program: Program) -> list[Line]:

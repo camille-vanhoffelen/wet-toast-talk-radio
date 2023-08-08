@@ -5,7 +5,7 @@ from guidance.llms import LLM
 from wet_toast_talk_radio.common.dialogue import Line, Speaker
 from wet_toast_talk_radio.common.log_ctx import show_id_log_ctx
 from wet_toast_talk_radio.media_store import MediaStore
-from wet_toast_talk_radio.media_store.media_store import ShowId
+from wet_toast_talk_radio.media_store.media_store import ShowId, ShowMetadata, ShowName
 from wet_toast_talk_radio.scriptwriter.radio_show import RadioShow
 
 logger = structlog.get_logger()
@@ -65,3 +65,6 @@ class Advert(RadioShow):
             speaker=Speaker(name="Ian", gender="male", host=True), content=content
         )
         self._media_store.put_script_show(show_id=show_id, lines=[line])
+        self._media_store.put_script_show_metadata(
+            show_id=show_id, metadata=ShowMetadata(ShowName.ADVERTS)
+        )
