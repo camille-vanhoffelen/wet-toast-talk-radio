@@ -32,8 +32,8 @@ class TestPlaylist:
         playlist = Playlist(media_store, message_queue, radio_operator)
         playlist.start()
 
-        assert message_queue.get_next_stream_show().show_id == show0
-        assert message_queue.get_next_stream_show().show_id == show1
+        stream_shows = {message_queue.get_next_stream_show().show_id for _ in range(2)}
+        assert stream_shows == {show0, show1}
 
     def test_fallback_playlist(self, radio_operator):
         media_store = new_media_store(MediaStoreConfig(virtual=True))

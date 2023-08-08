@@ -302,5 +302,9 @@ class AudioGenerator:
 
 
 def read_metadata(metadata_path: Path):
-    metadata_dict = json.loads(metadata_path.read_text())
-    return ShowMetadata(**metadata_dict)
+    if metadata_path.is_file():
+        metadata_dict = json.loads(metadata_path.read_text())
+        return ShowMetadata(**metadata_dict)
+    else:
+        # TODO remove, temporary default until all shows have metadata
+        return ShowMetadata(ShowName.ADVERTS)

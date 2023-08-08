@@ -1,10 +1,10 @@
+import json
 import re
 import time
 from pathlib import Path
 
 import pytest
 import structlog
-import json
 
 from wet_toast_talk_radio.common.aws_clients import new_s3_client, new_sqs_client
 from wet_toast_talk_radio.common.dialogue import read_lines
