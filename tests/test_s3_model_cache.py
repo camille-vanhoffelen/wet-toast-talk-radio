@@ -8,7 +8,7 @@ from wet_toast_talk_radio.audio_generator.cache import (
 )
 
 TEST_S3_MODEL_CACHE_BUCKET = "wet-toast-test-model-cache"
-TEST_S3_MODEL_CACHE_KEY = "test-model-cache-2023-08-02.tar"
+TEST_S3_MODEL_CACHE_KEY = "test-model-cache-2023-08-09.tar"
 REPO_ID = "test"
 NB_FILES = 2
 
