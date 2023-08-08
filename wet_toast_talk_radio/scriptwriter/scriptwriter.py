@@ -14,6 +14,7 @@ from wet_toast_talk_radio.scriptwriter.config import ScriptwriterConfig, validat
 from wet_toast_talk_radio.scriptwriter.modern_mindfulness import ModernMindfulness
 from wet_toast_talk_radio.scriptwriter.the_expert_zone import TheExpertZone
 from wet_toast_talk_radio.scriptwriter.the_great_debate import TheGreatDebate
+from wet_toast_talk_radio.scriptwriter.prolove import Prolove
 
 logger = structlog.get_logger()
 
@@ -21,16 +22,19 @@ DAILY_PROGRAM = (
     TheGreatDebate,
     ModernMindfulness,
     TheExpertZone,
+    Prolove,
     Advert,
     TheGreatDebate,
     ModernMindfulness,
     TheExpertZone,
+    Prolove,
     Advert,
     TheGreatDebate,
     ModernMindfulness,
     TheExpertZone,
+    Prolove,
     Advert,
-) * 24
+) * 20
 
 
 @task_log_ctx("script_writer")

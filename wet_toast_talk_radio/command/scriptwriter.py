@@ -137,9 +137,6 @@ def traits(ctx: dict, n_traits: int, n_iter: int):
 
     Write unique character traits for guests, writes them in /tmp/traits.json
     """
-    structlog.configure(
-        wrapper_class=structlog.make_filtering_bound_logger(logging.DEBUG),
-    )
     logger.info("Writing character traits")
     root_cfg = ctx.obj["root_cfg"]
     sw_cfg = root_cfg.scriptwriter
@@ -165,9 +162,6 @@ def the_great_debate_topics(ctx: dict, n_topics: int, n_iter: int):
 
     Write unique character topics for guests, writes them in /tmp/the-great-debate-topics.json
     """
-    structlog.configure(
-        wrapper_class=structlog.make_filtering_bound_logger(logging.DEBUG),
-    )
     logger.info("Writing topics for The Great Debate")
     root_cfg = ctx.obj["root_cfg"]
     sw_cfg = root_cfg.scriptwriter
@@ -197,9 +191,6 @@ def situations(ctx: dict, n_situations: int, n_iter: int):
 
     Write unique situations for guided meditation, writes them in /tmp/situations.json
     """
-    structlog.configure(
-        wrapper_class=structlog.make_filtering_bound_logger(logging.DEBUG),
-    )
     logger.info("Writing character situations")
     root_cfg = ctx.obj["root_cfg"]
     sw_cfg = root_cfg.scriptwriter
@@ -228,9 +219,6 @@ def circumstances(ctx: dict, n_circumstances: int, n_iter: int):
 
     Write unique bad circumstances for guided meditation, writes them in /tmp/circumstances.json
     """
-    structlog.configure(
-        wrapper_class=structlog.make_filtering_bound_logger(logging.DEBUG),
-    )
     logger.info("Writing character circumstances")
     root_cfg = ctx.obj["root_cfg"]
     sw_cfg = root_cfg.scriptwriter
@@ -274,9 +262,6 @@ def the_expert_zone_topics(ctx: dict, n_topics: int, n_iter: int):
 
     Write unique character topics for guests, writes them in /tmp/the-expert-zone-topics.json
     """
-    structlog.configure(
-        wrapper_class=structlog.make_filtering_bound_logger(logging.DEBUG),
-    )
     logger.info("Writing topics for The Expert Zone")
     root_cfg = ctx.obj["root_cfg"]
     sw_cfg = root_cfg.scriptwriter
@@ -319,9 +304,6 @@ def prolove_topics(ctx: dict, n_topics: int, n_iter: int):
 
     Write unique character topics for guests, writes them in /tmp/prolove-topics.json
     """
-    structlog.configure(
-        wrapper_class=structlog.make_filtering_bound_logger(logging.DEBUG),
-    )
     logger.info("Writing topics for Prolove")
     root_cfg = ctx.obj["root_cfg"]
     sw_cfg = root_cfg.scriptwriter
@@ -352,9 +334,6 @@ def prolove_anecdotes(ctx: dict, n_anecdotes: int, n_iter: int):
 
     Write unique character anecdotes for guests, writes them in /tmp/prolove-anecdotes.json
     """
-    structlog.configure(
-        wrapper_class=structlog.make_filtering_bound_logger(logging.DEBUG),
-    )
     logger.info("Writing anecdotes for Prolove")
     root_cfg = ctx.obj["root_cfg"]
     sw_cfg = root_cfg.scriptwriter
