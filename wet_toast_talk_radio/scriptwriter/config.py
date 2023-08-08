@@ -8,7 +8,7 @@ class LLMConfig(BaseModel):
 
     virtual: bool = False
     fake_responses: list[str] = None
-    model: str = "gpt-3.5-turbo"
+    model: str = "gpt-3.5-turbo-0613"
     temperature: float = 0.9
     openai_api_key: SecretVar[str] | None = None
 

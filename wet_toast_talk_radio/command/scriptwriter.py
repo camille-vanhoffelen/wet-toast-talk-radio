@@ -1,5 +1,4 @@
 import asyncio
-import logging
 
 import click
 import structlog
@@ -17,6 +16,13 @@ from wet_toast_talk_radio.scriptwriter.modern_mindfulness import (
     Circumstances,
     ModernMindfulness,
     Situations,
+)
+from wet_toast_talk_radio.scriptwriter.prolove import (
+    Anecdotes as ProloveAnecdotes,
+)
+from wet_toast_talk_radio.scriptwriter.prolove import Prolove
+from wet_toast_talk_radio.scriptwriter.prolove import (
+    Topics as ProloveTopics,
 )
 from wet_toast_talk_radio.scriptwriter.the_expert_zone import (
     TheExpertZone,
@@ -130,9 +136,6 @@ def traits(ctx: dict, n_traits: int, n_iter: int):
 
     Write unique character traits for guests, writes them in /tmp/traits.json
     """
-    structlog.configure(
-        wrapper_class=structlog.make_filtering_bound_logger(logging.DEBUG),
-    )
     logger.info("Writing character traits")
     root_cfg = ctx.obj["root_cfg"]
     sw_cfg = root_cfg.scriptwriter
@@ -158,9 +161,6 @@ def the_great_debate_topics(ctx: dict, n_topics: int, n_iter: int):
 
     Write unique character topics for guests, writes them in /tmp/the-great-debate-topics.json
     """
-    structlog.configure(
-        wrapper_class=structlog.make_filtering_bound_logger(logging.DEBUG),
-    )
     logger.info("Writing topics for The Great Debate")
     root_cfg = ctx.obj["root_cfg"]
     sw_cfg = root_cfg.scriptwriter
@@ -190,9 +190,6 @@ def situations(ctx: dict, n_situations: int, n_iter: int):
 
     Write unique situations for guided meditation, writes them in /tmp/situations.json
     """
-    structlog.configure(
-        wrapper_class=structlog.make_filtering_bound_logger(logging.DEBUG),
-    )
     logger.info("Writing character situations")
     root_cfg = ctx.obj["root_cfg"]
     sw_cfg = root_cfg.scriptwriter
@@ -221,9 +218,6 @@ def circumstances(ctx: dict, n_circumstances: int, n_iter: int):
 
     Write unique bad circumstances for guided meditation, writes them in /tmp/circumstances.json
     """
-    structlog.configure(
-        wrapper_class=structlog.make_filtering_bound_logger(logging.DEBUG),
-    )
     logger.info("Writing character circumstances")
     root_cfg = ctx.obj["root_cfg"]
     sw_cfg = root_cfg.scriptwriter
@@ -267,13 +261,81 @@ def the_expert_zone_topics(ctx: dict, n_topics: int, n_iter: int):
 
     Write unique character topics for guests, writes them in /tmp/the-expert-zone-topics.json
     """
-    structlog.configure(
-        wrapper_class=structlog.make_filtering_bound_logger(logging.DEBUG),
-    )
-    logger.info("Writing topics for The Great Debate")
+    logger.info("Writing topics for The Expert Zone")
     root_cfg = ctx.obj["root_cfg"]
     sw_cfg = root_cfg.scriptwriter
     llm = new_llm(cfg=sw_cfg.llm)
 
     topics_writer = TheExpertZoneTopics(llm=llm, n_topics=n_topics, n_iter=n_iter)
     asyncio.run(topics_writer.awrite())
+
+
+@scriptwriter.command(help="Write script for Prolove")
+@click.pass_context
+def prolove(ctx: dict):
+    """Run command
+    scriptwriter prolove
+    """
+    logger.info("Writing script for Prolove")
+    root_cfg = ctx.obj["root_cfg"]
+    sw_cfg = root_cfg.scriptwriter
+
+    llm = new_llm(cfg=sw_cfg.llm)
+    show = Prolove.create(llm=llm, media_store=VirtualMediaStore())
+    show_id = ShowId(show_i=0, date="2012-12-21")
+    asyncio.run(show.awrite(show_id=show_id))
+
+
+@scriptwriter.command(help="Write topics for Prolove")
+@click.pass_context
+@click.option(
+    "--n-topics", default=50, type=int, help="Number of topics generated per iteration"
+)
+@click.option(
+    "--n-iter",
+    default=20,
+    type=int,
+    help="Number of parallel generations to be aggregated",
+)
+def prolove_topics(ctx: dict, n_topics: int, n_iter: int):
+    """Run command
+    scriptwriter prolove-topics
+
+    Write unique character topics for guests, writes them in /tmp/prolove-topics.json
+    """
+    logger.info("Writing topics for Prolove")
+    root_cfg = ctx.obj["root_cfg"]
+    sw_cfg = root_cfg.scriptwriter
+    llm = new_llm(cfg=sw_cfg.llm)
+
+    topics_writer = ProloveTopics(llm=llm, n_topics=n_topics, n_iter=n_iter)
+    asyncio.run(topics_writer.awrite())
+
+
+@scriptwriter.command(help="Write anecdotes for Prolove")
+@click.pass_context
+@click.option(
+    "--n-anecdotes",
+    default=50,
+    type=int,
+    help="Number of anecdotes generated per iteration",
+)
+@click.option(
+    "--n-iter",
+    default=20,
+    type=int,
+    help="Number of parallel generations to be aggregated",
+)
+def prolove_anecdotes(ctx: dict, n_anecdotes: int, n_iter: int):
+    """Run command
+    scriptwriter prolove-anecdotes
+
+    Write unique character anecdotes for guests, writes them in /tmp/prolove-anecdotes.json
+    """
+    logger.info("Writing anecdotes for Prolove")
+    root_cfg = ctx.obj["root_cfg"]
+    sw_cfg = root_cfg.scriptwriter
+    llm = new_llm(cfg=sw_cfg.llm)
+
+    anecdotes_writer = ProloveAnecdotes(llm=llm, n_anecdotes=n_anecdotes, n_iter=n_iter)
+    asyncio.run(anecdotes_writer.awrite())
