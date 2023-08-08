@@ -1,3 +1,4 @@
+import json
 import time
 import uuid
 from io import BytesIO
@@ -29,6 +30,7 @@ from wet_toast_talk_radio.common.dialogue import Line, read_lines
 from wet_toast_talk_radio.common.log_ctx import task_log_ctx
 from wet_toast_talk_radio.common.path import delete_folder
 from wet_toast_talk_radio.media_store import MediaStore
+from wet_toast_talk_radio.media_store.media_store import ShowMetadata, ShowName
 from wet_toast_talk_radio.message_queue.message_queue import MessageQueue
 
 logger = structlog.get_logger()
@@ -86,8 +88,14 @@ class AudioGenerator:
             self._media_store.download_script_show(
                 show_id=show_id, dir_output=self._script_shows_dir
             )
+            self._media_store.download_script_show_metadata(
+                show_id=show_id, dir_output=self._script_shows_dir
+            )
             script = read_lines(
                 self._script_shows_dir / show_id.store_key() / "show.jsonl"
+            )
+            metadata = read_metadata(
+                self._script_shows_dir / show_id.store_key() / "metadata.json"
             )
 
             def heartbeat():
@@ -96,8 +104,7 @@ class AudioGenerator:
                     timeout_in_s=self._cfg.heartbeat_interval_in_s,
                 )
 
-            # TODO
-            background_music = False
+            background_music = bool(metadata.show_name == ShowName.MODERN_MINDFULNESS)
             data = self._script_to_audio(
                 lines=script,
                 background_music=background_music,
@@ -292,3 +299,8 @@ class AudioGenerator:
             else:
                 logger.info("Found local HF hub model cache")
             assert cache_is_present(), "Model cache must be complete"
+
+
+def read_metadata(metadata_path: Path):
+    metadata_dict = json.loads(metadata_path.read_text())
+    return ShowMetadata(**metadata_dict)

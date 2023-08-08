@@ -216,4 +216,4 @@ class VirtualMediaStore(MediaStore):
                         ret.append(obj.show_id)
                 else:
                     ret.append(obj.show_id)
-        return ret
+        return list(set(ret))

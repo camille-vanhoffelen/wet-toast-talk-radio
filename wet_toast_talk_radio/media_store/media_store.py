@@ -9,7 +9,7 @@ from wet_toast_talk_radio.common.dialogue import Line
 _FALLBACK_KEY = "fallback"
 
 
-@dataclass
+@dataclass(frozen=True)
 class ShowId:
     show_i: int
     date: str
@@ -18,7 +18,8 @@ class ShowId:
         return f"{self.date}/{self.show_i}"
 
 
-class ShowName(Enum):
+# inherit from str so it's serializable
+class ShowName(str, Enum):
     THE_GREAT_DEBATE = "the_great_debate"
     THE_EXPERT_ZONE = "the_expert_zone"
     MODERN_MINDFULNESS = "modern_mindfulness"

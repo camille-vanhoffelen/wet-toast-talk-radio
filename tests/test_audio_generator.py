@@ -11,7 +11,7 @@ from wet_toast_talk_radio.audio_generator import AudioGenerator
 from wet_toast_talk_radio.audio_generator.config import AudioGeneratorConfig
 from wet_toast_talk_radio.common.dialogue import Line, Speaker
 from wet_toast_talk_radio.media_store import MediaStore
-from wet_toast_talk_radio.media_store.media_store import ShowId
+from wet_toast_talk_radio.media_store.media_store import ShowId, ShowMetadata, ShowName
 
 
 class TestAudioGenerator:
@@ -96,5 +96,7 @@ def _init_bucket(store: MediaStore) -> list[ShowId]:
         content="No, it's not.",
     )
     store.put_script_show(show59, [john_line])
+    store.put_script_show_metadata(show59, ShowMetadata(ShowName.THE_EXPERT_ZONE))
     store.put_script_show(show60, [anna_line])
+    store.put_script_show_metadata(show60, ShowMetadata(ShowName.ADVERTS))
     return [show59, show60]

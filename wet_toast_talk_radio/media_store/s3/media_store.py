@@ -199,4 +199,4 @@ class S3MediaStore(MediaStore):
             else:
                 break
 
-        return ret
+        return list(set(ret))
