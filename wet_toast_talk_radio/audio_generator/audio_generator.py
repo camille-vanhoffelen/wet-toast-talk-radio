@@ -179,6 +179,7 @@ class AudioGenerator:
                 text=chunk,
                 k=1,
                 conditioning_latents=conditioning_latents,
+                speaking_rate=line.speaker.speaking_rate,
                 preset="ultra_fast",
                 use_deterministic_seed=self.seed,
                 return_deterministic_state=False,
