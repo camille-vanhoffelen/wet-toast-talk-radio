@@ -13,20 +13,20 @@ from tortoise.api import MODELS_DIR, TextToSpeech
 from tortoise.utils.text import split_and_recombine_text
 from voicefixer import VoiceFixer
 
+from wet_toast_talk_radio.audio_generator.cache import (
+    cache_is_present,
+    download_model_cache,
+)
 from wet_toast_talk_radio.audio_generator.config import (
     AudioGeneratorConfig,
     validate_config,
-)
-from wet_toast_talk_radio.audio_generator.model_cache import (
-    cache_is_present,
-    download_model_cache,
 )
 from wet_toast_talk_radio.audio_generator.speakers import init_voices
 from wet_toast_talk_radio.common.dialogue import Line, read_lines
 from wet_toast_talk_radio.common.log_ctx import task_log_ctx
 from wet_toast_talk_radio.common.path import delete_folder
 from wet_toast_talk_radio.media_store import MediaStore
-from wet_toast_talk_radio.message_queue.message_queue import MessageQueue
+from wet_toast_talk_radio.message_queue.message_queue import MessageQueue, ShowType
 
 logger = structlog.get_logger()
 
@@ -78,7 +78,10 @@ class AudioGenerator:
         ), "MediaStore must be provided to run AudioGenerator"
         while script_show_message := self._message_queue.poll_script_show():
             show_id = script_show_message.show_id
-            logger.info("Generating audio for script show", show_id=show_id)
+            show_type = script_show_message.show_type
+            logger.info(
+                "Generating audio for script show", show_id=show_id, show_type=show_type
+            )
             self._media_store.download_script_show(
                 show_id=show_id, dir_output=self._script_shows_dir
             )
@@ -92,7 +95,12 @@ class AudioGenerator:
                     timeout_in_s=self._cfg.heartbeat_interval_in_s,
                 )
 
-            data = self._script_to_audio(lines=script, sentence_callbacks=[heartbeat])
+            background_music = bool(show_type == ShowType.MODERN_MINDFULNESS)
+            data = self._script_to_audio(
+                lines=script,
+                background_music=background_music,
+                sentence_callbacks=[heartbeat],
+            )
             self._media_store.put_raw_show(show_id=show_id, data=data)
             self._message_queue.delete_script_show(script_show_message.receipt_handle)
             logger.info("Show deleted from message_queue", show_id=show_id)
@@ -112,7 +120,10 @@ class AudioGenerator:
         logger.info("Audio generator benchmark finished!")
 
     def _script_to_audio(
-        self, lines: list[Line], sentence_callbacks: list[Callable] | None = None
+        self,
+        lines: list[Line],
+        background_music: bool = False,
+        sentence_callbacks: list[Callable] | None = None,
     ) -> bytes:
         logger.info("Starting audio generation")
         start = time.perf_counter()
@@ -133,6 +144,10 @@ class AudioGenerator:
 
         logger.debug("Concatenating line audio pieces")
         audio_array = np.concatenate(pieces)
+
+        if background_music:
+            audio_array = self._add_background_music(audio_array)
+
         audio_array, sample_rate = self._postprocess(audio_array)
 
         buffer = BytesIO()
@@ -197,6 +212,10 @@ class AudioGenerator:
         audio_array = np.concatenate(pieces)
         return audio_array
 
+    def _add_background_music(self, audio_array: np.ndarray) -> np.ndarray:
+        logger.info("Adding background music")
+        pass
+
     def _postprocess(self, audio_array: np.ndarray) -> (np.ndarray, int):
         """Convert to PCM, optionally resample and fix voice"""
         logger.info("Postprocessing audio")
@@ -247,4 +266,4 @@ class AudioGenerator:
                     logger.error("Failed to download model cache, continuing", error=e)
             else:
                 logger.info("Found local HF hub model cache")
-            assert cache_is_present(), "Cache must be complete"
+            assert cache_is_present(), "Model cache must be complete"

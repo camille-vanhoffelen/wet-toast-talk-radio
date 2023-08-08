@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from wet_toast_talk_radio.audio_generator.model_cache import (
+from wet_toast_talk_radio.audio_generator.cache import (
     cache_is_present,
     download_model_cache,
 )
