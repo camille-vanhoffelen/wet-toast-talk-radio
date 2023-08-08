@@ -1,4 +1,6 @@
 import concurrent.futures
+import dataclasses
+import json
 from pathlib import Path
 from typing import Optional
 
@@ -10,6 +12,7 @@ from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.media_store import (
     _FALLBACK_KEY,
     ShowId,
+    ShowMetadata,
     ShowUploadInput,
     show_id_from_raw_key,
 )
@@ -52,6 +55,14 @@ class S3MediaStore(MediaStore):
             Bucket=self._bucket_name, Key=key, Body=content
         )
 
+    def put_script_show_metadata(self, show_id: ShowId, metadata: ShowMetadata):
+        logger.info("Uploading script show metadata", show_id=show_id)
+        key = f"{_SCRIPT_SHOWS_PREFIX}/{show_id.store_key()}/metadata.json"
+        content = json.dumps(dataclasses.asdict(metadata))
+        new_s3_client(self._cfg.local).put_object(
+            Bucket=self._bucket_name, Key=key, Body=content
+        )
+
     def upload_transcoded_shows(self, shows: list[ShowUploadInput]):
         def upload_file(show: ShowUploadInput, key: str):
             try:
@@ -80,18 +91,23 @@ class S3MediaStore(MediaStore):
             concurrent.futures.wait(futures)
 
     def download_raw_shows(self, show_ids: list[ShowId], dir_output: Path):
-        self._download_shows(show_ids, dir_output, _RAW_SHOWS_PREFIX, "wav")
+        self._download_files(show_ids, dir_output, _RAW_SHOWS_PREFIX, "show.wav")
 
     def download_script_show(self, show_id: ShowId, dir_output: Path):
-        self._download_shows([show_id], dir_output, _SCRIPT_SHOWS_PREFIX, "jsonl")
+        self._download_files([show_id], dir_output, _SCRIPT_SHOWS_PREFIX, "show.jsonl")
 
-    def _download_shows(
-        self, show_ids: list[ShowId], dir_output: Path, prefix: str, file_suffix: str
+    def download_script_show_metadata(self, show_id: ShowId, dir_output: Path):
+        self._download_files(
+            [show_id], dir_output, _SCRIPT_SHOWS_PREFIX, "metadata.json"
+        )
+
+    def _download_files(
+        self, show_ids: list[ShowId], dir_output: Path, prefix: str, filename: str
     ):
         def download_file(show_id: ShowId, dir_output: Path):
             try:
-                key = f"{prefix}/{show_id.store_key()}/show.{file_suffix}"
-                file_output = dir_output / f"show.{file_suffix}"
+                key = f"{prefix}/{show_id.store_key()}/{filename}"
+                file_output = dir_output / f"{filename}"
                 new_s3_client(self._cfg.local).download_file(
                     self._bucket_name, key, file_output
                 )

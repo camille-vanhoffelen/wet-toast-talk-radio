@@ -15,8 +15,8 @@ from tortoise.utils.text import split_and_recombine_text
 from voicefixer import VoiceFixer
 
 from wet_toast_talk_radio.audio_generator.cache import (
-    MODERN_MINDFULNESS_BACKGROUND_PATH,
     JINGLE_PATH,
+    MODERN_MINDFULNESS_BACKGROUND_PATH,
     cache_is_present,
     download_model_cache,
 )
@@ -29,7 +29,7 @@ from wet_toast_talk_radio.common.dialogue import Line, read_lines
 from wet_toast_talk_radio.common.log_ctx import task_log_ctx
 from wet_toast_talk_radio.common.path import delete_folder
 from wet_toast_talk_radio.media_store import MediaStore
-from wet_toast_talk_radio.message_queue.message_queue import MessageQueue, ShowType
+from wet_toast_talk_radio.message_queue.message_queue import MessageQueue
 
 logger = structlog.get_logger()
 
@@ -82,10 +82,7 @@ class AudioGenerator:
         ), "MediaStore must be provided to run AudioGenerator"
         while script_show_message := self._message_queue.poll_script_show():
             show_id = script_show_message.show_id
-            show_type = script_show_message.show_type
-            logger.info(
-                "Generating audio for script show", show_id=show_id, show_type=show_type
-            )
+            logger.info("Generating audio for script show", show_id=show_id)
             self._media_store.download_script_show(
                 show_id=show_id, dir_output=self._script_shows_dir
             )
@@ -99,7 +96,8 @@ class AudioGenerator:
                     timeout_in_s=self._cfg.heartbeat_interval_in_s,
                 )
 
-            background_music = bool(show_type == ShowType.MODERN_MINDFULNESS)
+            # TODO
+            background_music = False
             data = self._script_to_audio(
                 lines=script,
                 background_music=background_music,

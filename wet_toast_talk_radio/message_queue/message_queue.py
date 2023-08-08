@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from enum import Enum
 
 from wet_toast_talk_radio.media_store.media_store import ShowId
 
@@ -11,18 +10,9 @@ class StreamShowMessage:
     receipt_handle: str
 
 
-class ShowType(Enum):
-    PROLOVE = "prolove"
-    THE_GREAT_DEBATE = "the_great_debate"
-    THE_EXPERT_ZONE = "the_expert_zone"
-    MODERN_MINDFULNESS = "modern_mindfulness"
-    ADVERTS = "adverts"
-
-
 @dataclass
 class ScriptShowMessage:
     show_id: ShowId
-    show_type: ShowType
     receipt_handle: str
 
 

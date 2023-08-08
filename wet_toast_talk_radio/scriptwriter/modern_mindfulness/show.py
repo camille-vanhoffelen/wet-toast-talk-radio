@@ -120,6 +120,7 @@ class ModernMindfulness(RadioShow):
         meditation = program["meditation"]
         meditation = " ".join(meditation.strip().split())
         line = Line(
-            speaker=Speaker(name="Orion", gender="male", host=True, speaking_rate=1.3), content=meditation
+            speaker=Speaker(name="Orion", gender="male", host=True, speaking_rate=1.3),
+            content=meditation,
         )
         return [line]

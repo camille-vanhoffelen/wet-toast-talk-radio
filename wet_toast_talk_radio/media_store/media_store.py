@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from enum import Enum
 from pathlib import Path
 from typing import Optional
 
@@ -15,6 +16,19 @@ class ShowId:
 
     def store_key(self):
         return f"{self.date}/{self.show_i}"
+
+
+class ShowName(Enum):
+    THE_GREAT_DEBATE = "the_great_debate"
+    THE_EXPERT_ZONE = "the_expert_zone"
+    MODERN_MINDFULNESS = "modern_mindfulness"
+    ADVERTS = "adverts"
+    PROLOVE = "prolove"
+
+
+@dataclass
+class ShowMetadata:
+    show_name: ShowName
 
 
 def show_id_from_raw_key(key: str) -> ShowId:
@@ -55,6 +69,10 @@ class MediaStore(ABC):
         """Put script (.jsonl) to the media store"""
 
     @abstractmethod
+    def put_script_show_metadata(self, show_id: ShowId, metadata: ShowMetadata):
+        """Put script metadata (.json) to the media store"""
+
+    @abstractmethod
     def upload_transcoded_shows(self, shows: list[ShowUploadInput]):
         """Upload shows (.mp3) to the media store concurently"""
 
@@ -65,6 +83,10 @@ class MediaStore(ABC):
     @abstractmethod
     def download_script_show(self, show_id: ShowId, dir_output: Path):
         """download script (.jsonl) from the media store"""
+
+    @abstractmethod
+    def download_script_show_metadata(self, show_id: ShowId, dir_output: Path):
+        """download script metadata(.json) from the media store"""
 
     @abstractmethod
     def get_transcoded_show(self, show_id: ShowId) -> bytes:
