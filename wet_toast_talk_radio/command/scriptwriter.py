@@ -11,6 +11,7 @@ from wet_toast_talk_radio.media_store.virtual.media_store import VirtualMediaSto
 from wet_toast_talk_radio.message_queue import new_message_queue
 from wet_toast_talk_radio.scriptwriter import Scriptwriter, new_llm
 from wet_toast_talk_radio.scriptwriter.adverts import Advert
+from wet_toast_talk_radio.scriptwriter.adverts import Products as AdvertProducts
 from wet_toast_talk_radio.scriptwriter.config import validate_config
 from wet_toast_talk_radio.scriptwriter.modern_mindfulness import (
     Circumstances,
@@ -85,6 +86,35 @@ def advert(ctx: dict):
     show = Advert.create(llm=llm, media_store=VirtualMediaStore())
     show_id = ShowId(show_i=0, date="2012-12-21")
     asyncio.run(show.awrite(show_id=show_id))
+
+
+@scriptwriter.command(help="Write products for Advert")
+@click.pass_context
+@click.option(
+    "--n-products",
+    default=50,
+    type=int,
+    help="Number of products generated per iteration",
+)
+@click.option(
+    "--n-iter",
+    default=20,
+    type=int,
+    help="Number of parallel generations to be aggregated",
+)
+def advert_products(ctx: dict, n_products: int, n_iter: int):
+    """Run command
+    scriptwriter advert-products
+
+    Write unique products for adverts, writes them in /tmp/advert-products.json
+    """
+    logger.info("Writing products for Advert")
+    root_cfg = ctx.obj["root_cfg"]
+    sw_cfg = root_cfg.scriptwriter
+    llm = new_llm(cfg=sw_cfg.llm)
+
+    products_writer = AdvertProducts(llm=llm, n_products=n_products, n_iter=n_iter)
+    asyncio.run(products_writer.awrite())
 
 
 @scriptwriter.command(help="Write script for The Great Debate")

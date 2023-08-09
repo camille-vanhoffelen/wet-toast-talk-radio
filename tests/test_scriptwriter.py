@@ -12,7 +12,7 @@ from tests.conftests import (
 )
 from wet_toast_talk_radio.message_queue import MessageQueue
 from wet_toast_talk_radio.scriptwriter import Scriptwriter
-from wet_toast_talk_radio.scriptwriter.adverts import Advert
+from wet_toast_talk_radio.scriptwriter.adverts.show import Advert
 from wet_toast_talk_radio.scriptwriter.config import LLMConfig, ScriptwriterConfig
 
 logger = structlog.get_logger()
