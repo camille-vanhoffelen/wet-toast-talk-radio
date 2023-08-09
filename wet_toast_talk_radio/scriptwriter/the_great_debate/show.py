@@ -24,6 +24,7 @@ logger = structlog.get_logger()
 
 GUEST_TEMPLATE = """{{#system~}}
 You are an edgy, satirical writer.
+You write in a casual and informal style.
 {{~/system}}
 {{#user~}}
 Your task is to write character profiles. {{name}} is a {{gender}} who is strongly {{polarity}} {{topic}}.
@@ -55,7 +56,8 @@ Now invent an unexpected backstory for {{name}} explaining why they are so {{pol
 """
 
 DEBATE_TEMPLATE = """{{#system~}}
-You are an edgy, satirical writer.
+You are a great writer who's an expert at giving unique voices to characters.
+You write in a casual and informal style.
 {{~/system}}
 {{#user~}}
 Julie is a radio show host who hosts "The Great Debate", a radio show where guests call in to discuss the pros and cons of particular topics.
@@ -84,17 +86,19 @@ Backstory: {{against.backstory}}
 Each line should start with the name of the speaker, followed by a colon and a space.
 
 Here's an example conversation:
-Julie: Welcome to The Great Debate! I'm your host and referee, Julie, and today's topic is {{topic}}. We have two guests on the line, {{in_favor.name}} and {{against.name}}, ready to battle it out. {{in_favor.name}}, what do you think about {{topic}}?
+Julie: Welcome to The Great Debate! The show where you tune in to take sides! I'm your host and referee, Julie, and today's topic is {{topic}}. We have two guests on the line, {{in_favor.name}} and {{against.name}}, ready to battle it out. {{in_favor.name}}, what do you think about {{topic}}?
 {{in_favor.name}}: I think {{topic}} is GREAT!
 Julie: What about you, {{against.name}}?
 {{against.name}}: That I sure don't... I can't stand it!
 Julie: Then let the debate begin!
 {{in_favor.name}}: So... Why don't you like it, {{against.name}}?
 
-Now generate this long conversation in 2000 words. Please include the guests' arguments and style their speech according to their character traits.
+Please include the guests' arguments and their character traits.
+Everyone speaks in a casual and informal style.
+Now generate this long conversation in 2000 words.
 {{~/user}}
 {{#assistant~}}
-{{gen 'script' temperature=0.9 max_tokens=3000}}
+{{gen 'script' temperature=0.5 max_tokens=3000}}
 {{~/assistant}}"""
 
 
