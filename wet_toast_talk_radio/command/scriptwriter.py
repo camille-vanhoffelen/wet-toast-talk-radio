@@ -10,7 +10,7 @@ from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.media_store.virtual.media_store import VirtualMediaStore
 from wet_toast_talk_radio.message_queue import new_message_queue
 from wet_toast_talk_radio.scriptwriter import Scriptwriter, new_llm
-from wet_toast_talk_radio.scriptwriter.adverts import Advert
+from wet_toast_talk_radio.scriptwriter.adverts.show import Advert
 from wet_toast_talk_radio.scriptwriter.config import validate_config
 from wet_toast_talk_radio.scriptwriter.modern_mindfulness import (
     Circumstances,

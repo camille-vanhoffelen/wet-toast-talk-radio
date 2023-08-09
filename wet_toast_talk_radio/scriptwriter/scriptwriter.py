@@ -9,7 +9,7 @@ from wet_toast_talk_radio.media_store.common.date import get_offset_iso_utc_date
 from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.message_queue import MessageQueue
 from wet_toast_talk_radio.scriptwriter import new_llm
-from wet_toast_talk_radio.scriptwriter.adverts import Advert
+from wet_toast_talk_radio.scriptwriter.adverts.show import Advert
 from wet_toast_talk_radio.scriptwriter.config import ScriptwriterConfig, validate_config
 from wet_toast_talk_radio.scriptwriter.modern_mindfulness import ModernMindfulness
 from wet_toast_talk_radio.scriptwriter.prolove import Prolove
