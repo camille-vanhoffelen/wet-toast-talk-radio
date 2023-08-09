@@ -177,6 +177,13 @@ class Prolove(RadioShow):
             )
             history_pt3.append(role=Role.GUEST, message=guest["response"])
 
+        outro = (
+            "Well, my hearts, that's all the time we have today! "
+            f"Thanks again for calling, {self.guest.placeholder_name}, much love to you, "
+            "and to all my hearts, remember to say YES to love, and see you next time! "
+        )
+        history_pt3.append(role=Role.HOST, message=outro)
+
         # Collect all messages
         conversation = (
             history_pt1.messages + history_pt2.messages + history_pt3.messages[2:]
