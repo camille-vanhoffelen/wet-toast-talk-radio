@@ -3,7 +3,7 @@ import random
 DETAILS = [
     "Could you tell me more about that, {{name}}? What happened?",
     "I see, {{name}}... can you tell me more details?",
-    "Tell me what going on, {{name}}.",
+    "Tell me what's going on, {{name}}.",
 ]
 
 NEW_CALLER = (
