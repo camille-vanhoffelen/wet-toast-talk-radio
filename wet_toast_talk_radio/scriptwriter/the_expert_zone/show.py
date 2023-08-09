@@ -6,6 +6,7 @@ from guidance import Program
 from guidance.llms import LLM
 
 from wet_toast_talk_radio.common.dialogue import Line, Speaker
+from wet_toast_talk_radio.common.log_ctx import show_id_log_ctx
 from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.media_store import ShowId, ShowMetadata, ShowName
 from wet_toast_talk_radio.scriptwriter.names import (
@@ -70,6 +71,7 @@ class TheExpertZone(RadioShow):
         self._llm = llm
         self._media_store = media_store
 
+    @show_id_log_ctx()
     async def awrite(self, show_id: ShowId) -> bool:
         logger.info("Async writing The Expert Zone")
         guest = Program(
