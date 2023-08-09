@@ -14,7 +14,6 @@ from wet_toast_talk_radio.scriptwriter.radio_show import RadioShow
 
 logger = structlog.get_logger()
 
-# TODO guard against real copyrighted names and companies?
 PRODUCT_TEMPLATE = """{{#system~}}
 You are good at product marketing.
 {{~/system}}
@@ -114,7 +113,7 @@ class Advert(RadioShow):
             strategies=self.strategies,
         )
 
-        logger.info("Finished writing Modern Mindfulness")
+        logger.info("Finished writing advert")
         lines = self._post_processing(program=advert)
         self._media_store.put_script_show(show_id=show_id, lines=lines)
         self._media_store.put_script_show_metadata(
