@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.1.31](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.30...v0.1.31) (2023-08-09)
+
+
+### Features
+
+* Adverts v3 ([#101](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/101)) ([a1b0b26](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/a1b0b2667c015b55bf806f00330005398da6be20))
+* better logs and Zara voice used ([77e09d5](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/77e09d5ec6022bea61ba735619354fbebb894967))
+* Orion speaks faster ([#100](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/100)) ([f1d2205](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/f1d220571e198107faee76f0ed2615772a1aeee5))
+* The great debate v3 ([#102](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/102)) ([08ad94c](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/08ad94cb10e39db94271a0df0ef3f16cc85de58f))
+
 ## [0.1.30](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.29...v0.1.30) (2023-08-08)
 
 
