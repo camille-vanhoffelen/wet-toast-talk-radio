@@ -26,9 +26,9 @@ PART_2_STRATEGIES = [
     "Insist that the product is definitely not a scam",
     "Describe the complex pricing structure in great detail",
     "Make a disclaimer about the product's side effects",
-    "Offer a special discount for the product",
+    "Describe and offer a special discount for the product",
     "Promote a limited edition version of the product",
-    "Make a call to action to buy the product",
+    "Make a call to action to buy the product now by visiting the company's website",
     "State the company's slogan",
 ]
 

@@ -8,25 +8,44 @@ from wet_toast_talk_radio.common.dialogue import Line, Speaker
 from wet_toast_talk_radio.common.log_ctx import show_id_log_ctx
 from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.media_store import ShowId, ShowMetadata, ShowName
+from wet_toast_talk_radio.scriptwriter.adverts.products import random_product
 from wet_toast_talk_radio.scriptwriter.adverts.strategies import random_strategies
 from wet_toast_talk_radio.scriptwriter.radio_show import RadioShow
 
 logger = structlog.get_logger()
 
-# TODO how to add randomness to the writing? styles? how to make sure it don't sound the same every time?
-# TODO how to get more per step? 5 sentences? Are the 5 sentences necessary?
-STRATEGY_TEMPLATE = """{{#system~}}
-You are {{polarity}} at product marketing.
+# TODO guard against real copyrighted names and companies?
+PRODUCT_TEMPLATE = """{{#system~}}
+You are good at product marketing.
+{{~/system}}
+{{#user~}}
+Your task is to think of a name for the following product:
+{{description}}
+Just write the name, do not print any other text.
+{{~/user}}
+{{#assistant~}}
+{{gen 'name' temperature=1.2 max_tokens=10}}
+{{~/assistant}}
+{{#user~}}
+Now generate the name of the company that sells this product.
+Just write the name of the company, do not print any other text.
+{{~/user}}
+{{#assistant~}}
+{{gen 'company' temperature=1.2 max_tokens=10}}
+{{~/assistant}}"""
+
+ADVERT_TEMPLATE = """{{#system~}}
+You are good at product marketing.
 You write in a casual and informal manner.
 {{~/system}}
 {{#user~}}
-Your task is write the text for a {{polarity}} endorsement ad. The product is as follows:
+Your task is write the text for a good endorsement ad. The product is as follows:
 
-Product name: {{product.name}}
-Product description: {{product.description}}
-Company name: {{product.company}}
+Product name: {{name}}
+Product description: {{description}}
+Company name: {{company}}
 
-Here is the advertising strategy you must follow. 
+Here is the advertising strategy you must follow.
 
 1. Make a catchy introduction
 {{#each strategies~}}
@@ -34,8 +53,8 @@ Here is the advertising strategy you must follow.
 {{/each}}
 
 Follow each step. Be detailed and specific.
-You cannot include sound effects, soundbites or music. 
-Start with "And now for a word from our sponsors. " and end with "Buy {{product.name}} today!".
+You cannot include sound effects, soundbites or music.
+Start with "And now for a word from our sponsors. " and end with "Buy {{name}} today!".
 {{~/user}}
 {{#assistant~}}
 {{gen 'advert' temperature=0.7 max_tokens=800}}
@@ -54,30 +73,24 @@ class Advert(RadioShow):
 
     def __init__(
         self,
-        polarity: str,
-        product: Product,
+        product_description: str,
         strategies: list[str],
         llm: LLM,
         media_store: MediaStore,
     ):
         self._llm = llm
         self._media_store = media_store
-        self.product = product
-        self.polarity = polarity
+        self.product_description = product_description
         self.strategies = strategies
 
     @classmethod
     def create(cls, llm: LLM, media_store: MediaStore) -> "Advert":
-        product = Product(
-            name="Better Laughing",
-            description="A course that teaches you how to laugh.",
-            company="Life Coaching Inc.",
-        )
+        product_description = random_product()
+        logger.info("Random product description", description=product_description)
         strategies = random_strategies(k_part_1=4, k_part_2=3)
         logger.info("Random strategies", strategies=strategies)
         return cls(
-            polarity="good",
-            product=product,
+            product_description=product_description,
             strategies=strategies,
             llm=llm,
             media_store=media_store,
@@ -86,23 +99,33 @@ class Advert(RadioShow):
     @show_id_log_ctx()
     async def awrite(self, show_id: ShowId) -> bool:
         logger.info("Async writing advert")
-        program = Program(text=STRATEGY_TEMPLATE, llm=self._llm, async_mode=True)
-        executed_program = await program(
-            polarity=self.polarity, product=self.product, strategies=self.strategies
-        )
-        self._post_processing(program=executed_program, show_id=show_id)
-        # TODO retry if "Host: " or "Voiceover: "
-        return True
 
-    def _post_processing(self, program: Program, show_id: ShowId):
-        logger.info(program)
-        product_description = program["product_description"]
-        product_description = " ".join(product_description.split())
-        content = PREFIX + product_description
-        line = Line(
-            speaker=Speaker(name="Ian", gender="male", host=True), content=content
+        product = Program(text=PRODUCT_TEMPLATE, llm=self._llm, async_mode=True)
+        product = await product(description=self.product_description)
+
+        logger.info(
+            "Generated product", name=product["name"], company=product["company"]
         )
-        self._media_store.put_script_show(show_id=show_id, lines=[line])
+        advert = Program(text=ADVERT_TEMPLATE, llm=self._llm, async_mode=True)
+        advert = await advert(
+            name=product["name"],
+            description=self.product_description,
+            company=product["company"],
+            strategies=self.strategies,
+        )
+
+        logger.info("Finished writing Modern Mindfulness")
+        lines = self._post_processing(program=advert)
+        self._media_store.put_script_show(show_id=show_id, lines=lines)
         self._media_store.put_script_show_metadata(
             show_id=show_id, metadata=ShowMetadata(ShowName.ADVERTS)
         )
+        return True
+
+    def _post_processing(self, program: Program) -> list[Line]:
+        product_description = program["advert"]
+        content = " ".join(product_description.strip().split())
+        line = Line(
+            speaker=Speaker(name="Ian", gender="male", host=True), content=content
+        )
+        return [line]

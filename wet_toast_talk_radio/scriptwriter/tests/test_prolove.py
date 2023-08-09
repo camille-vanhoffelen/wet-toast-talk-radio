@@ -79,7 +79,7 @@ def show_id() -> ShowId:
 
 @pytest.fixture()
 def fake_llm() -> Mock:
-    show = "Welcome to The Expert Zone!"
+    show = "Welcome to Prolove!"
     return Mock(output=[show])
 
 
