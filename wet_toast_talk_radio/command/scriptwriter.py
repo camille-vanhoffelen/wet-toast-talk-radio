@@ -87,16 +87,18 @@ def advert(ctx: dict):
     show_id = ShowId(show_i=0, date="2012-12-21")
     asyncio.run(show.awrite(show_id=show_id))
 
+
 @scriptwriter.command(help="Write products for Advert")
 @click.pass_context
 @click.option(
-    "--n-products", default=50, type=int, help="Number of products generated per iteration"
+    "--n-products",
+    default=50,
+    type=int,
+    help="Number of products generated per iteration",
 )
 @click.option(
     "--n-iter",
-    default=1,
-    # TODO
-    # default=20,
+    default=20,
     type=int,
     help="Number of parallel generations to be aggregated",
 )

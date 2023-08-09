@@ -9,7 +9,6 @@ from guidance.llms import LLM
 
 logger = structlog.get_logger()
 
-# TODO business owner
 PRODUCT_TEMPLATE = """{{#system~}}
 You a creative product designer.
 {{~/system}}
@@ -25,18 +24,17 @@ Here is an example:
 Now generate a list of {{n_products}} products.
 {{~/user}}
 {{#assistant~}}
-{{gen 'list' temperature=1.3 max_tokens=1000}}
+{{gen 'list' temperature=0.7 max_tokens=1000}}
 {{~/assistant}}"""
 
-FAKE_EXAMPLES = [
-    "Nanoeconomics",
-    "Oval Universe Theory",
-    "Metabiology",
-    "Geometric Theology",
+DYSTOPIAN_EXAMPLES = [
+    "A pill that makes you forget your ex",
+    "A service that lets you rent a friend",
+    "A brain implant to control your emotions",
+    "A billboard that can read the minds of passersby to personalize ads",
 ]
-FAKE_DESCRIPTION = "The academic fields should sound like real academic research fields, but be completely fake."
+DYSTOPIAN_DESCRIPTION = "The products should be useful, but also dystopian."
 
-# TODO superlatives
 SUPERLATIVE_EXAMPLES = [
     "The thinnest phone on the Planet",
     "The most comfortable shoes ever",
@@ -45,44 +43,26 @@ SUPERLATIVE_EXAMPLES = [
 ]
 SUPERLATIVE_DESCRIPTION = "The products should be superlatives. This defines their unique selling point."
 
-# TODO as a service
-
 ABSURD_EXAMPLES = [
-    "Time Travel Philosophy",
-    "Plant Linguistics",
-    "Cooties Virology",
-    "Perpetual Motion Physics",
+    "A scarf for your fingers",
+    "A service for waking you up in the morning with confetti",
+    "A gym where you can only work out in the dark",
+    "A dating app for pets",
+    "Wall insulation made out of snakes",
+    "An insurance for your painted nails",
 ]
 ABSURD_DESCRIPTION = (
-    "The academic fields should be studies of things that are impossible and absurd."
+    "The products should be absurd. They should be funny and not make sense."
 )
 
-MODERN_EXAMPLES = [
-    "Tiktok Dance Studies",
-    "Selfie Engineering",
-    "Meme Anthropology",
-    "Fast Fashion Economics",
+AAS_EXAMPLES = [
+    "Ice cream as a service",
+    "Hugs as a service",
+    "Ambiance as a service",
 ]
-MODERN_DESCRIPTION = (
-    "The academic fields should be studies of modern phenomena that define millennial and gen-z culture. "
-    "The fields should sound like real academic research fields."
+AAS_DESCRIPTION = (
+    "The products should be 'as a service' products. They should be plausible yet farfetched."
 )
-
-MUNDANE_EXAMPLES = [
-    "Lemonade Stand Economics",
-    "Tea Infusion Chemistry",
-    "History of Flatulence",
-    "Dust Dynamics",
-    "Yawn Physiology",
-    "Handshake Mechanics",
-    "Potato Aerodynamics",
-]
-MUNDANE_DESCRIPTION = (
-    "The academic fields should be studies of common objects or mundane occurrences "
-    "that people experience in their everyday lives. "
-    "These should not be traditionally associated with serious research."
-)
-
 
 class ProductGenerator:
     def __init__(  # noqa: PLR0913
@@ -175,7 +155,28 @@ class Products:
             examples=SUPERLATIVE_EXAMPLES ,
             product_description=SUPERLATIVE_DESCRIPTION,
         )
-        return [superlative]
+        dystopian = ProductGenerator(
+            llm=self._llm,
+            n_products=self.n_products,
+            n_iter=self.n_iter,
+            examples=DYSTOPIAN_EXAMPLES,
+            product_description=DYSTOPIAN_DESCRIPTION,
+        )
+        absurd = ProductGenerator(
+            llm=self._llm,
+            n_products=self.n_products,
+            n_iter=self.n_iter,
+            examples=ABSURD_EXAMPLES,
+            product_description=ABSURD_DESCRIPTION,
+        )
+        as_a_service = ProductGenerator(
+            llm=self._llm,
+            n_products=self.n_products,
+            n_iter=self.n_iter,
+            examples=AAS_EXAMPLES,
+            product_description=AAS_DESCRIPTION,
+        )
+        return [superlative, dystopian, absurd, as_a_service]
 
     def save(self, products: list[str]) -> None:
         with (self._output_dir / "advert-products.json").open("w") as f:
