@@ -41,7 +41,9 @@ SUPERLATIVE_EXAMPLES = [
     "The friendliest accountant in the country",
     "The most caffeinated soda in the world",
 ]
-SUPERLATIVE_DESCRIPTION = "The products should be superlatives. This defines their unique selling point."
+SUPERLATIVE_DESCRIPTION = (
+    "The products should be superlatives. This defines their unique selling point."
+)
 
 ABSURD_EXAMPLES = [
     "A scarf for your fingers",
@@ -60,9 +62,8 @@ AAS_EXAMPLES = [
     "Hugs as a service",
     "Ambiance as a service",
 ]
-AAS_DESCRIPTION = (
-    "The products should be 'as a service' products. They should be plausible yet farfetched."
-)
+AAS_DESCRIPTION = "The products should be 'as a service' products. They should be plausible yet farfetched."
+
 
 class ProductGenerator:
     def __init__(  # noqa: PLR0913
@@ -105,7 +106,8 @@ class ProductGenerator:
         products += self.examples
         unique_products = list(set(products))
         logger.info(
-            f"Generated {len(unique_products)} unique products", products=unique_products
+            f"Generated {len(unique_products)} unique products",
+            products=unique_products,
         )
         return unique_products
 
@@ -152,7 +154,7 @@ class Products:
             llm=self._llm,
             n_products=self.n_products,
             n_iter=self.n_iter,
-            examples=SUPERLATIVE_EXAMPLES ,
+            examples=SUPERLATIVE_EXAMPLES,
             product_description=SUPERLATIVE_DESCRIPTION,
         )
         dystopian = ProductGenerator(
