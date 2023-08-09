@@ -2,32 +2,34 @@ import random
 
 # Describe product
 PART_1_STRATEGIES = [
-    "Make up a fake statistic that supports the benefits of the product",
+    "Mention a statistic that provides evidence for the benefits of the product",
     "Make unrealistic claims and promises about the product",
-    "Make an overly complex technical explanation of the product",
+    "Make a detailed and complex technical explanation of how the product works",
     "Use fear-mongering to convince the audience that they need the product",
-    "Include a unenthusiastic testimonial of someone who felt the product was underwhelming",
-    "Enumerate the product's many features and variations",
-    "List some lackluster benefits of the product",
-    "List some unconventional benefits of the product",
+    "Include a unenthusiastic testimonial of someone who felt the product was kinda OK",
+    "Include a excited testimonial of someone who felt the product profoundly changed their life",
+    "Enumerate the product's many features in great detail",
+    "Enumerate the product's many options in great detail",
+    "List some unexpected benefits of the product",
     "Highlight the benefits of the product",
     "Describe the problem that the product solves, then explain how the product solves it",
     "Describe how innovative the product is",
-    "Make an intrusive statement about why the listener needs the product",
+    "Describe the product's unlikely origin story",
+    "Make an assumption about the listener which suggests that they need the product",
 ]
 
 # Sell product
 PART_2_STRATEGIES = [
-    "Mention that the company has put their controversial past behind them",
-    "Reassure the audience about the safety of the product",
-    "Reassure the audience about the ethics of the product",
+    "Describe one of the company's past controversies, then reassure the audience that the company has changed",
+    "Reassure the audience about the excellent safety of the product",
+    "Reassure the audience about the unquestionable ethics of the product",
     "Insist that the product is definitely not a scam",
-    "Describe the confusing pricing structure in great detail",
+    "Describe the complex pricing structure in great detail",
     "Make a disclaimer about the product's side effects",
-    "Create a sense of urgency to buy the product",
-    "Make a special offer for the product",
+    "Offer a special discount for the product",
+    "Promote a limited edition version of the product",
     "Make a call to action to buy the product",
-    "Include the company's slogan",
+    "State the company's slogan",
 ]
 
 

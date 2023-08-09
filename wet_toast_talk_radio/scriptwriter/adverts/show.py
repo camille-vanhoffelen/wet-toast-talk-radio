@@ -14,7 +14,7 @@ from wet_toast_talk_radio.scriptwriter.radio_show import RadioShow
 logger = structlog.get_logger()
 
 # TODO how to add randomness to the writing? styles? how to make sure it don't sound the same every time?
-# TODO how to get more per step? 5 sentences?
+# TODO how to get more per step? 5 sentences? Are the 5 sentences necessary?
 STRATEGY_TEMPLATE = """{{#system~}}
 You are {{polarity}} at product marketing.
 You write in a casual and informal manner.
@@ -33,15 +33,13 @@ Here is the advertising strategy you must follow.
 {{@index + 2}}. {{this}}
 {{/each}}
 
-Start each step with "Host: " followed by the ad text.
-For each step, write 5 sentences. Be detailed and specific.
+Follow each step. Be detailed and specific.
 You cannot include sound effects, soundbites or music. 
+Start with "And now for a word from our sponsors. " and end with "Buy {{product.name}} today!".
 {{~/user}}
 {{#assistant~}}
-{{gen 'advert' temperature=0.9 max_tokens=800}}
+{{gen 'advert' temperature=0.7 max_tokens=800}}
 {{~/assistant}}"""
-
-PREFIX = "And now for a word from our sponsors. "
 
 
 @dataclass
@@ -93,6 +91,7 @@ class Advert(RadioShow):
             polarity=self.polarity, product=self.product, strategies=self.strategies
         )
         self._post_processing(program=executed_program, show_id=show_id)
+        # TODO retry if "Host: " or "Voiceover: "
         return True
 
     def _post_processing(self, program: Program, show_id: ShowId):
