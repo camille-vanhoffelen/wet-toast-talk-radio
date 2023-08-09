@@ -4,6 +4,12 @@ from unittest.mock import AsyncMock
 import pytest
 import structlog
 
+from tests.conftests import (
+    _clear_bucket,  # noqa: F401
+    _clear_sqs,  # noqa: F401
+    media_store,  # noqa: F401
+    message_queue,  # noqa: F401
+)
 from wet_toast_talk_radio.message_queue import MessageQueue
 from wet_toast_talk_radio.scriptwriter import Scriptwriter
 from wet_toast_talk_radio.scriptwriter.adverts.show import Advert
