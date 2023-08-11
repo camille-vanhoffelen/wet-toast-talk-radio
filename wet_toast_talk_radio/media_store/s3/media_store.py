@@ -64,29 +64,34 @@ class S3MediaStore(MediaStore):
         )
 
     def upload_transcoded_shows(self, shows: list[ShowUploadInput]):
-        def upload_file(show: ShowUploadInput, key: str):
+        def upload_file(path: Path, key: Path):
             try:
+                if not path.is_file():
+                    logger.warning("Skipping file because it doesn't exist", path=path)
+                    return
                 new_s3_client(self._cfg.local).upload_file(
-                    show.path, self._bucket_name, key
+                    str(path), self._bucket_name, str(key)
                 )
             except Exception as e:
-                logger.error(f"Failed to upload file {show}: {e}")
+                logger.error(f"Failed to upload show file {e}", path=path)
+
+        def upload_files(show: ShowUploadInput):
+            filename = "show.mp3"
+            path = show.show_dir / filename
+            key = Path(_TRANSCODED_SHOWS_PREFIX) / show.show_id.store_key() / filename
+            upload_file(path, key)
+
+            filename = "metadata.json"
+            path = show.show_dir / filename
+            key = Path(_TRANSCODED_SHOWS_PREFIX) / show.show_id.store_key() / filename
+            upload_file(path, key)
 
         with concurrent.futures.ThreadPoolExecutor(
             max_workers=self._cfg.max_workers
         ) as executor:
             futures = []
             for show in shows:
-                file_name = show.path.name
-                if not file_name:
-                    logger.warning(f"Skipping {show} because it has no file name")
-                    continue
-                if not file_name.endswith(".mp3"):
-                    logger.warning(f"Skipping {show} because it does not end with .mp3")
-                    continue
-
-                key = f"{_TRANSCODED_SHOWS_PREFIX}/{show.show_id.store_key()}/show.mp3"
-                futures.append(executor.submit(upload_file, show, key))
+                futures.append(executor.submit(upload_files, show))
 
             concurrent.futures.wait(futures)
 

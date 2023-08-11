@@ -124,9 +124,14 @@ class TestMediaStore:
         num_shows = 2
         shows = []
         for i in range(num_shows):
-            show_path = d.joinpath(f"show{i}.mp3")
+            show_dir = d / str(i)
+            show_dir.mkdir()
+            show_path = show_dir / "show.mp3"
             show_path.write_bytes(b"raw bytes")
-            shows.append(ShowUploadInput(ShowId(i, today), show_path))
+            metadata_path = show_dir / "metadata.json"
+            with metadata_path.open("w") as f:
+                json.dump({"duration_in_s": 666}, f, indent=2)
+            shows.append(ShowUploadInput(show_id=ShowId(i, today), show_dir=show_dir))
 
         assert len(list(d.iterdir())) == num_shows
 

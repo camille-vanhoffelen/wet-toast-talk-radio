@@ -1,4 +1,6 @@
 import concurrent.futures
+import dataclasses
+import json
 from datetime import timedelta
 from pathlib import Path
 
@@ -10,7 +12,11 @@ from wet_toast_talk_radio.common.log_ctx import task_log_ctx
 from wet_toast_talk_radio.common.path import delete_folder
 from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.common.date import get_current_utc_date
-from wet_toast_talk_radio.media_store.media_store import ShowId, ShowUploadInput
+from wet_toast_talk_radio.media_store.media_store import (
+    ShowId,
+    ShowUploadInput,
+    TranscodedMetadata,
+)
 from wet_toast_talk_radio.radio_operator.radio_operator import RadioOperator
 
 logger = structlog.get_logger()
@@ -113,10 +119,17 @@ class MediaTranscoder:
     def _transcode_downloaded_shows(self):
         logger.info("Transcoding downloaded shows ...")
 
-        def transcode_show(show_path: Path, out: Path, show_name: str):
+        def transcode_show(show_path: Path, output_dir: Path, show_name: str):
             try:
+                mp3_path = output_dir / "show.mp3"
                 song = AudioSegment.from_wav(show_path)
-                song.export(out, format="mp3", tags={"title": show_name})
+                song.export(mp3_path, format="mp3", tags={"title": show_name})
+
+                metadata = TranscodedMetadata(duration_in_s=song.duration_seconds)
+                metadata_path = output_dir / "metadata.json"
+                with metadata_path.open("w") as f:
+                    json.dump(dataclasses.asdict(metadata), f, indent=2)
+
             except Exception as e:
                 logger.error("could not transcode show", error=e)
 
@@ -132,11 +145,14 @@ class MediaTranscoder:
                         new_dir = self._transcoded_shows_dir / date / show.name
                         if not new_dir.exists():
                             new_dir.mkdir(parents=True)
-                        out = self._transcoded_shows_dir / date / show.name / "show.mp3"
+                        output_dir = self._transcoded_shows_dir / date / show.name
                         show_path = show / "show.wav"
                         futures.append(
                             executor.submit(
-                                transcode_show, show_path, out, f"{date}/{show.name}"
+                                transcode_show,
+                                show_path,
+                                output_dir,
+                                f"{date}/{show.name}",
                             )
                         )
 
@@ -150,9 +166,7 @@ class MediaTranscoder:
             if current_dir.is_dir():
                 date = current_dir.name
                 for show in current_dir.iterdir():
-                    show_id = ShowId(date=date, show_i=show.name)
-                    show_upload_input = ShowUploadInput(
-                        show_id=show_id, path=show / "show.mp3"
-                    )
+                    show_id = ShowId(date=date, show_i=int(show.name))
+                    show_upload_input = ShowUploadInput(show_id=show_id, show_dir=show)
                     shows.append(show_upload_input)
         self._media_store.upload_transcoded_shows(shows)

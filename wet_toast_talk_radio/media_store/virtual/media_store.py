@@ -110,26 +110,40 @@ class VirtualMediaStore(MediaStore):
         )
 
     def upload_transcoded_shows(self, shows: list[ShowUploadInput]):
-        def upload_file(show: ShowUploadInput, key: str):
-            with show.path.open("rb") as f:
-                self._bucket[key] = VirtualObject(
-                    show_id=show.show_id,
+        def upload_file(path: Path, key: Path, show_id: ShowId):
+            with path.open("rb") as f:
+                self._bucket[str(key)] = VirtualObject(
+                    show_id=show_id,
                     data=f.read(),
                     last_modified=datetime.now(),
                     show_type=ShowType.TRANSCODED,
                 )
+
+        def upload_files(show_input: ShowUploadInput):
+            filename = "show.mp3"
+            path = show_input.show_dir / filename
+            key = (
+                Path(ShowType.TRANSCODED.value)
+                / show_input.show_id.store_key()
+                / filename
+            )
+            upload_file(path=path, key=key, show_id=show_input.show_id)
+
+            filename = "metadata.json"
+            path = show_input.show_dir / filename
+            key = (
+                Path(ShowType.TRANSCODED.value)
+                / show_input.show_id.store_key()
+                / filename
+            )
+            upload_file(path=path, key=key, show_id=show_input.show_id)
 
         with concurrent.futures.ThreadPoolExecutor(
             max_workers=_MAX_WORKERS
         ) as executor:
             futures = []
             for show in shows:
-                file_name = show.path.name
-                if not file_name:
-                    logger.warning(f"Skipping {show} because it has no file name")
-                    continue
-                key = f"{ShowType.TRANSCODED.value}/{show.show_id.store_key()}/show.mp3"
-                futures.append(executor.submit(upload_file, show, key))
+                futures.append(executor.submit(upload_files, show))
 
             concurrent.futures.wait(futures)
 
