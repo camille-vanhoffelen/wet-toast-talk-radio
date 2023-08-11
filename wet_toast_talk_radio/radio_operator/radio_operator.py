@@ -32,14 +32,6 @@ class RadioOperator:
         shows: list[ShowId],
         fallback: bool = False,  # noqa: FBT002, FBT001
     ):
-        fields = []
-        for show in shows:
-            fields.append(
-                {
-                    "type": "plain_text",
-                    "text": f"{show.store_key()}",
-                }
-            )
         block_ui = {
             "blocks": [
                 {
@@ -50,7 +42,7 @@ class RadioOperator:
                     "type": "context",
                     "elements": [
                         {
-                            "text": f"*{today}*",
+                            "text": f"*{today}*: {len(shows)} shows",
                             "type": "mrkdwn",
                         }
                     ],
@@ -65,16 +57,9 @@ class RadioOperator:
                     "type": "section",
                     "text": {
                         "type": "mrkdwn",
-                        "text": ":rotating_light: *FALLBACK PLAYLIST* :rotating_light:",
+                        "text": ":rotating_light: *FALLBACK ONLY PLAYLIST* :rotating_light:",
                     },
                 }
             )
-
-        block_ui["blocks"].append(
-            {
-                "type": "section",
-                "fields": fields,
-            },
-        )
 
         self._send(block_ui)
