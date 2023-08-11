@@ -22,6 +22,9 @@ PERSONAL_STORY = (
 DOOMSTER = "You try to spin the guest's words into something concerning and worrying."
 KNOW_BETTER = "You disagree with the guest's answer, and offer an alternative explanation as if you knew better."
 PERSONAL_QUESTION = "You ask a rude intrusive personal question that is irrelevant to the academic field of {{topic}}."
+ORIGIN_STORY = (
+    "You ask the guest how they first got into the academic field of {{topic}}."
+)
 HIJACK = "You hijack the conversation and make it about yourself."
 
 # Nick always wants to wrap up the show
@@ -42,10 +45,11 @@ def random_host_missions(topic: str, k: int) -> list[str]:
         DOOMSTER,
         KNOW_BETTER,
         PERSONAL_QUESTION,
+        ORIGIN_STORY,
         HIJACK,
     ]
     missions = [mission.replace("{{topic}}", topic) + SUFFIX for mission in missions]
-    counts = [4, 1, 1, 1, 1, 1, 1, 1, 1]
+    counts = [4, 1, 1, 1, 1, 1, 1, 1, 1, 1]
     random_missions = random.sample(population=missions, k=k - 1, counts=counts)
     # always start with default
     return [missions[0], *random_missions]

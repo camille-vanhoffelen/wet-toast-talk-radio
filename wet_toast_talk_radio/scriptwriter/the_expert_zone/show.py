@@ -34,7 +34,7 @@ AGENT_TEMPLATE = """
 {{set 'this.question' (await 'question') hidden=False}}
 {{~/user}}
 {{#assistant~}}
-{{gen 'this.response' temperature=1.3 max_tokens=150}}
+{{gen 'this.response' temperature=0.9 max_tokens=250}}
 {{~/assistant}}
 {{~/geneach}}"""
 
