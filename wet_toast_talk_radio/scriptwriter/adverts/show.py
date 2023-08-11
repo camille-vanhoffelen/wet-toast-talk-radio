@@ -122,8 +122,10 @@ class Advert(RadioShow):
         return True
 
     def _post_processing(self, program: Program) -> list[Line]:
-        product_description = program["advert"]
-        content = " ".join(product_description.strip().split())
+        content = program["advert"]
+        # For discounts
+        content = content.replace("%", " percent")
+        content = " ".join(content.strip().split())
         line = Line(
             speaker=Speaker(name="Ian", gender="male", host=True), content=content
         )
