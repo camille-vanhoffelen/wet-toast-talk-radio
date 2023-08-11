@@ -42,7 +42,7 @@ def show_id_from_raw_key(key: str) -> ShowId:
 @dataclass
 class ShowUploadInput:
     show_id: ShowId
-    path: Path
+    show_dir: Path
 
 
 class MediaStore(ABC):
@@ -75,7 +75,7 @@ class MediaStore(ABC):
 
     @abstractmethod
     def upload_transcoded_shows(self, shows: list[ShowUploadInput]):
-        """Upload shows (.mp3) to the media store concurently"""
+        """Upload shows (.mp3) and their metadata (.json) to the media store concurently"""
 
     @abstractmethod
     def download_raw_shows(self, show_ids: list[ShowId], dir_output: Path):

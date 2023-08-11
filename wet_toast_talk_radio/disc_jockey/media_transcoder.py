@@ -117,6 +117,8 @@ class MediaTranscoder:
             try:
                 song = AudioSegment.from_wav(show_path)
                 song.export(out, format="mp3", tags={"title": show_name})
+                # TODO
+                # song.duration_seconds
             except Exception as e:
                 logger.error("could not transcode show", error=e)
 
@@ -150,9 +152,7 @@ class MediaTranscoder:
             if current_dir.is_dir():
                 date = current_dir.name
                 for show in current_dir.iterdir():
-                    show_id = ShowId(date=date, show_i=show.name)
-                    show_upload_input = ShowUploadInput(
-                        show_id=show_id, path=show / "show.mp3"
-                    )
+                    show_id = ShowId(date=date, show_i=int(show.name))
+                    show_upload_input = ShowUploadInput(show_id=show_id, show_dir=show)
                     shows.append(show_upload_input)
         self._media_store.upload_transcoded_shows(shows)

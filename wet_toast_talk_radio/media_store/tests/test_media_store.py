@@ -126,7 +126,7 @@ class TestMediaStore:
         for i in range(num_shows):
             show_path = d.joinpath(f"show{i}.mp3")
             show_path.write_bytes(b"raw bytes")
-            shows.append(ShowUploadInput(ShowId(i, today), show_path))
+            shows.append(ShowUploadInput(show_id=ShowId(i, today), show_dir=d))
 
         assert len(list(d.iterdir())) == num_shows
 
