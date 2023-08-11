@@ -1,3 +1,5 @@
+import random
+
 import structlog
 
 from wet_toast_talk_radio.common.log_ctx import task_log_ctx
@@ -7,7 +9,6 @@ from wet_toast_talk_radio.media_store.common.date import (
 from wet_toast_talk_radio.media_store.media_store import MediaStore, ShowId
 from wet_toast_talk_radio.message_queue.message_queue import MessageQueue
 from wet_toast_talk_radio.radio_operator.radio_operator import RadioOperator
-import random
 
 logger = structlog.get_logger()
 
@@ -55,6 +56,7 @@ class Playlist:
 
         self._radio_operator.new_playlist(today, all_shows, fallback)
         return all_shows
+
 
 def randomize_fallback(fallback_shows: list[ShowId]) -> list[ShowId]:
     """Randomize the order of the fallback shows.
