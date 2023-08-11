@@ -1,3 +1,5 @@
+import random
+
 import structlog
 
 from wet_toast_talk_radio.common.log_ctx import task_log_ctx
@@ -38,13 +40,29 @@ class Playlist:
         fallback = False
         logger.info("Finding today's shows", today=today)
         transcoded_shows = self._media_store.list_transcoded_shows(dates={today})
+        transcoded_shows.sort(key=lambda show_id: show_id.show_i)
+        logger.info("Found shows", shows=transcoded_shows)
         if len(transcoded_shows) == 0:
             logger.warning(
-                "No shows found for today, using fallback shows", today=today
+                "No shows found for today, using only fallback shows", today=today
             )
-            transcoded_shows = self._media_store.list_fallback_transcoded_shows()
             fallback = True
+        fallback_shows = self._media_store.list_fallback_transcoded_shows()
+        fallback_shows.sort(key=lambda show_id: show_id.show_i)
+        fallback_shows = randomize_fallback(fallback_shows)
 
-        logger.info("Found shows", shows=transcoded_shows)
-        self._radio_operator.new_playlist(today, transcoded_shows, fallback)
-        return transcoded_shows
+        # Always use all fallback shows as filler
+        all_shows = transcoded_shows + fallback_shows
+
+        self._radio_operator.new_playlist(today, all_shows, fallback)
+        return all_shows
+
+
+def randomize_fallback(fallback_shows: list[ShowId]) -> list[ShowId]:
+    """Randomize the order of the fallback shows.
+    Picks a random index, and iterates through all elements starting from that index.
+    Loops around to the beginning of the list if necessary.
+    Maintains show order. Expects sorted list of fallback shows."""
+    start = random.randrange(len(fallback_shows))
+    randomized = fallback_shows[start:] + fallback_shows[:start]
+    return randomized
