@@ -12,7 +12,11 @@ from wet_toast_talk_radio.common.log_ctx import task_log_ctx
 from wet_toast_talk_radio.common.path import delete_folder
 from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.common.date import get_current_utc_date
-from wet_toast_talk_radio.media_store.media_store import ShowId, ShowUploadInput, TranscodedMetadata
+from wet_toast_talk_radio.media_store.media_store import (
+    ShowId,
+    ShowUploadInput,
+    TranscodedMetadata,
+)
 from wet_toast_talk_radio.radio_operator.radio_operator import RadioOperator
 
 logger = structlog.get_logger()
@@ -145,7 +149,10 @@ class MediaTranscoder:
                         show_path = show / "show.wav"
                         futures.append(
                             executor.submit(
-                                transcode_show, show_path, output_dir, f"{date}/{show.name}"
+                                transcode_show,
+                                show_path,
+                                output_dir,
+                                f"{date}/{show.name}",
                             )
                         )
 

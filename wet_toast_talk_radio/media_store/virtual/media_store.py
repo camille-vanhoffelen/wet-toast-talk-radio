@@ -122,12 +122,20 @@ class VirtualMediaStore(MediaStore):
         def upload_files(show_input: ShowUploadInput):
             filename = "show.mp3"
             path = show_input.show_dir / filename
-            key = Path(ShowType.TRANSCODED.value) / show_input.show_id.store_key() / filename
+            key = (
+                Path(ShowType.TRANSCODED.value)
+                / show_input.show_id.store_key()
+                / filename
+            )
             upload_file(path=path, key=key, show_id=show_input.show_id)
 
             filename = "metadata.json"
             path = show_input.show_dir / filename
-            key = Path(ShowType.TRANSCODED.value) / show_input.show_id.store_key() / filename
+            key = (
+                Path(ShowType.TRANSCODED.value)
+                / show_input.show_id.store_key()
+                / filename
+            )
             upload_file(path=path, key=key, show_id=show_input.show_id)
 
         with concurrent.futures.ThreadPoolExecutor(
