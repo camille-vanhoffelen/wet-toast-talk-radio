@@ -42,7 +42,7 @@ TOP_SYSTEM_TEMPLATE = """
 {{#role this.role~}}
 {{this.message}}{{~/role}}{{/each}}
 {{#assistant~}}
-{{gen 'response' temperature=1.2 max_tokens=800}}
+{{gen 'response' temperature=0.7 max_tokens=800}}
 {{~/assistant}}"""
 
 # More guided by system message
@@ -54,7 +54,7 @@ BOTTOM_SYSTEM_TEMPLATE = """
 {{system_message}}
 {{~/system}}
 {{#assistant~}}
-{{gen 'response' temperature=1.2 max_tokens=500}}
+{{gen 'response' temperature=0.7 max_tokens=500}}
 {{~/assistant}}"""
 
 SYSTEM_MESSAGE_TEMPLATE = "{{identity}} {{role}} {{mission}} "
@@ -298,7 +298,11 @@ class Prolove(RadioShow):
         logger.info("Random product", product=product)
         k = 2
         host_missions = HostMissions(
-            anecdote=anecdote, lesson=lesson, product=product, k=k
+            anecdote=anecdote,
+            lesson=lesson,
+            product=product,
+            k=k,
+            guest_name=guest.placeholder_name,
         )
         guest_missions = GuestMissions(topic=guest.topic, k=k)
         host_messages = random_host_messages(name=guest.placeholder_name)

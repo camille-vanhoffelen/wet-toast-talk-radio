@@ -26,18 +26,18 @@ class HostMissions:
     )
 
     WHY = (
-        "You ask the caller why they called the show. "
+        "You ask {{guest_name}} why they called the show. "
         "You ask in two sentences or less."
     )
 
     ADVICE = (
-        "You give unconventional and terrible dating advice to the caller. "
+        "You give unconventional and terrible dating advice to {{guest_name}}. "
         "You don't realise that your advice is awful. "
         "You answer in 6 sentences or less."
     )
 
     MORE_ADVICE = (
-        "You double-down on the terrible dating advice you gave to the caller. "
+        "You double-down on the terrible dating advice you gave to {{guest_name}}. "
         "You describe it more detail. "
         "You still don't realise that your advice is awful. "
         "You answer in 6 sentences or less."
@@ -50,7 +50,7 @@ class HostMissions:
     )
 
     LESSON = (
-        "Change the topic of conversation by giving the caller an "
+        "Change the topic of conversation by giving {{guest_name}} an "
         "unconventional and terrible lesson about {{lesson}} in love. "
         "You don't realise that your advice is awful. "
         "Do it in 8 sentences or less."
@@ -74,11 +74,14 @@ class HostMissions:
         "Do it in 8 sentences or less."
     )
 
-    def __init__(self, anecdote: str, k: int, lesson: str, product: str):
+    def __init__(
+        self, anecdote: str, k: int, lesson: str, product: str, guest_name: str
+    ):
         self.anecdote = anecdote
         self.k = k
         self.lesson = lesson
         self.product = product
+        self.guest_name = guest_name
 
     @property
     def pt1_missions(self) -> list[str]:
@@ -95,7 +98,13 @@ class HostMissions:
         """Return ordered missions for the host.
         Used in the "advice" part of the show."""
         # None when should use fixed message instead of LLM generation
-        return [None, self.WHY, None, self.ADVICE, self.MORE_ADVICE]
+        return [
+            None,
+            self.WHY.replace("{{guest_name}}", self.guest_name),
+            None,
+            self.ADVICE.replace("{{guest_name}}", self.guest_name),
+            self.MORE_ADVICE.replace("{{guest_name}}", self.guest_name),
+        ]
 
     @property
     def pt3_missions(self) -> list[str]:
@@ -105,7 +114,9 @@ class HostMissions:
         """
         missions = [
             self.METAPHOR,
-            self.LESSON.replace("{{lesson}}", self.lesson),
+            self.LESSON.replace("{{lesson}}", self.lesson).replace(
+                "{{guest_name}}", self.guest_name
+            ),
             self.PROMOTION.replace("{{product}}", self.product),
             self.FAKE_FACT,
             self.HIJACK,
