@@ -31,6 +31,9 @@ class ShowName(str, Enum):
 class ShowMetadata:
     show_name: ShowName
 
+@dataclass
+class TranscodedMetadata:
+    duration_in_s: float
 
 def show_id_from_raw_key(key: str) -> ShowId:
     return ShowId(
