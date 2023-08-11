@@ -110,10 +110,10 @@ class VirtualMediaStore(MediaStore):
         )
 
     def upload_transcoded_shows(self, shows: list[ShowUploadInput]):
-        def upload_file(path: Path, key: Path):
+        def upload_file(path: Path, key: Path, show_id: ShowId):
             with path.open("rb") as f:
                 self._bucket[str(key)] = VirtualObject(
-                    show_id=show.show_id,
+                    show_id=show_id,
                     data=f.read(),
                     last_modified=datetime.now(),
                     show_type=ShowType.TRANSCODED,
@@ -123,26 +123,12 @@ class VirtualMediaStore(MediaStore):
             filename = "show.mp3"
             path = show_input.show_dir / filename
             key = Path(ShowType.TRANSCODED.value) / show_input.show_id.store_key() / filename
-            # upload_file(path, key)
-            with path.open("rb") as f:
-                self._bucket[str(key)] = VirtualObject(
-                    show_id=show.show_id,
-                    data=f.read(),
-                    last_modified=datetime.now(),
-                    show_type=ShowType.TRANSCODED,
-                )
+            upload_file(path=path, key=key, show_id=show_input.show_id)
 
             filename = "metadata.json"
             path = show_input.show_dir / filename
             key = Path(ShowType.TRANSCODED.value) / show_input.show_id.store_key() / filename
-            # upload_file(path, key)
-            with path.open("rb") as f:
-                self._bucket[str(key)] = VirtualObject(
-                    show_id=show.show_id,
-                    data=f.read(),
-                    last_modified=datetime.now(),
-                    show_type=ShowType.TRANSCODED,
-                )
+            upload_file(path=path, key=key, show_id=show_input.show_id)
 
         with concurrent.futures.ThreadPoolExecutor(
             max_workers=_MAX_WORKERS
