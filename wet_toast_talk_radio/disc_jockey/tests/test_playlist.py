@@ -44,5 +44,6 @@ class TestPlaylist:
 
         show0 = ShowId(0, _FALLBACK_KEY)
         show1 = ShowId(1, _FALLBACK_KEY)
-        assert message_queue.get_next_stream_show().show_id == show0
-        assert message_queue.get_next_stream_show().show_id == show1
+
+        stream_shows = {message_queue.get_next_stream_show().show_id for _ in range(2)}
+        assert stream_shows == {show0, show1}

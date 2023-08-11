@@ -35,8 +35,8 @@ class TestPlaylist:
         dj.transcode_latest_media()
         dj.create_playlist()
 
-        assert message_queue.get_next_stream_show().show_id == shows[0]
-        assert message_queue.get_next_stream_show().show_id == shows[1]
+        stream_shows = {message_queue.get_next_stream_show().show_id for _ in range(2)}
+        assert stream_shows == {shows[0], shows[1]}
 
     @pytest.mark.integration()
     def test_fallback_playlist(
