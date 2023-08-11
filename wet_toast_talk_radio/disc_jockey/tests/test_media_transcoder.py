@@ -1,4 +1,5 @@
 from pathlib import Path
+import time
 from typing import Generator
 
 import pytest
@@ -77,6 +78,8 @@ class TestMediaTranscoder:
 
         media_transcoder._transcode_downloaded_shows()
         today_transcoded_shows_dir = (
-            media_transcoder._raw_shows_dir / get_current_iso_utc_date()
+            media_transcoder._transcoded_shows_dir / get_current_iso_utc_date()
         )
         assert len(list(today_transcoded_shows_dir.iterdir())) == len(new_shows)
+        n_show_files = 2
+        assert len(list((today_transcoded_shows_dir / "0").iterdir())) == n_show_files

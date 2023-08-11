@@ -119,16 +119,30 @@ class VirtualMediaStore(MediaStore):
                     show_type=ShowType.TRANSCODED,
                 )
 
-        def upload_files(show: ShowUploadInput):
+        def upload_files(show_input: ShowUploadInput):
             filename = "show.mp3"
-            path = show.show_dir / filename
-            key = Path(ShowType.TRANSCODED.value) / show.show_id.store_key() / filename
-            upload_file(path, key)
+            path = show_input.show_dir / filename
+            key = Path(ShowType.TRANSCODED.value) / show_input.show_id.store_key() / filename
+            # upload_file(path, key)
+            with path.open("rb") as f:
+                self._bucket[str(key)] = VirtualObject(
+                    show_id=show.show_id,
+                    data=f.read(),
+                    last_modified=datetime.now(),
+                    show_type=ShowType.TRANSCODED,
+                )
 
             filename = "metadata.json"
-            path = show.show_dir / filename
-            key = Path(ShowType.TRANSCODED.value) / show.show_id.store_key() / filename
-            upload_file(path, key)
+            path = show_input.show_dir / filename
+            key = Path(ShowType.TRANSCODED.value) / show_input.show_id.store_key() / filename
+            # upload_file(path, key)
+            with path.open("rb") as f:
+                self._bucket[str(key)] = VirtualObject(
+                    show_id=show.show_id,
+                    data=f.read(),
+                    last_modified=datetime.now(),
+                    show_type=ShowType.TRANSCODED,
+                )
 
         with concurrent.futures.ThreadPoolExecutor(
             max_workers=_MAX_WORKERS
