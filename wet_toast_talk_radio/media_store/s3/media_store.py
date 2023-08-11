@@ -67,13 +67,13 @@ class S3MediaStore(MediaStore):
         def upload_file(path: Path, key: Path):
             try:
                 if not path.is_file():
-                    logger.warning(f"Skipping show because it doesn't have {path}")
+                    logger.warning("Skipping file because it doesn't exist", path=path)
                     return
                 new_s3_client(self._cfg.local).upload_file(
                     str(path), self._bucket_name, str(key)
                 )
             except Exception as e:
-                logger.error(f"Failed to upload show file {path}: {e}")
+                logger.error(f"Failed to upload show file {e}", path=path)
 
         def upload_files(show: ShowUploadInput):
             filename = "show.mp3"
