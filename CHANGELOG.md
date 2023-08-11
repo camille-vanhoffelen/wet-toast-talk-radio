@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.1.32](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.31...v0.1.32) (2023-08-11)
+
+
+### Features
+
+* Adverts v4 ([#106](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/106)) ([f073aeb](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/f073aeb06bfd15997266704d686de9e37d9a4bfa))
+* fallback always appended to daily program ([#104](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/104)) ([e9fa9a0](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/e9fa9a098f6ccefb52c59f76b57cb0335a050159))
+* media transcoder adds metadata ([#103](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/103)) ([0c23c55](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/0c23c554a1d5079640b0bfc547f6445e2135256f))
+* Prolove v3 ([#108](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/108)) ([7fdf9b1](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/7fdf9b1934735ce156251e51789cc17a9f1162a8))
+* The expert zone v2 ([#109](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/109)) ([15e14df](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/15e14df46f49d45f085e4a6ffbc64b6d5d2664b2))
+
+
+### Bug Fixes
+
+* guest and host names overlap  ([#107](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/107)) ([316d525](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/316d525ad053c4e42a1778755fa677c99eeab4b5))
+
 ## [0.1.31](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.30...v0.1.31) (2023-08-09)
 
 
