@@ -7,7 +7,7 @@ DETAILS = [
 ]
 
 NEW_CALLER = (
-    "Oh! It looks like we have a caller on the line. Hello sweetie, you're on the air."
+    "Oh! It looks like we have a caller on the line! Hello sweetie, you're on the air."
 )
 
 

@@ -56,9 +56,13 @@ def guest() -> Guest:
 
 
 @pytest.fixture()
-def host_missions() -> HostMissions:
+def host_missions(guest) -> HostMissions:
     return HostMissions(
-        anecdote="I once went on a date", k=2, lesson="self-love", product="book"
+        anecdote="I once went on a date",
+        k=2,
+        lesson="self-love",
+        product="book",
+        guest_name=guest.placeholder_name,
     )
 
 

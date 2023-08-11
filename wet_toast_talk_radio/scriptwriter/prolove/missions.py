@@ -2,6 +2,8 @@ import random
 
 
 class HostMissions:
+    # Part 1
+
     INTRO = (
         "You tell the listeners that today, love is in the air. "
         "You then describe in great detail how you feel. "
@@ -25,60 +27,70 @@ class HostMissions:
         "After the story, ask the listeners to tell you what they think by calling the show. "
     )
 
+    # Part 2
+
     WHY = (
-        "You ask the caller why they called the show. "
+        "You ask {{guest_name}} why they called the show. "
         "You ask in two sentences or less."
     )
 
     ADVICE = (
-        "You give unconventional and terrible dating advice to the caller. "
+        "You give unconventional and terrible dating advice to {{guest_name}}. "
         "You don't realise that your advice is awful. "
         "You answer in 6 sentences or less."
     )
 
     MORE_ADVICE = (
-        "You double-down on the terrible dating advice you gave to the caller. "
+        "You double-down on the terrible dating advice you gave to {{guest_name}}. "
         "You describe it more detail. "
         "You still don't realise that your advice is awful. "
         "You answer in 6 sentences or less."
     )
 
+    # Part 3
+
     METAPHOR = (
-        "Change the topic of conversation by making a stupid irrelevant metaphor about love. "
+        "Change the topic of your conversation with {{guest_name}} by making a stupid irrelevant metaphor about love. "
         "You don't realise that your metaphor is stupid. "
         "Do it in 8 sentences or less."
     )
 
     LESSON = (
-        "Change the topic of conversation by giving the caller an "
+        "Change the topic of your conversation with {{guest_name}} by giving them an "
         "unconventional and terrible lesson about {{lesson}} in love. "
         "You don't realise that your advice is awful. "
         "Do it in 8 sentences or less."
     )
 
     PROMOTION = (
-        "Change the topic of conversation by talking about your new {{product}} about dating and love. "
+        "Change the topic of your conversation with {{guest_name}} "
+        "by talking about your new {{product}} about dating and love. "
         "You describe its contents and why it's special. "
         "Do it in 8 sentences or less."
     )
 
     FAKE_FACT = (
-        "Change the topic of conversation by making up a plausible yet farfetched statistic about dating. "
+        "Change the topic of your conversation with {{guest_name}} "
+        "by making up a plausible yet farfetched statistic about dating. "
         "Do not reveal that the stat is made up. "
         "Infer some kind of lesson from the stat. "
         "Do it in 8 sentences or less."
     )
 
     HIJACK = (
-        "Change the topic of conversation by hijacking the conversation and making it about yourself. "
+        "Change the topic of your conversation with {{guest_name}} "
+        "by hijacking the conversation and making it about yourself. "
         "Do it in 8 sentences or less."
     )
 
-    def __init__(self, anecdote: str, k: int, lesson: str, product: str):
+    def __init__(  # noqa: PLR0913
+        self, anecdote: str, k: int, lesson: str, product: str, guest_name: str
+    ):
         self.anecdote = anecdote
         self.k = k
         self.lesson = lesson
         self.product = product
+        self.guest_name = guest_name
 
     @property
     def pt1_missions(self) -> list[str]:
@@ -95,7 +107,13 @@ class HostMissions:
         """Return ordered missions for the host.
         Used in the "advice" part of the show."""
         # None when should use fixed message instead of LLM generation
-        return [None, self.WHY, None, self.ADVICE, self.MORE_ADVICE]
+        return [
+            None,
+            self.WHY.replace("{{guest_name}}", self.guest_name),
+            None,
+            self.ADVICE.replace("{{guest_name}}", self.guest_name),
+            self.MORE_ADVICE.replace("{{guest_name}}", self.guest_name),
+        ]
 
     @property
     def pt3_missions(self) -> list[str]:
@@ -110,6 +128,7 @@ class HostMissions:
             self.FAKE_FACT,
             self.HIJACK,
         ]
+        missions = [m.replace("{{guest_name}}", self.guest_name) for m in missions]
         return random.sample(population=missions, k=self.k)
 
 
@@ -142,7 +161,17 @@ class GuestMissions:
         "You answer in four sentences or less."
     )
 
-    REACT = "React to what Zara said in two sentences. "
+    REACT_1 = "Ah, yes, thanks Zara, that sounds great."
+    REACT_2 = "Cheers Zara, I'll think about that."
+    REACT_3 = "Yeah... Sure, Zara."
+    REACT_4 = "Totally, Zara. Thanks."
+    REACT_5 = "Ya, thanks Zara. Can I leave now?"
+    REACT_6 = "Amazing, thanks Zara."
+    REACT_7 = "Thanks Zara, I'll try that."
+    REACT_8 = "Wow... I'm so glad I called. Thanks."
+    REACT_9 = "That's ... cool, I guess. Thanks."
+    REACT_10 = "Interesting... Sounds cool Zara, thanks."
+    REACT_11 = "Uh... Yeah? Thanks Zara."
 
     def __init__(self, topic: str, k: int):
         self.topic = topic
@@ -161,7 +190,20 @@ class GuestMissions:
         ]
 
     @property
-    def pt3_missions(self) -> list[str]:
+    def pt3_messages(self) -> list[str]:
         """Return ordered missions for the guest.
         Used in part 3 of the show."""
-        return [self.REACT] * self.k
+        reactions = [
+            self.REACT_1,
+            self.REACT_2,
+            self.REACT_3,
+            self.REACT_4,
+            self.REACT_5,
+            self.REACT_6,
+            self.REACT_7,
+            self.REACT_8,
+            self.REACT_9,
+            self.REACT_10,
+            self.REACT_11,
+        ]
+        return random.sample(reactions, k=self.k)
