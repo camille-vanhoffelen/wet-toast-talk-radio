@@ -113,7 +113,7 @@ class Prolove(RadioShow):
         # PART 1
         # The host introduces the show and themselves, then tells an anecdote about their dating life.
 
-        intro_1 = "Hey there, my hearts! Welcome to 'Prolove', the dating advice show where we say YES to love! "
+        intro_1 = "Hey there, my hearts! Welcome to 'Prolove', the dating advice show where we LOVE listening to you! "
         intro_2 = "I'm your host, Zara, ready to answer all your questions about love and connection. "
         history_pt1 = History()
         history_pt1.append(role=Role.HOST, message=intro_1)
@@ -155,27 +155,19 @@ class Prolove(RadioShow):
         # PART 3
         # The host changes topics and chats about random things.
 
-        # Bias the guest towards terse responses
-        placeholder_response = "Ah yes, I see... I'll try my best, Zara."
-        history_pt3 = History(
-            [history_pt2.messages[-2], guest_message(placeholder_response)]
-        )
-        for host_mission, guest_mission in zip(
+        history_pt3 = History(history_pt2.messages[-2:])
+        for host_mission, guest_message_pt3 in zip(
             self.host_missions.pt3_missions,
-            self.guest_missions.pt3_missions,
+            self.guest_missions.pt3_messages,
             strict=True,
         ):
             host = await self.new_bottom_program()(
-                system_message=self.host_system_message(host_mission),
+                # Don't mention that Zara is host or she keeps asking questions
+                system_message=self.host_system_message(host_mission, role=""),
                 history=history_pt3.host_history,
             )
             history_pt3.append(role=Role.HOST, message=host["response"])
-
-            guest = await self.new_bottom_program()(
-                system_message=self.guest_system_message(guest_mission),
-                history=history_pt3.guest_history,
-            )
-            history_pt3.append(role=Role.GUEST, message=guest["response"])
+            history_pt3.append(role=Role.GUEST, message=guest_message_pt3)
 
         outro = (
             "Well, my hearts, that's all the time we have today! "
@@ -226,11 +218,11 @@ class Prolove(RadioShow):
             .replace("{{mission}}", mission)
         )
 
-    def host_system_message(self, mission: str) -> str:
+    def host_system_message(
+        self, mission: str, role: str = HOST_ROLE, identity: str = HOST_IDENTITY
+    ) -> str:
         """System message for host"""
-        return self.system_message_prompt(
-            identity=HOST_IDENTITY, role=HOST_ROLE, mission=mission
-        )
+        return self.system_message_prompt(identity=identity, role=role, mission=mission)
 
     def guest_system_message(self, mission: str) -> str:
         """System message for guest"""
