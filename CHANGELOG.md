@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.33](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.32...v0.1.33) (2023-08-13)
+
+
+### Features
+
+* longer gap for background music ([69381da](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/69381dad267674b77abee6dc0a516d5610366efe))
+* Website v2 ([#110](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/110)) ([6a12706](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/6a127060f978a46bb571b9ee3e46260461dc3ae0))
+
 ## [0.1.32](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.31...v0.1.32) (2023-08-11)
 
 
