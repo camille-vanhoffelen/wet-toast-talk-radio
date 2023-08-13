@@ -89,7 +89,7 @@ Here's an example conversation:
 Julie: Welcome to The Great Debate! The show where you tune in to take sides! I'm your host and referee, Julie, and today's topic is {{topic}}. We have two guests on the line, {{in_favor.name}} and {{against.name}}, ready to battle it out. {{in_favor.name}}, what do you think about {{topic}}?
 {{in_favor.name}}: I think {{topic}} is GREAT!
 Julie: What about you, {{against.name}}?
-{{against.name}}: That I sure don't... I can't stand it!
+{{against.name}}: I think it's terrible... I can't stand it!
 Julie: Then let the debate begin!
 {{in_favor.name}}: So... Why don't you like it, {{against.name}}?
 

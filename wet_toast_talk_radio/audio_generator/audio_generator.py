@@ -225,6 +225,8 @@ class AudioGenerator:
         """Add background music to audio
         Everything done @ 24 kHz sample rate"""
         logger.info("Adding background music")
+        # Pad more silence at the end
+        audio_array = np.concatenate([audio_array, LONG_SILENCE])
         background, sr = librosa.load(BACKGROUND_PATH, sr=None)
         assert sr == SAMPLE_RATE, "Background music sample rate must match audio"
         # cropping to match audio length
@@ -239,7 +241,7 @@ class AudioGenerator:
         logger.info("Adding jingle")
         jingle, sr = librosa.load(JINGLE_PATH, sr=None)
         assert sr == SAMPLE_RATE, "Jingle sample rate must match audio"
-        return np.concatenate([SILENCE, jingle, LONG_SILENCE, audio_array])
+        return np.concatenate([LONG_SILENCE, jingle, LONG_SILENCE, audio_array])
 
     def _postprocess(
         self, audio_array: np.ndarray, background_music: bool  # noqa: FBT001
