@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.34](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.33...v0.1.34) (2023-08-14)
+
+
+### Features
+
+* Website v3 ([#112](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/112)) ([b679149](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/b6791491a1f2e1d33b82fa658ae5b28aadd72542))
+
 ## [0.1.33](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.32...v0.1.33) (2023-08-13)
 
 
