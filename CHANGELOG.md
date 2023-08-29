@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.0.0](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.34...v1.0.0) (2023-08-29)
+
+
+### Features
+
+* slightly faster dialogue ([#114](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/114)) ([ba10620](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/ba1062061ab06ad59e173f0f64422caf6615adaa))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0 ([485ef1c](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/485ef1cb34dd6a2f01d5e75b6349db8168de230c))
+
 ## [0.1.34](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.33...v0.1.34) (2023-08-14)
 
 

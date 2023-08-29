@@ -1,7 +1,7 @@
 
 [project]
 name = "wet-toast-talk-radio"
-version = "0.1.34"
+version = "1.0.0"
 description = ""
 authors = [
     { name = "camille-vanhoffelen", email = "camille-vanhoffelen@users.noreply.github.com" },
