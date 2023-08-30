@@ -1,10 +1,13 @@
 import asyncio
+import uuid
+from pathlib import Path
 
 import click
 import structlog
 
 from wet_toast_talk_radio.command.print_banner import print_banner
 from wet_toast_talk_radio.command.root import root_cmd
+from wet_toast_talk_radio.common.dialogue import save_lines
 from wet_toast_talk_radio.media_store import new_media_store
 from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.media_store.virtual.media_store import VirtualMediaStore
@@ -74,7 +77,17 @@ def run(ctx: dict):
 
 @scriptwriter.command(help="Write script for Advert")
 @click.pass_context
-def advert(ctx: dict):
+@click.option(
+    "--output-dir",
+    default=Path("tmp/"),
+    type=click.Path(
+        exists=True,
+        file_okay=False,
+        path_type=Path,
+    ),
+    help="Output directory for script files",
+)
+def advert(ctx: dict, output_dir):
     """Run command
     scriptwriter advert TOPIC
     """
@@ -84,8 +97,10 @@ def advert(ctx: dict):
 
     llm = new_llm(cfg=sw_cfg.llm)
     show = Advert.create(llm=llm, media_store=VirtualMediaStore())
-    show_id = ShowId(show_i=0, date="2012-12-21")
-    asyncio.run(show.arun(show_id=show_id))
+    lines = asyncio.run(show.awrite())
+    uuid_str = str(uuid.uuid4())[:6]
+    path = output_dir / f"advert-{uuid_str}.jsonl"
+    save_lines(path=path, lines=lines)
 
 
 @scriptwriter.command(help="Write products for Advert")

@@ -97,6 +97,14 @@ class Advert(RadioShow):
 
     @show_id_log_ctx()
     async def arun(self, show_id: ShowId) -> bool:
+        lines = await self.awrite()
+        self._media_store.put_script_show(show_id=show_id, lines=lines)
+        self._media_store.put_script_show_metadata(
+            show_id=show_id, metadata=ShowMetadata(ShowName.ADVERTS)
+        )
+        return True
+
+    async def awrite(self) -> list[Line]:
         logger.info("Async writing advert")
 
         product = Program(text=PRODUCT_TEMPLATE, llm=self._llm, async_mode=True)
@@ -112,14 +120,10 @@ class Advert(RadioShow):
             company=product["company"],
             strategies=self.strategies,
         )
-
         logger.info("Finished writing advert")
+
         lines = self._post_processing(program=advert)
-        self._media_store.put_script_show(show_id=show_id, lines=lines)
-        self._media_store.put_script_show_metadata(
-            show_id=show_id, metadata=ShowMetadata(ShowName.ADVERTS)
-        )
-        return True
+        return lines
 
     def _post_processing(self, program: Program) -> list[Line]:
         content = program["advert"]
