@@ -2,12 +2,23 @@ import http
 from datetime import date, datetime, timedelta
 
 import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 
 
 def get_current_utc_date() -> date:
     """Get the current UTC date from WorldTimeAPI."""
+    retry_strategy = Retry(
+        total=10,
+        backoff_factor=0.02,
+    )
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    session = requests.Session()
+    session.mount("https://", adapter)
+    session.mount("http://", adapter)
+
     api_url = "http://worldtimeapi.org/api/ip"
-    response = requests.get(api_url)
+    response = session.get(api_url)
     if response.status_code == http.HTTPStatus.OK:
         data = response.json()
         datetime_str = data["datetime"]
