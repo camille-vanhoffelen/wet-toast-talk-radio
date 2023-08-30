@@ -1,10 +1,127 @@
 ![Wet Toast Talk Radio logo](resources/wttr-logo-thin.jpg)
 
-# :bread: Wet Toast Talk Radio
+# Wet Toast Talk Radio
 
-Generating content for Wet Toast Talk Radio
 
-## Devolpment
+[![Radio Listen](https://img.shields.io/badge/%F0%9F%8D%9E_radio-Listen-F09F39?style=for-the-badge)](https://www.wettoast.ai/)
+[![Twitch Watch](https://img.shields.io/badge/Twitch-Watch-9146FF?style=for-the-badge&logo=twitch)](https://www.twitch.tv/wettoasttalkradio)
+
+_Fake talk. Fake issues. Real giggles._
+
+Generating content for Wet Toast Talk Radio, a 24/7 non-stop internet parody radio inspired by GTA. 
+
+We don’t do reruns - all shows are generated daily. We use ChatGPT + a lot of prompt engineering and randomization for the writing of the scripts, and the amazing transformer + diffusion models of [tortoise-tts](https://github.com/neonbjb/tortoise-tts) for speech generation.
+
+Checkout our [website](https://www.wettoast.ai/)!
+
+# ToC
+
+* [🚀 Getting Started](#-getting-started)
+* [🍞 Usage](#-usage)
+* [⚙️ Development](#-development)
+* [🚢 Deployment](#-deployment)
+* [😎 Credits](#-credits)
+* [🤝 License](#-license)
+
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- python >= 3.10
+- [ffmpeg](https://github.com/jiaaro/pydub#getting-ffmpeg-set-up) `brew install ffmpeg`
+- [libshout](https://icecast.org/download/) `brew install libshout`
+
+### Install from Source
+
+Install the package with pip:
+
+```commandline
+pip install -r requirements.txt
+pip install -e .
+```
+
+or with your preferred virtual environment manager (_this project uses [pdm](https://pdm.fming.dev/) for dependency management_).
+
+Then run with:
+
+```commandline
+python -m wet_toast_talk_radio.main --help
+```
+
+
+### Run as Container
+
+**Prerequisites:**
+
+* [Docker](https://docs.docker.com/get-docker/)
+
+You can also build and run wet toast as a container:
+
+
+
+TODO docker install
+
+## 🍞 Usage
+
+### ✍️ Script Generation
+
+#### Credentials
+
+Add your OpenAI API key in a `config.yml` file in the project dir:
+
+```yaml
+scriptwriter:
+  llm:
+    openai_api_key: YOUR_OPENAI_API_KEY
+```
+#### All Shows
+
+To write 24 hours worth of shows:
+
+(⚠️ will cost you ~ XXXX$ in openai credits)
+
+
+Then run:
+
+```commandline
+python -m wet_toast_talk_radio.main scriptwriter run
+```
+
+#### The Great Debate
+
+To write a single script for The Great Debate:
+
+```commandline
+python -m wet_toast_talk_radio.main scriptwriter the-great-debate
+```
+
+#### Modern Mindfulness
+
+To write a single script for Modern Mindfulness:
+
+#### The Expert Zone
+
+To write a single script for The Expert Zone:
+
+#### Prolove
+
+To write a single script for Prolove:
+
+#### Adverts
+
+
+### 🗣 Audio Generation
+
+TODO warning about GPU, plus CUDA dependencies. See XXXX to install dependencies.
+
+### 💽 Audio Transcoding
+
+### 🎶 Playlist Creation
+
+### 📻 Radio Streaming
+
+## ⚙️ Development
 
 ### Prerequisite
 
@@ -91,6 +208,10 @@ aws --endpoint-url=http://localhost:4566 sqs list-queues
 
 A Icecast and Ices service will start on [http://localhost:8000/](http://localhost:8000/)
 
+### Requirements Building
+
+`create-requirements.sh`
+
 ### Testing
 
 The [test](./tests/) folder containes integration tests that need the `docker-compose up` cmd to run. These tests are skipped by default but can be enabled with the following flag: 
@@ -99,17 +220,7 @@ The [test](./tests/) folder containes integration tests that need the `docker-co
 pdm run pytest --integration
 ```
 
-
-## Deployment
-
-[./aws/README.md](./aws/README.md)
-
-## Contributing
-
-- Commits should follow the following convention:  `refactor|feat|fix|docs|breaking|misc|chore|test: description`
-
-
-## Code Standards
+### Code Standards
 
 We use [black](https://github.com/psf/black) as our code formattter.
 
@@ -117,3 +228,14 @@ We use [ruff](https://beta.ruff.rs/docs/) as our linter.
 
 We use [pytest](https://docs.pytest.org/en/6.2.x/) as our testing framework.
 
+Commits should follow the following convention:  `refactor|feat|fix|docs|breaking|misc|chore|test: description`
+
+
+## Deployment
+
+[./aws/README.md](./aws/README.md)
+
+
+## Credits
+
+## License
