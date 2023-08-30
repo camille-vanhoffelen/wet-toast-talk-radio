@@ -55,9 +55,9 @@ def scriptwriter(ctx: dict):
 @click.pass_context
 def run(ctx: dict):
     """Run command
-    scriptwriter run TOPIC
+    scriptwriter run
 
-    with TOPIC the topic of The Great Debate show.
+    Writes all shows for the day
     """
     root_cfg = ctx.obj["root_cfg"]
     sw_cfg = root_cfg.scriptwriter
