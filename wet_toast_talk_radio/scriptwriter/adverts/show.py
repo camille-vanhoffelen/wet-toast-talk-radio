@@ -96,7 +96,7 @@ class Advert(RadioShow):
         )
 
     @show_id_log_ctx()
-    async def awrite(self, show_id: ShowId) -> bool:
+    async def arun(self, show_id: ShowId) -> bool:
         logger.info("Async writing advert")
 
         product = Program(text=PRODUCT_TEMPLATE, llm=self._llm, async_mode=True)

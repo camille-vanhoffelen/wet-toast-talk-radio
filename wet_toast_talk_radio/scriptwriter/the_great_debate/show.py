@@ -180,7 +180,7 @@ class TheGreatDebate(RadioShow):
         )
 
     @show_id_log_ctx()
-    async def awrite(self, show_id: ShowId) -> bool:
+    async def arun(self, show_id: ShowId) -> bool:
         logger.info(
             "Async writing the great debate",
             topic=self.topic,

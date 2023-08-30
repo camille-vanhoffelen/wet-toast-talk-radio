@@ -72,7 +72,7 @@ class TheExpertZone(RadioShow):
         self._media_store = media_store
 
     @show_id_log_ctx()
-    async def awrite(self, show_id: ShowId) -> bool:
+    async def arun(self, show_id: ShowId) -> bool:
         logger.info("Async writing The Expert Zone")
         guest = Program(
             text=AGENT_TEMPLATE,

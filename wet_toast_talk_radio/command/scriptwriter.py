@@ -85,7 +85,7 @@ def advert(ctx: dict):
     llm = new_llm(cfg=sw_cfg.llm)
     show = Advert.create(llm=llm, media_store=VirtualMediaStore())
     show_id = ShowId(show_i=0, date="2012-12-21")
-    asyncio.run(show.awrite(show_id=show_id))
+    asyncio.run(show.arun(show_id=show_id))
 
 
 @scriptwriter.command(help="Write products for Advert")
@@ -130,7 +130,7 @@ def the_great_debate(ctx: dict):
     llm = new_llm(cfg=sw_cfg.llm)
     show = TheGreatDebate.create(llm=llm, media_store=VirtualMediaStore())
     show_id = ShowId(show_i=0, date="2012-12-21")
-    asyncio.run(show.awrite(show_id=show_id))
+    asyncio.run(show.arun(show_id=show_id))
 
 
 @scriptwriter.command(help="Write script for Modern Mindfulness")
@@ -146,7 +146,7 @@ def modern_mindfulness(ctx: dict):
     llm = new_llm(cfg=sw_cfg.llm)
     show = ModernMindfulness.create(llm=llm, media_store=VirtualMediaStore())
     show_id = ShowId(show_i=0, date="2012-12-21")
-    asyncio.run(show.awrite(show_id=show_id))
+    asyncio.run(show.arun(show_id=show_id))
 
 
 @scriptwriter.command(help="Write character traits for guests")
@@ -271,7 +271,7 @@ def the_expert_zone(ctx: dict):
     llm = new_llm(cfg=sw_cfg.llm)
     show = TheExpertZone.create(llm=llm, media_store=VirtualMediaStore())
     show_id = ShowId(show_i=0, date="2012-12-21")
-    asyncio.run(show.awrite(show_id=show_id))
+    asyncio.run(show.arun(show_id=show_id))
 
 
 @scriptwriter.command(help="Write topics for The Expert Zone")
@@ -313,7 +313,7 @@ def prolove(ctx: dict):
     llm = new_llm(cfg=sw_cfg.llm)
     show = Prolove.create(llm=llm, media_store=VirtualMediaStore())
     show_id = ShowId(show_i=0, date="2012-12-21")
-    asyncio.run(show.awrite(show_id=show_id))
+    asyncio.run(show.arun(show_id=show_id))
 
 
 @scriptwriter.command(help="Write topics for Prolove")

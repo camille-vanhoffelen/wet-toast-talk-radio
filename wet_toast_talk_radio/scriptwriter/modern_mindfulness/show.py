@@ -99,7 +99,7 @@ class ModernMindfulness(RadioShow):
         return cls(llm=llm, media_store=media_store)
 
     @show_id_log_ctx()
-    async def awrite(self, show_id: ShowId) -> bool:
+    async def arun(self, show_id: ShowId) -> bool:
         logger.info(
             "Async writing modern mindfulness",
             situation=self.situation,

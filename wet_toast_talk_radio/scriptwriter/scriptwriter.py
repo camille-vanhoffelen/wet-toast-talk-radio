@@ -71,16 +71,16 @@ class Scriptwriter:
         assert (
             self._media_store is not None
         ), "MediaStore must be provided to run Scriptwriter"
-        asyncio.run(self.awrite())
+        asyncio.run(self.arun())
         logger.info("Scriptwriter finished, exiting")
 
-    async def awrite(self):
+    async def arun(self):
         logger.info("Writing daily program...")
         tasks = []
         all_shows = []
         for i, show in enumerate(self._shows):
             show_id = ShowId(show_i=i, date=self.program_iso_utc_date)
-            tasks.append(asyncio.create_task(show.awrite(show_id=show_id)))
+            tasks.append(asyncio.create_task(show.arun(show_id=show_id)))
             all_shows.append(show_id)
         results = await asyncio.gather(*tasks, return_exceptions=True)
         script_shows = self._filter_failures(all_shows, results)

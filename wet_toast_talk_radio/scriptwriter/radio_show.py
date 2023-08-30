@@ -13,7 +13,7 @@ class RadioShow(ABC):
         """Factory method"""
 
     @abstractmethod
-    async def awrite(self, show_id: ShowId) -> bool:
+    async def arun(self, show_id: ShowId) -> bool:
         """Asynchronously write the script for the show using an LLM.
         Script is stored in the media store under show_id.
         Returns true if successful, false otherwise"""
