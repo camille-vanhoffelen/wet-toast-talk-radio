@@ -10,6 +10,7 @@ def get_current_utc_date() -> date:
     """Get the current UTC date from WorldTimeAPI."""
     retry_strategy = Retry(
         total=10,
+        backoff_factor=0.02,
     )
     adapter = HTTPAdapter(max_retries=retry_strategy)
     session = requests.Session()
