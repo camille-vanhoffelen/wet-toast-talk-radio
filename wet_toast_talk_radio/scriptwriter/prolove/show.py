@@ -1,14 +1,16 @@
 import random
 from dataclasses import dataclass
+from pathlib import Path
 
 import structlog
 from guidance import Program
 from guidance.llms import LLM
 
-from wet_toast_talk_radio.common.dialogue import Line, Speaker
+from wet_toast_talk_radio.common.dialogue import Line, Speaker, save_lines
 from wet_toast_talk_radio.common.log_ctx import show_id_log_ctx
 from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.media_store import ShowId, ShowMetadata, ShowName
+from wet_toast_talk_radio.scriptwriter.io import unique_script_filename
 from wet_toast_talk_radio.scriptwriter.names import (
     GENDERS,
     random_name,
@@ -108,6 +110,20 @@ class Prolove(RadioShow):
 
     @show_id_log_ctx()
     async def arun(self, show_id: ShowId) -> bool:
+        lines = await self.agen()
+        self._media_store.put_script_show(show_id=show_id, lines=lines)
+        self._media_store.put_script_show_metadata(
+            show_id=show_id, metadata=ShowMetadata(ShowName.PROLOVE)
+        )
+        return True
+
+    async def awrite(self, output_dir: Path) -> bool:
+        lines = await self.agen()
+        path = output_dir / unique_script_filename("prolove")
+        save_lines(path=path, lines=lines)
+        return True
+
+    async def agen(self) -> list[Line]:
         logger.info("Async writing Prolove")
 
         # PART 1
@@ -180,19 +196,14 @@ class Prolove(RadioShow):
         conversation = (
             history_pt1.messages + history_pt2.messages + history_pt3.messages[2:]
         )
-        logger.debug("Written script", conversation=conversation)
-        logger.info("Finished writing Prolove")
         lines = self._post_processing(conversation)
-        self._media_store.put_script_show(show_id=show_id, lines=lines)
-        self._media_store.put_script_show_metadata(
-            show_id=show_id, metadata=ShowMetadata(ShowName.PROLOVE)
-        )
-        return True
+        logger.info("Finished writing Prolove")
+        return lines
 
     def _post_processing(self, conversation: list[dict[str, str]]) -> list[Line]:
         """Converts the guidance program into a list of Lines.
         Cleans up the content for each line."""
-        logger.debug("Post processing Prolove")
+        logger.info("Post processing Prolove")
         host = Speaker(name="Zara", gender="female", host=True)
         guest = Speaker(
             name=self.guest.name, gender=self.guest.voice_gender, host=False
@@ -266,8 +277,7 @@ class Prolove(RadioShow):
         guest_name = random_name(guest_voice_gender)
         guest_placeholder_name = random_name(guest_voice_gender)
         guest_sexual_orientation = random_sexual_orientation(guest_gender)
-        # Mostly young adults, some middle aged
-        age = int(abs(random.gauss(0.0, 1.0) * 15) + 18)
+        age = random_age()
         topic = random_topic()
         trait = random_trait()
         guest = Guest(
@@ -306,6 +316,12 @@ class Prolove(RadioShow):
             llm=llm,
             media_store=media_store,
         )
+
+
+def random_age():
+    """Random age for guest.
+    Mostly young adults, some middle aged"""
+    return int(abs(random.gauss(0.0, 1.0) * 15) + 18)
 
 
 def guest_message(content: str):

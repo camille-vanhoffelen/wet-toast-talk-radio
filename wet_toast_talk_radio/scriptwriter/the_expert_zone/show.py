@@ -78,7 +78,7 @@ class TheExpertZone(RadioShow):
         lines = await self.agen()
         self._media_store.put_script_show(show_id=show_id, lines=lines)
         self._media_store.put_script_show_metadata(
-            show_id=show_id, metadata=ShowMetadata(ShowName.THE_GREAT_DEBATE)
+            show_id=show_id, metadata=ShowMetadata(ShowName.THE_EXPERT_ZONE)
         )
         return True
 
