@@ -53,7 +53,7 @@ class TestScriptwriter:
         program,
     ):
         mocker.patch(
-            "wet_toast_talk_radio.scriptwriter.adverts.Advert.awrite",
+            "wet_toast_talk_radio.scriptwriter.adverts.Advert.arun",
             side_effect=AsyncMock(side_effect=Exception("Random bug")),
         )
         cfg = ScriptwriterConfig(llm=llm_config)

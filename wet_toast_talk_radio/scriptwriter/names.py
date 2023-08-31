@@ -14,7 +14,6 @@ def load_names() -> dict:
     global NAMES_CACHE  # noqa: PLW0603
     if NAMES_CACHE is None:
         path = Path(__file__).with_name("resources") / "names-ascii.json"
-        logger.info("Loading names", path=path)
         with path.open() as f:
             NAMES_CACHE = json.load(f)
     return NAMES_CACHE

@@ -1,15 +1,17 @@
 from dataclasses import dataclass
+from pathlib import Path
 
 import structlog
 from guidance import Program
 from guidance.llms import LLM
 
-from wet_toast_talk_radio.common.dialogue import Line, Speaker
+from wet_toast_talk_radio.common.dialogue import Line, Speaker, save_lines
 from wet_toast_talk_radio.common.log_ctx import show_id_log_ctx
 from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.media_store import ShowId, ShowMetadata, ShowName
 from wet_toast_talk_radio.scriptwriter.adverts.products import random_product
 from wet_toast_talk_radio.scriptwriter.adverts.strategies import random_strategies
+from wet_toast_talk_radio.scriptwriter.io import unique_script_filename
 from wet_toast_talk_radio.scriptwriter.radio_show import RadioShow
 
 logger = structlog.get_logger()
@@ -96,8 +98,22 @@ class Advert(RadioShow):
         )
 
     @show_id_log_ctx()
-    async def awrite(self, show_id: ShowId) -> bool:
-        logger.info("Async writing advert")
+    async def arun(self, show_id: ShowId) -> bool:
+        lines = await self.agen()
+        self._media_store.put_script_show(show_id=show_id, lines=lines)
+        self._media_store.put_script_show_metadata(
+            show_id=show_id, metadata=ShowMetadata(ShowName.ADVERTS)
+        )
+        return True
+
+    async def awrite(self, output_dir: Path) -> bool:
+        lines = await self.agen()
+        path = output_dir / unique_script_filename("advert")
+        save_lines(path=path, lines=lines)
+        return True
+
+    async def agen(self) -> list[Line]:
+        logger.info("Async writing Advert")
 
         product = Program(text=PRODUCT_TEMPLATE, llm=self._llm, async_mode=True)
         product = await product(description=self.product_description)
@@ -112,16 +128,13 @@ class Advert(RadioShow):
             company=product["company"],
             strategies=self.strategies,
         )
+        logger.info("Finished writing Advert")
 
-        logger.info("Finished writing advert")
         lines = self._post_processing(program=advert)
-        self._media_store.put_script_show(show_id=show_id, lines=lines)
-        self._media_store.put_script_show_metadata(
-            show_id=show_id, metadata=ShowMetadata(ShowName.ADVERTS)
-        )
-        return True
+        return lines
 
     def _post_processing(self, program: Program) -> list[Line]:
+        logger.info("Post processing Advert")
         content = program["advert"]
         # For discounts
         content = content.replace("%", " percent")

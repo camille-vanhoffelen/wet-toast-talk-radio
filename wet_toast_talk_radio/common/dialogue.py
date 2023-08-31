@@ -26,3 +26,11 @@ def read_lines(path: Path) -> list[Line]:
     """Read a script file (.jsonl) where each file line is a pydantic Line json."""
     with path.open("r") as file:
         return [Line.parse_raw(line) for line in file]
+
+
+def save_lines(path: Path, lines: list[Line]):
+    """Write a script file (.jsonl) where each file line is a pydantic Line json."""
+    text_lines = [line.json() for line in lines]
+    content = "\n".join(text_lines)
+    with path.open("w") as file:
+        file.write(content)

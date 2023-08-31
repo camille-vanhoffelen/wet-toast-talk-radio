@@ -21,7 +21,7 @@ def test_advert(
         llm=fake_llm,
         media_store=virtual_media_store,
     )
-    asyncio.run(show.awrite(show_id=show_id))
+    asyncio.run(show.arun(show_id=show_id))
     script_shows = virtual_media_store.list_script_shows()
     assert script_shows == [show_id]
 

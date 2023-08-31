@@ -3,15 +3,17 @@ import asyncio
 import random
 from dataclasses import dataclass
 from enum import Enum
+from pathlib import Path
 
 import structlog
 from guidance import Program
 from guidance.llms import LLM
 
-from wet_toast_talk_radio.common.dialogue import Line, Speaker
+from wet_toast_talk_radio.common.dialogue import Line, Speaker, save_lines
 from wet_toast_talk_radio.common.log_ctx import show_id_log_ctx
 from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.media_store import ShowId, ShowMetadata, ShowName
+from wet_toast_talk_radio.scriptwriter.io import unique_script_filename
 from wet_toast_talk_radio.scriptwriter.names import (
     GENDERS,
     random_name,
@@ -180,7 +182,21 @@ class TheGreatDebate(RadioShow):
         )
 
     @show_id_log_ctx()
-    async def awrite(self, show_id: ShowId) -> bool:
+    async def arun(self, show_id: ShowId) -> bool:
+        lines = await self.agen()
+        self._media_store.put_script_show(show_id=show_id, lines=lines)
+        self._media_store.put_script_show_metadata(
+            show_id=show_id, metadata=ShowMetadata(ShowName.THE_GREAT_DEBATE)
+        )
+        return True
+
+    async def awrite(self, output_dir: Path) -> bool:
+        lines = await self.agen()
+        path = output_dir / unique_script_filename("the-great-debate")
+        save_lines(path=path, lines=lines)
+        return True
+
+    async def agen(self) -> list[Line]:
         logger.info(
             "Async writing the great debate",
             topic=self.topic,
@@ -213,26 +229,18 @@ class TheGreatDebate(RadioShow):
         results = await asyncio.gather(task_in_favor, task_against)
         results_in_favor = results[0]
         results_against = results[1]
-        logger.debug("Guest in favor", guest=results_in_favor)
-        logger.debug("Guest against", guest=results_against)
 
-        logger.info("Writing debate script")
+        logger.info("Async writing debate script")
         debate = Program(text=DEBATE_TEMPLATE, llm=self._llm, async_mode=True)
         written_debate = await debate(
             topic=self.topic,
             in_favor=self.results_to_dict(results_in_favor),
             against=self.results_to_dict(results_against),
         )
-        logger.debug("Written debate", debate=written_debate)
         lines = self._post_processing(written_debate["script"])
 
         logger.info("Finished writing The Great Debate")
-        logger.debug("Final script", content=lines)
-        self._media_store.put_script_show(show_id=show_id, lines=lines)
-        self._media_store.put_script_show_metadata(
-            show_id=show_id, metadata=ShowMetadata(ShowName.THE_GREAT_DEBATE)
-        )
-        return True
+        return lines
 
     def _post_processing(self, script: str) -> list[Line]:
         logger.info("Post processing The Great Debate")
