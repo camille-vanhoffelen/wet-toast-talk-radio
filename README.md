@@ -63,7 +63,7 @@ scriptwriter:
 To write a single script show:
 
 ```commandline
-python -m wet_toast_talk_radio.main scriptwriter SHOW_NAME [--output-dir]
+python -m wet_toast_talk_radio.main scriptwriter SHOW_NAME [--output-dir OUTPUT_DIR]
 ```
 
 Currently available shows:
@@ -76,7 +76,7 @@ Show Name | Host | Description
 `prolove` | Zara | The dating advice show where we love listening to you
 `advert` | Ian | Advertisements from our beloved sponsors
 
-For example, to generate an advertisement script in the folder output:
+For example, to generate an advertisement script in the folder `output`:
 
 ```commandline
 python -m wet_toast_talk_radio.main scriptwriter advert --output-dir output
@@ -84,13 +84,19 @@ python -m wet_toast_talk_radio.main scriptwriter advert --output-dir output
 
 ### 🗣 Audio Generation
 
-TODO warning about GPU, plus CUDA dependencies. See XXXX to install dependencies.
+⚠️ Audio generation is done with the large transformer + diffusion models of [tortoise-tts](https://github.com/neonbjb/tortoise-tts). Generation with CPU is ~ 11x slower than real time, generation with Nvidia T4 16GB GPU is ~ 1.5x slower than real time. On first usage, models might also take a few minutes to download.
 
-### 💽 Audio Transcoding
+To generate audio for a given script:
 
-### 🎶 Playlist Creation
+```commandline
+python -m wet_toast_talk_radio.main audio-generation generate [--script SCRIPT_PATH --output-dir OUTPUT_DIR]
+```
 
-### 📻 Radio Streaming
+For example, to generate audio for the script `the-great-debate-6c817b.jsonl` in the folder `output`:
+
+```commandline
+python -m wet_toast_talk_radio.main audio-generation generate --script output/the-great-debate-6c817b.jsonl --output-dir output
+```
 
 ## ⚙️ Development
 
