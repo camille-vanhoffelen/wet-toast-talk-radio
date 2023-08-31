@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.1.0](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v1.0.0...v1.1.0) (2023-08-31)
+
+
+### Features
+
+* audio-generator cli now writes to file ([#122](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/122)) ([4320e36](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/4320e36cf9fff649683eeabaef8a445489524b49))
+* better docs ([#116](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/116)) ([ec4ddef](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/ec4ddef86b278df02b90ab35c649d497a87b8600))
+* common date now with retries ([#118](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/118)) ([b860581](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/b86058173ba6b088c4e8881fd5b987821a527794))
+* Scriptwriter CLI ([#119](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/119)) ([5cbdbc6](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/5cbdbc6c9aa63d32770020716524d5e979ff41d8))
+* updated readme ([#120](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/120)) ([26076b4](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/26076b42856d2677007af883c4a64caaeb9f3b68))
+* updated readme ([#121](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/121)) ([dc87b3d](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/dc87b3d443ef443829db3448f4e244602386cfc0))
+
+
+### Documentation
+
+* Update README.md ([556ea31](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/556ea3190ffe3b62e4ab635e421f807fe2260138))
+
 ## [1.0.0](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v0.1.34...v1.0.0) (2023-08-29)
 
 
