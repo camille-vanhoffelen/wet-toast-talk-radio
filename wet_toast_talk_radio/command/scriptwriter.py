@@ -7,7 +7,6 @@ import structlog
 from wet_toast_talk_radio.command.print_banner import print_banner
 from wet_toast_talk_radio.command.root import root_cmd
 from wet_toast_talk_radio.media_store import new_media_store
-from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.media_store.virtual.media_store import VirtualMediaStore
 from wet_toast_talk_radio.message_queue import new_message_queue
 from wet_toast_talk_radio.scriptwriter import Scriptwriter, new_llm
@@ -22,7 +21,9 @@ from wet_toast_talk_radio.scriptwriter.modern_mindfulness import (
 from wet_toast_talk_radio.scriptwriter.prolove import (
     Anecdotes as ProloveAnecdotes,
 )
-from wet_toast_talk_radio.scriptwriter.prolove import Prolove
+from wet_toast_talk_radio.scriptwriter.prolove import (
+    Prolove,
+)
 from wet_toast_talk_radio.scriptwriter.prolove import (
     Topics as ProloveTopics,
 )
