@@ -1,14 +1,16 @@
 # ruff: noqa: E501
 import random
+from pathlib import Path
 
 import structlog
 from guidance import Program
 from guidance.llms import LLM
 
-from wet_toast_talk_radio.common.dialogue import Line, Speaker
+from wet_toast_talk_radio.common.dialogue import Line, Speaker, save_lines
 from wet_toast_talk_radio.common.log_ctx import show_id_log_ctx
 from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.media_store import ShowId, ShowMetadata, ShowName
+from wet_toast_talk_radio.scriptwriter.io import unique_script_filename
 from wet_toast_talk_radio.scriptwriter.modern_mindfulness.circumstances import (
     load_circumstances,
 )
@@ -100,6 +102,20 @@ class ModernMindfulness(RadioShow):
 
     @show_id_log_ctx()
     async def arun(self, show_id: ShowId) -> bool:
+        lines = await self.agen()
+        self._media_store.put_script_show(show_id=show_id, lines=lines)
+        self._media_store.put_script_show_metadata(
+            show_id=show_id, metadata=ShowMetadata(ShowName.THE_GREAT_DEBATE)
+        )
+        return True
+
+    async def awrite(self, output_dir: Path) -> bool:
+        lines = await self.agen()
+        path = output_dir / unique_script_filename("modern-mindfulness")
+        save_lines(path=path, lines=lines)
+        return True
+
+    async def agen(self) -> list[Line]:
         logger.info(
             "Async writing modern mindfulness",
             situation=self.situation,
@@ -109,17 +125,12 @@ class ModernMindfulness(RadioShow):
         written_meditation = await meditation(
             situation=self.situation, circumstance=self.circumstance
         )
-        logger.debug("Written meditation", debate=written_meditation)
-        logger.info("Finished writing Modern Mindfulness")
         lines = self._post_processing(written_meditation)
-        self._media_store.put_script_show(show_id=show_id, lines=lines)
-        self._media_store.put_script_show_metadata(
-            show_id=show_id, metadata=ShowMetadata(ShowName.MODERN_MINDFULNESS)
-        )
-        return True
+        logger.info("Finished writing Modern Mindfulness")
+        return lines
 
     def _post_processing(self, program: Program) -> list[Line]:
-        logger.debug("Post processing Modern Mindfulness")
+        logger.info("Post processing Modern Mindfulness")
         meditation = program["meditation"]
         meditation = " ".join(meditation.strip().split())
         line = Line(

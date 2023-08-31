@@ -60,7 +60,8 @@ def run(ctx: dict):
     """Run command
     scriptwriter run
 
-    Writes all shows for the day
+    Writes all shows for the day,
+    uploads them on media store, and message queue.
     """
     root_cfg = ctx.obj["root_cfg"]
     sw_cfg = root_cfg.scriptwriter
@@ -97,9 +98,7 @@ def advert(ctx: dict, output_dir: Path):
 
     llm = new_llm(cfg=sw_cfg.llm)
     show = Advert.create(llm=llm, media_store=VirtualMediaStore())
-    lines = asyncio.run(show.awrite())
-    path = output_dir / unique_script_filename("advert")
-    save_lines(path=path, lines=lines)
+    asyncio.run(show.awrite(output_dir))
 
 
 @scriptwriter.command(help="Write products for Advert")
@@ -153,14 +152,22 @@ def the_great_debate(ctx: dict, output_dir: Path):
 
     llm = new_llm(cfg=sw_cfg.llm)
     show = TheGreatDebate.create(llm=llm, media_store=VirtualMediaStore())
-    lines = asyncio.run(show.awrite())
-    path = output_dir / unique_script_filename("the-great-debate")
-    save_lines(path=path, lines=lines)
+    asyncio.run(show.awrite(output_dir))
 
 
 @scriptwriter.command(help="Write script for Modern Mindfulness")
 @click.pass_context
-def modern_mindfulness(ctx: dict):
+@click.option(
+    "--output-dir",
+    default=Path("tmp/"),
+    type=click.Path(
+        exists=True,
+        file_okay=False,
+        path_type=Path,
+    ),
+    help="Output directory for script files",
+)
+def modern_mindfulness(ctx: dict, output_dir: Path):
     """Run command
     scriptwriter modern-mindfulness
     """
@@ -170,8 +177,7 @@ def modern_mindfulness(ctx: dict):
 
     llm = new_llm(cfg=sw_cfg.llm)
     show = ModernMindfulness.create(llm=llm, media_store=VirtualMediaStore())
-    show_id = ShowId(show_i=0, date="2012-12-21")
-    asyncio.run(show.arun(show_id=show_id))
+    asyncio.run(show.awrite(output_dir))
 
 
 @scriptwriter.command(help="Write character traits for guests")
@@ -396,6 +402,3 @@ def prolove_anecdotes(ctx: dict, n_anecdotes: int, n_iter: int):
     asyncio.run(anecdotes_writer.awrite())
 
 
-def unique_script_filename(prefix: str):
-    uuid_str = str(uuid.uuid4())[:6]
-    return f"{prefix}-{uuid_str}.jsonl"

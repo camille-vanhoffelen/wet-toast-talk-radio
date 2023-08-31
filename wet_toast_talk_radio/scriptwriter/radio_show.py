@@ -20,7 +20,7 @@ class RadioShow(ABC):
         Returns true if successful, false otherwise"""
 
     @abstractmethod
-    async def atemp(self, output_dir: Path) -> bool:
+    async def awrite(self, output_dir: Path) -> bool:
         """Asynchronously write the script for the show using an LLM.
         Script is stored in output_dir.
         Returns true if successful, false otherwise"""

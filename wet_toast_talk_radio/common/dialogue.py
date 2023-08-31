@@ -31,5 +31,6 @@ def read_lines(path: Path) -> list[Line]:
 def save_lines(path: Path, lines: list[Line]):
     """Write a script file (.jsonl) where each file line is a pydantic Line json."""
     text_lines = [line.json() for line in lines]
+    content = "\n".join(text_lines)
     with path.open("w") as file:
-        file.writelines(text_lines)
+        file.write(content)
