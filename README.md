@@ -19,7 +19,6 @@ Checkout our [website](https://www.wettoast.ai/)!
 * [🚀 Getting Started](#-getting-started)
 * [🍞 Usage](#-usage)
 * [⚙️ Development](#-development)
-* [🚢 Deployment](#-deployment)
 * [😎 Credits](#-credits)
 * [🤝 License](#-license)
 
