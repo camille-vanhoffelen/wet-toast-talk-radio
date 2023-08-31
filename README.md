@@ -221,6 +221,11 @@ Commits should follow the following convention:  `refactor|feat|fix|docs|breakin
 
 ## 😎 Credits
 
+Authors:
+
+* [Camille Van Hoffelen](https://github.com/camille-vanhoffelen)
+* [Raphael Van Hoffelen](https://github.com/dskart)
+
 A special thanks to:
 
 * Berenike Melchior, Unwavering Support
