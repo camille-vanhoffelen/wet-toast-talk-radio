@@ -4,7 +4,7 @@
 
 
 [![Radio Listen](https://img.shields.io/badge/%F0%9F%8D%9E_radio-Listen-F09F39?style=for-the-badge)](https://www.wettoast.ai/)
-[![Twitch Watch](https://img.shields.io/badge/Twitch-Watch-9146FF?style=for-the-badge&logo=twitch)](https://www.twitch.tv/wettoasttalkradio)
+[![Twitch Watch](https://img.shields.io/badge/Twitch-Watch-9146FF?style=for-the-badge&logo=twitch)](https://www.twitch.tv/wettoasttalkradio) [![Ko-fi Donate](https://img.shields.io/badge/Ko--fi-Donate-FF5E5B?style=for-the-badge&logo=ko-fi)](https://www.twitch.tv/wettoasttalkradio)
 
 _Fake talk. Fake issues. Real giggles._
 
