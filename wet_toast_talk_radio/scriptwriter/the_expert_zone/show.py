@@ -1,14 +1,16 @@
 import random
 from dataclasses import dataclass
+from pathlib import Path
 
 import structlog
 from guidance import Program
 from guidance.llms import LLM
 
-from wet_toast_talk_radio.common.dialogue import Line, Speaker
+from wet_toast_talk_radio.common.dialogue import Line, Speaker, save_lines
 from wet_toast_talk_radio.common.log_ctx import show_id_log_ctx
 from wet_toast_talk_radio.media_store import MediaStore
 from wet_toast_talk_radio.media_store.media_store import ShowId, ShowMetadata, ShowName
+from wet_toast_talk_radio.scriptwriter.io import unique_script_filename
 from wet_toast_talk_radio.scriptwriter.names import (
     GENDERS,
     random_name,
@@ -73,6 +75,20 @@ class TheExpertZone(RadioShow):
 
     @show_id_log_ctx()
     async def arun(self, show_id: ShowId) -> bool:
+        lines = await self.agen()
+        self._media_store.put_script_show(show_id=show_id, lines=lines)
+        self._media_store.put_script_show_metadata(
+            show_id=show_id, metadata=ShowMetadata(ShowName.THE_GREAT_DEBATE)
+        )
+        return True
+
+    async def awrite(self, output_dir: Path) -> bool:
+        lines = await self.agen()
+        path = output_dir / unique_script_filename("the-expert-zone")
+        save_lines(path=path, lines=lines)
+        return True
+
+    async def agen(self) -> list[Line]:
         logger.info("Async writing The Expert Zone")
         guest = Program(
             text=AGENT_TEMPLATE,
@@ -137,21 +153,14 @@ class TheExpertZone(RadioShow):
         )
         guest = await guest(system_message=guest_system_message, question=outro)
 
-        logger.debug("Written script", conversation=guest["conversation"])
-        logger.info("Finished writing The Expert Zone")
-
         lines = self._post_processing(guest)
-
-        self._media_store.put_script_show(show_id=show_id, lines=lines)
-        self._media_store.put_script_show_metadata(
-            show_id=show_id, metadata=ShowMetadata(ShowName.THE_EXPERT_ZONE)
-        )
-        return True
+        logger.info("Finished writing The Expert Zone")
+        return lines
 
     def _post_processing(self, program: Program) -> list[Line]:
         """Converts the guidance program into a list of Lines.
         Cleans up the content for each line."""
-        logger.debug("Post processing The Expert Zone")
+        logger.info("Post processing The Expert Zone")
         host = Speaker(name="Nick", gender="male", host=True)
         guest = Speaker(name=self.guest.name, gender=self.guest.gender, host=False)
 

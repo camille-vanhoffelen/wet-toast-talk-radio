@@ -1,5 +1,4 @@
 import asyncio
-import uuid
 from pathlib import Path
 
 import click
@@ -7,7 +6,6 @@ import structlog
 
 from wet_toast_talk_radio.command.print_banner import print_banner
 from wet_toast_talk_radio.command.root import root_cmd
-from wet_toast_talk_radio.common.dialogue import save_lines
 from wet_toast_talk_radio.media_store import new_media_store
 from wet_toast_talk_radio.media_store.media_store import ShowId
 from wet_toast_talk_radio.media_store.virtual.media_store import VirtualMediaStore
@@ -54,6 +52,9 @@ def scriptwriter(ctx: dict):
     validate_config(root_cfg.scriptwriter)
 
 
+# Daily Program
+
+
 @scriptwriter.command(help="Run scriptwriter")
 @click.pass_context
 def run(ctx: dict):
@@ -74,6 +75,9 @@ def run(ctx: dict):
         cfg=sw_cfg, media_store=media_store, message_queue=message_queue
     )
     writer.run()
+
+
+# Advert
 
 
 @scriptwriter.command(help="Write script for Advert")
@@ -130,6 +134,9 @@ def advert_products(ctx: dict, n_products: int, n_iter: int):
     asyncio.run(products_writer.awrite())
 
 
+# The Great Debate
+
+
 @scriptwriter.command(help="Write script for The Great Debate")
 @click.pass_context
 @click.option(
@@ -153,6 +160,60 @@ def the_great_debate(ctx: dict, output_dir: Path):
     llm = new_llm(cfg=sw_cfg.llm)
     show = TheGreatDebate.create(llm=llm, media_store=VirtualMediaStore())
     asyncio.run(show.awrite(output_dir))
+
+
+@scriptwriter.command(help="Write character traits for guests of The Great Debate")
+@click.pass_context
+@click.option(
+    "--n-traits", default=20, type=int, help="Number of traits generated per iteration"
+)
+@click.option(
+    "--n-iter",
+    default=50,
+    type=int,
+    help="Number of parallel generations to be aggregated",
+)
+def traits(ctx: dict, n_traits: int, n_iter: int):
+    """Run command
+    scriptwriter traits
+
+    Write unique character traits for guests of The Great Debate, writes them in /tmp/traits.json
+    """
+    logger.info("Writing character traits")
+    root_cfg = ctx.obj["root_cfg"]
+    sw_cfg = root_cfg.scriptwriter
+    llm = new_llm(cfg=sw_cfg.llm)
+    traits_writer = Traits(llm=llm, n_traits=n_traits, n_iter=n_iter)
+    asyncio.run(traits_writer.awrite())
+
+
+@scriptwriter.command(help="Write topics for The Great Debate")
+@click.pass_context
+@click.option(
+    "--n-topics", default=30, type=int, help="Number of topics generated per iteration"
+)
+@click.option(
+    "--n-iter",
+    default=10,
+    type=int,
+    help="Number of parallel generations to be aggregated",
+)
+def the_great_debate_topics(ctx: dict, n_topics: int, n_iter: int):
+    """Run command
+    scriptwriter the-great-debate-topics
+
+    Write unique character topics for guests of The Great Debate, writes them in /tmp/the-great-debate-topics.json
+    """
+    logger.info("Writing topics for The Great Debate")
+    root_cfg = ctx.obj["root_cfg"]
+    sw_cfg = root_cfg.scriptwriter
+    llm = new_llm(cfg=sw_cfg.llm)
+
+    topics_writer = TheGreatDebateTopics(llm=llm, n_topics=n_topics, n_iter=n_iter)
+    asyncio.run(topics_writer.awrite())
+
+
+# Modern Mindfulness
 
 
 @scriptwriter.command(help="Write script for Modern Mindfulness")
@@ -180,58 +241,7 @@ def modern_mindfulness(ctx: dict, output_dir: Path):
     asyncio.run(show.awrite(output_dir))
 
 
-@scriptwriter.command(help="Write character traits for guests")
-@click.pass_context
-@click.option(
-    "--n-traits", default=20, type=int, help="Number of traits generated per iteration"
-)
-@click.option(
-    "--n-iter",
-    default=50,
-    type=int,
-    help="Number of parallel generations to be aggregated",
-)
-def traits(ctx: dict, n_traits: int, n_iter: int):
-    """Run command
-    scriptwriter traits
-
-    Write unique character traits for guests, writes them in /tmp/traits.json
-    """
-    logger.info("Writing character traits")
-    root_cfg = ctx.obj["root_cfg"]
-    sw_cfg = root_cfg.scriptwriter
-    llm = new_llm(cfg=sw_cfg.llm)
-    traits_writer = Traits(llm=llm, n_traits=n_traits, n_iter=n_iter)
-    asyncio.run(traits_writer.awrite())
-
-
-@scriptwriter.command(help="Write topics for The Great Debate")
-@click.pass_context
-@click.option(
-    "--n-topics", default=30, type=int, help="Number of topics generated per iteration"
-)
-@click.option(
-    "--n-iter",
-    default=10,
-    type=int,
-    help="Number of parallel generations to be aggregated",
-)
-def the_great_debate_topics(ctx: dict, n_topics: int, n_iter: int):
-    """Run command
-    scriptwriter the-great-debate-topics
-
-    Write unique character topics for guests, writes them in /tmp/the-great-debate-topics.json
-    """
-    logger.info("Writing topics for The Great Debate")
-    root_cfg = ctx.obj["root_cfg"]
-    sw_cfg = root_cfg.scriptwriter
-    llm = new_llm(cfg=sw_cfg.llm)
-
-    topics_writer = TheGreatDebateTopics(llm=llm, n_topics=n_topics, n_iter=n_iter)
-    asyncio.run(topics_writer.awrite())
-
-
-@scriptwriter.command(help="Write situations for guided meditation")
+@scriptwriter.command(help="Write situations for Modern Mindfulness")
 @click.pass_context
 @click.option(
     "--n-situations",
@@ -249,7 +259,7 @@ def situations(ctx: dict, n_situations: int, n_iter: int):
     """Run command
     scriptwriter situations
 
-    Write unique situations for guided meditation, writes them in /tmp/situations.json
+    Write unique situations for Modern Mindfulness, writes them in /tmp/situations.json
     """
     logger.info("Writing character situations")
     root_cfg = ctx.obj["root_cfg"]
@@ -259,7 +269,7 @@ def situations(ctx: dict, n_situations: int, n_iter: int):
     asyncio.run(situations_writer.awrite())
 
 
-@scriptwriter.command(help="Write bad circumstances for guided meditation")
+@scriptwriter.command(help="Write bad circumstances for Modern Mindfulness")
 @click.pass_context
 @click.option(
     "--n-circumstances",
@@ -277,7 +287,7 @@ def circumstances(ctx: dict, n_circumstances: int, n_iter: int):
     """Run command
     scriptwriter circumstances
 
-    Write unique bad circumstances for guided meditation, writes them in /tmp/circumstances.json
+    Write unique bad circumstances for Modern Mindfulness, writes them in /tmp/circumstances.json
     """
     logger.info("Writing character circumstances")
     root_cfg = ctx.obj["root_cfg"]
@@ -289,9 +299,22 @@ def circumstances(ctx: dict, n_circumstances: int, n_iter: int):
     asyncio.run(circumstances_writer.awrite())
 
 
+# The Expert Zone
+
+
 @scriptwriter.command(help="Write script for The Expert Zone")
 @click.pass_context
-def the_expert_zone(ctx: dict):
+@click.option(
+    "--output-dir",
+    default=Path("tmp/"),
+    type=click.Path(
+        exists=True,
+        file_okay=False,
+        path_type=Path,
+    ),
+    help="Output directory for script files",
+)
+def the_expert_zone(ctx: dict, output_dir: Path):
     """Run command
     scriptwriter the-expert-zone
     """
@@ -301,8 +324,7 @@ def the_expert_zone(ctx: dict):
 
     llm = new_llm(cfg=sw_cfg.llm)
     show = TheExpertZone.create(llm=llm, media_store=VirtualMediaStore())
-    show_id = ShowId(show_i=0, date="2012-12-21")
-    asyncio.run(show.arun(show_id=show_id))
+    asyncio.run(show.awrite(output_dir))
 
 
 @scriptwriter.command(help="Write topics for The Expert Zone")
@@ -329,6 +351,9 @@ def the_expert_zone_topics(ctx: dict, n_topics: int, n_iter: int):
 
     topics_writer = TheExpertZoneTopics(llm=llm, n_topics=n_topics, n_iter=n_iter)
     asyncio.run(topics_writer.awrite())
+
+
+# Prolove
 
 
 @scriptwriter.command(help="Write script for Prolove")
@@ -400,5 +425,3 @@ def prolove_anecdotes(ctx: dict, n_anecdotes: int, n_iter: int):
 
     anecdotes_writer = ProloveAnecdotes(llm=llm, n_anecdotes=n_anecdotes, n_iter=n_iter)
     asyncio.run(anecdotes_writer.awrite())
-
-
