@@ -43,30 +43,7 @@ pip install -e .
 
 or with your preferred virtual environment manager (_this project uses [pdm](https://pdm.fming.dev/) for dependency management_).
 
-Then run with:
-
-```commandline
-python -m wet_toast_talk_radio.main --help
-```
-
-
-### Run as Container
-
-**Prerequisites:**
-
-* [Docker](https://docs.docker.com/get-docker/)
-
-You can also build and run wet toast as a container:
-
-
-
-TODO docker install
-
-## 🍞 Usage
-
-### ✍️ Script Generation
-
-#### Credentials
+### Configuration
 
 Add your OpenAI API key in a `config.yml` file in the project dir:
 
@@ -75,41 +52,35 @@ scriptwriter:
   llm:
     openai_api_key: YOUR_OPENAI_API_KEY
 ```
-#### All Shows
-
-To write 24 hours worth of shows:
-
-(⚠️ will cost you ~ XXXX$ in openai credits)
 
 
-Then run:
+## 🍞 Usage
 
-```commandline
-python -m wet_toast_talk_radio.main scriptwriter run
-```
+⚠️ This CLI is designed as a demo of WTTR's generative capabilities. The full production services require to be deployed as part of the stack in the [aws](aws) directory.
 
-#### The Great Debate
+### ✍️ Script Generation
 
-To write a single script for The Great Debate:
+To write a single script show:
 
 ```commandline
-python -m wet_toast_talk_radio.main scriptwriter the-great-debate
+python -m wet_toast_talk_radio.main scriptwriter SHOW_NAME [--output-dir]
 ```
 
-#### Modern Mindfulness
+Currently available shows:
 
-To write a single script for Modern Mindfulness:
+Show Name | Host | Description
+---|---|---
+`the-great-debate` | Julie | The show where you tune in to take sides
+`modern-mindfulness` | Orion | Combining mindfulness and exposure therapy to let go of modern anxiety
+`the-expert-zone` | Nick | The show where we ask the experts the difficult questions
+`prolove` | Zara | The dating advice show where we love listening to you
+`advert` | Ian | Advertisements from our beloved sponsors
 
-#### The Expert Zone
+For example, to generate an advertisement script in the folder output:
 
-To write a single script for The Expert Zone:
-
-#### Prolove
-
-To write a single script for Prolove:
-
-#### Adverts
-
+```commandline
+python -m wet_toast_talk_radio.main scriptwriter advert --output-dir output
+```
 
 ### 🗣 Audio Generation
 
