@@ -20,10 +20,10 @@ def audio_generator(_ctx: dict):
     print_banner("audio_generator_banner.txt")
 
 
-@audio_generator.command(help="Run audio_generator")
+@audio_generator.command()
 @click.pass_context
 def run(ctx: dict):
-    """Run command"""
+    """Run audio-generator service"""
     root_cfg = ctx.obj["root_cfg"]
     cfg = root_cfg.audio_generator
     ms_cfg = root_cfg.media_store
@@ -43,10 +43,20 @@ def run(ctx: dict):
 @click.option(
     "-s", "--script", type=click.Path(exists=True, dir_okay=False, path_type=Path)
 )
-def benchmark(ctx: dict, script: Path):
-    """Benchmarks audio generation on standard script.
+@click.option(
+    "--output-dir",
+    default=Path("tmp/"),
+    type=click.Path(
+        exists=True,
+        file_okay=False,
+        path_type=Path,
+    ),
+    help="Output directory for script files",
+)
+def generate(ctx: dict, script: Path, output_dir: Path):
+    """Generates speech for script
 
-    Calculates:
+    Benchmark metrics:
     - run_time_in_s, the time it takes to generate the audio file
     - duration_in_s, the duration of the audio file
     - speed_ratio, the ratio between the duration and the run time
@@ -63,9 +73,9 @@ def benchmark(ctx: dict, script: Path):
         if script
         else [
             Line(
-                speaker=Speaker(name="Orion", gender="male", host=True),
-                content="Hey there! I'm a dog! Woof woof!",
+                speaker=Speaker(name="Julie", gender="female", host=True),
+                content="Hey there! This is Wet Toast Talk Radio. Fake talk, fake issues, real giggles.",
             )
         ]
     )
-    audio_gen.benchmark(lines=lines)
+    audio_gen.generate(lines=lines, output_dir=output_dir)

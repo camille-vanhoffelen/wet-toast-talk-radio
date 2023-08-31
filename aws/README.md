@@ -1,3 +1,5 @@
+![Wet Toast Talk Radio logo](../resources/wttr-logo-thin.jpg)
+
 # Wet Toast Talk Radio Infrastructure
 
 This directory contains all the infrastructure as code to deploy wet toast talk radio to a aws account.
@@ -5,6 +7,7 @@ This directory contains all the infrastructure as code to deploy wet toast talk 
 ## Prerequisites
 
 - [nvm](https://github.com/nvm-sh/nvm)
+- configure your [AWS credentials](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html)
 
 ## Getting Started
 
@@ -24,7 +27,7 @@ npm install -g aws-cdk
 
 ## Deploying 
 
-Make sure your terminal has assumed the right aws credentials/profile
+⚠️ Make sure your terminal has assumed the right aws credentials/profile
 
 You can deploy the infrastructure to any account with the following command:
 

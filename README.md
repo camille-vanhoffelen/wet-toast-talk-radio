@@ -43,16 +43,17 @@ pip install -e .
 
 or with your preferred virtual environment manager (_this project uses [pdm](https://pdm.fming.dev/) for dependency management_).
 
-### Configuration
+### CLI Configuration
 
-Add your OpenAI API key in a `config.yml` file in the project dir:
+Add your OpenAI API key in the following `config.yml` file in the project dir:
 
 ```yaml
 scriptwriter:
   llm:
     openai_api_key: YOUR_OPENAI_API_KEY
+audio_generator:
+  use_s3_model_cache: false
 ```
-
 
 ## 🍞 Usage
 
@@ -63,7 +64,7 @@ scriptwriter:
 To write a single script show:
 
 ```commandline
-python -m wet_toast_talk_radio.main scriptwriter SHOW_NAME [--output-dir]
+python -m wet_toast_talk_radio.main scriptwriter SHOW_NAME [--output-dir OUTPUT_DIR]
 ```
 
 Currently available shows:
@@ -76,7 +77,7 @@ Show Name | Host | Description
 `prolove` | Zara | The dating advice show where we love listening to you
 `advert` | Ian | Advertisements from our beloved sponsors
 
-For example, to generate an advertisement script in the folder output:
+For example, to generate an advertisement script in the folder `output`:
 
 ```commandline
 python -m wet_toast_talk_radio.main scriptwriter advert --output-dir output
@@ -84,71 +85,93 @@ python -m wet_toast_talk_radio.main scriptwriter advert --output-dir output
 
 ### 🗣 Audio Generation
 
-TODO warning about GPU, plus CUDA dependencies. See XXXX to install dependencies.
+⚠️ Audio generation is very slow with CPU. Generation with CPU is ~ 11x slower than real time, generation with Nvidia T4 16GB GPU is ~ 1.5x slower than real time. On first usage, models might also take a few minutes to download.
 
-### 💽 Audio Transcoding
+To generate audio for a given script:
 
-### 🎶 Playlist Creation
+```commandline
+python -m wet_toast_talk_radio.main audio-generator generate [--script SCRIPT_PATH --output-dir OUTPUT_DIR]
+```
 
-### 📻 Radio Streaming
+For example, to generate audio for a script `the-great-debate-6c817b.jsonl` in the folder `output`:
+
+```commandline
+python -m wet_toast_talk_radio.main audio-generator generate --script output/the-great-debate-6c817b.jsonl --output-dir output
+```
 
 ## ⚙️ Development
 
-### Prerequisite
+### Prerequisites
 
-- [pdm](https://pdm.fming.dev/latest/)
 - python >= 3.10
+- [pdm](https://pdm.fming.dev/latest/)
 - [ffmpeg](https://github.com/jiaaro/pydub#getting-ffmpeg-set-up) `brew install ffmpeg`
-- [libshout] `brew install libshout`
+- [libshout](https://icecast.org/download/) `brew install libshout`
+- configure your [AWS credentials](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html)
 
-### Config
+### Install
 
-You will likely want to create a config.yml with these contents:
+```commandline
+pdm install --dev
+```
+
+### Configuration
+
+This is used for local development, and assumes services mocked with localstack.
 
 ```yaml
-# emergency_alert_system:
-#   web_hook_url: sm:/wet-toast-talk-show/emergency-alert-system/slack-web-hook-url
-# radio_operator:
-#   web_hook_url: sm:/wet-toast-talk-show/radio-operator/slack-web-hook-url
 message_queue:
-  # virtual: true
   sqs:
     local: true
 media_store:
-  # virtual: true
   s3:
     local: true
     bucket_name: "media-store"
 audio_generator:
-  # If HF Hub cache empty, download models from S3 instead of the internet
   use_s3_model_cache: true
 scriptwriter:
   llm:
-    # virtual: true
-    # fake_responses: ["Yeah sure", "Nah bro"]
     openai_api_key: sm:/wet-toast-talk-radio/scriptwriter/openai-api-key
-  
 disc_jockey:
   media_transcoder:
     clean_tmp_dir: false
   shout_client:
     password: "hackme"
-    # Uncomment to stream to voscast directly
-    # password: sm:/wet-toast-talk-radio/voscast-password
-    # hostname: s3.voscast.com
-    # port: 11052
-    # autodj_key: sm:/wet-toast-talk-radio/voscast-autodj-key
 ```
 
-### Running
+### Dependency Management
 
-```bash
-pdm run python -m wet_toast_talk_radio.main --help
+Add new dependencies with pdm:
+
+```commandline
+pdm add torch
 ```
 
-### Docker-compose
+Then update `requirements.txt` and `dev-requirements.txt` by running:
+
+```commandline
+sh create-requirements.sh
+```
+
+### Testing
+
+Unit tests are run with:
+
+```commandline
+pdm run pytest
+```
+
+The [test](./tests/) folder containes integration tests that need the `docker-compose up` cmd to run. These tests are skipped by default but can be enabled with the following flag: 
 
 ```bash
+pdm run pytest --integration
+```
+
+### Localstack
+
+We use [localstack](https://github.com/localstack/localstack) to mock AWS Services locally. These are configured in a docker-compose. To run:
+
+```commandline
 docker-compose up
 ```
 
@@ -179,19 +202,15 @@ aws --endpoint-url=http://localhost:4566 sqs list-queues
 
 A Icecast and Ices service will start on [http://localhost:8000/](http://localhost:8000/)
 
-### Requirements Building
+### CI
 
-`create-requirements.sh`
+We use Github Actions to build our production docker images. Workflows are found under [.github/workflows](.github/workflows).
 
-### Testing
+### Deployment
 
-The [test](./tests/) folder containes integration tests that need the `docker-compose up` cmd to run. These tests are skipped by default but can be enabled with the following flag: 
+Wet Toast Talk Radio is deployed to AWS. See [./aws/README.md](./aws/README.md).
 
-```bash
-pdm run pytest --integration
-```
-
-### Code Standards
+### Code Guidelines
 
 We use [black](https://github.com/psf/black) as our code formattter.
 
@@ -201,12 +220,27 @@ We use [pytest](https://docs.pytest.org/en/6.2.x/) as our testing framework.
 
 Commits should follow the following convention:  `refactor|feat|fix|docs|breaking|misc|chore|test: description`
 
+## 😎 Credits
 
-## Deployment
+A special thanks to:
 
-[./aws/README.md](./aws/README.md)
+* Berenike Melchior, Unwavering Support
+* Andy Moore, Comedy Consultant
+* Gab, Nerd Advisor
+* Gautier Roquancourt, Design Expert
+* All the smart, beautiful people who gave feedback
+
+Built with:
+
+* Text-to-Speech from [tortoise-tts](https://github.com/neonbjb/tortoise-tts)
+* 'Modern Mindfulness' background music from [RelaxingTime](https://pixabay.com/music/meditationspiritual-relaxing-music-vol1-124477/)
+* GTA V video gameplay by [DopeGameplays](https://www.youtube.com/@DopeGameplays)
+* Voice samples for conditioning latents from [CSTR VCTK Corpus](https://datashare.ed.ac.uk/handle/10283/3443)
+* Splash sound sample from [Pixabay](https://pixabay.com/sound-effects/dive-6423/)
+* CSS framework from [NES.css](https://nostalgic-css.github.io/NES.css/)
+* Inspiration from Rockstar Games' brilliant radios
 
 
-## Credits
+## 🤝 License
 
-## License
+[MIT license](LICENSE)

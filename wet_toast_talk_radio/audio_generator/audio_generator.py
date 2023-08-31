@@ -117,12 +117,12 @@ class AudioGenerator:
                 delete_folder(self._script_shows_dir)
         logger.info("Script shows queue empty, Audio Generator exiting")
 
-    def benchmark(self, lines: list[Line]) -> None:
-        """Benchmark audio_generator speed"""
+    def generate(self, lines: list[Line], output_dir: Path) -> None:
+        """Generates audio for lines and saves under output_dir."""
         logger.info("Starting audio generator benchmark...")
         data = self._script_to_audio(lines)
-        uuid_str = str(uuid.uuid4())[:4]
-        path = self._tmp_dir / f"audio-generator-benchmark-{uuid_str}.wav"
+        uuid_str = str(uuid.uuid4())[:6]
+        path = output_dir / f"audio-generator-{uuid_str}.wav"
         logger.info("Writing audio to file", path=path)
         with path.open("wb") as f:
             f.write(data)
