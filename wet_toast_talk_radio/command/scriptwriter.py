@@ -87,7 +87,7 @@ def run(ctx: dict):
     ),
     help="Output directory for script files",
 )
-def advert(ctx: dict, output_dir):
+def advert(ctx: dict, output_dir: Path):
     """Run command
     scriptwriter advert TOPIC
     """
@@ -98,8 +98,7 @@ def advert(ctx: dict, output_dir):
     llm = new_llm(cfg=sw_cfg.llm)
     show = Advert.create(llm=llm, media_store=VirtualMediaStore())
     lines = asyncio.run(show.awrite())
-    uuid_str = str(uuid.uuid4())[:6]
-    path = output_dir / f"advert-{uuid_str}.jsonl"
+    path = output_dir / unique_script_filename("advert")
     save_lines(path=path, lines=lines)
 
 
@@ -134,7 +133,17 @@ def advert_products(ctx: dict, n_products: int, n_iter: int):
 
 @scriptwriter.command(help="Write script for The Great Debate")
 @click.pass_context
-def the_great_debate(ctx: dict):
+@click.option(
+    "--output-dir",
+    default=Path("tmp/"),
+    type=click.Path(
+        exists=True,
+        file_okay=False,
+        path_type=Path,
+    ),
+    help="Output directory for script files",
+)
+def the_great_debate(ctx: dict, output_dir: Path):
     """Run command
     scriptwriter the-great-debate
     """
@@ -144,8 +153,9 @@ def the_great_debate(ctx: dict):
 
     llm = new_llm(cfg=sw_cfg.llm)
     show = TheGreatDebate.create(llm=llm, media_store=VirtualMediaStore())
-    show_id = ShowId(show_i=0, date="2012-12-21")
-    asyncio.run(show.arun(show_id=show_id))
+    lines = asyncio.run(show.awrite())
+    path = output_dir / unique_script_filename("the-great-debate")
+    save_lines(path=path, lines=lines)
 
 
 @scriptwriter.command(help="Write script for Modern Mindfulness")
@@ -384,3 +394,8 @@ def prolove_anecdotes(ctx: dict, n_anecdotes: int, n_iter: int):
 
     anecdotes_writer = ProloveAnecdotes(llm=llm, n_anecdotes=n_anecdotes, n_iter=n_iter)
     asyncio.run(anecdotes_writer.awrite())
+
+
+def unique_script_filename(prefix: str):
+    uuid_str = str(uuid.uuid4())[:6]
+    return f"{prefix}-{uuid_str}.jsonl"
