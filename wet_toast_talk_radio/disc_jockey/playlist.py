@@ -12,6 +12,8 @@ from wet_toast_talk_radio.radio_operator.radio_operator import RadioOperator
 
 logger = structlog.get_logger()
 
+N_FALLBACK_SHOWS = 400
+
 
 @task_log_ctx("playlist")
 class Playlist:
@@ -64,5 +66,7 @@ def randomize_fallback(fallback_shows: list[ShowId]) -> list[ShowId]:
     Loops around to the beginning of the list if necessary.
     Maintains show order. Expects sorted list of fallback shows."""
     start = random.randrange(len(fallback_shows))
-    randomized = fallback_shows[start:] + fallback_shows[:start]
+    end = (start + N_FALLBACK_SHOWS) % len(fallback_shows)
+    logger.info("Randomly selected fallback shows", start=start, end=end)
+    randomized = fallback_shows[start:] + fallback_shows[:end]
     return randomized

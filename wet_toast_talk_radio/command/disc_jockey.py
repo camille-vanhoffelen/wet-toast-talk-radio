@@ -3,7 +3,7 @@ import structlog
 
 from wet_toast_talk_radio.command.print_banner import print_banner
 from wet_toast_talk_radio.command.root import root_cmd
-from wet_toast_talk_radio.disc_jockey import DiscJockey
+from wet_toast_talk_radio.disc_jockey import DiscJockey, Migrator
 from wet_toast_talk_radio.media_store import new_media_store
 from wet_toast_talk_radio.message_queue.new_message_queue import new_message_queue
 from wet_toast_talk_radio.radio_operator.radio_operator import RadioOperator
@@ -72,3 +72,19 @@ def create_playlist(ctx: dict):
     radio_operator = RadioOperator(ro_cfg)
     dj = DiscJockey(dj_cfg, radio_operator, media_store, message_queue)
     dj.create_playlist()
+
+
+@disc_jockey.command(help="Copy transcoded shows to fallback playlist")
+@click.pass_context
+def copy_shows_to_fallback(ctx: dict):
+    """Run command
+    disc-jockey copy-shows-to-fallback
+
+    Copies transcoded shows to fallback playlist.
+    Allows wet toast to run on historical generations only.
+    Only works with valid s3 config.
+    """
+    root_cfg = ctx.obj["root_cfg"]
+    s3_cfg = root_cfg.media_store.s3
+    migrator = Migrator(s3_cfg)
+    migrator.run()
