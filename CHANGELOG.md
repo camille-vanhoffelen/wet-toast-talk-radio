@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.2.0](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v1.1.0...v1.2.0) (2023-10-12)
+
+
+### Features
+
+* new migrator for shows to fallback playlist ([#125](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/125)) ([23e0a70](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/23e0a7099dd0c24cf87f0edc6114faf5b4f6d46e))
+* no more generation ([#126](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/126)) ([bc1a4b8](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/bc1a4b8249190fab62ead39f34bd382fee13b737))
+
+
+### Documentation
+
+* Update README.md ([003b46f](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/003b46fb6cd78eea62a334e89299d3ad63c785cc))
+* Update README.md ([843ea78](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/843ea78c6d7c1b694720c409ac4d59387793cf0f))
+* updated README ([#123](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/123)) ([92071bf](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/92071bfb3178e82907c3f20c9966c7df881d7945))
+
 ## [1.1.0](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v1.0.0...v1.1.0) (2023-08-31)
 
 
