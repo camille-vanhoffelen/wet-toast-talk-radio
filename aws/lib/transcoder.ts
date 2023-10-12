@@ -66,24 +66,5 @@ export class Transcoder extends Construct {
             logging: ecs.LogDriver.awsLogs({ logGroup: props.logGroup, streamPrefix: Aws.STACK_NAME }),
             environment,
         });
-
-        // Cron job twice a day at 12h00 UTC and 18h00 UTC
-        const schedule = events.Schedule.cron({
-            minute: '0',
-            hour: '12,18',
-            day: '*',
-            month: '*',
-            year: '*',
-        });
-        const rule = new events.Rule(this, 'ScheduledTaskRule', {
-            schedule,
-        });
-        rule.addTarget(
-            new targets.EcsTask({
-                cluster: cluster.ecsCluster,
-                taskDefinition: ecsTaskDefinition,
-                taskCount: 1,
-            }),
-        );
     }
 }
