@@ -80,26 +80,5 @@ export class ScriptWriter extends Construct {
             logging: ecs.LogDriver.awsLogs({ logGroup: props.logGroup, streamPrefix: Aws.STACK_NAME }),
             environment,
         });
-
-        if (!props.dev) {
-            // Cron job once a day at 6h00 UTC
-            const schedule = events.Schedule.cron({
-                minute: '0',
-                hour: '6',
-                day: '*',
-                month: '*',
-                year: '*',
-            });
-            const rule = new events.Rule(this, 'ScheduledTaskRule', {
-                schedule,
-            });
-            rule.addTarget(
-                new targets.EcsTask({
-                    cluster: cluster.ecsCluster,
-                    taskDefinition: ecsTaskDefinition,
-                    taskCount: 1,
-                }),
-            );
-        }
     }
 }

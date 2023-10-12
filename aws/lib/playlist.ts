@@ -71,7 +71,7 @@ export class Playlist extends Construct {
             environment,
         });
 
-        // Cron job once a day at 20h00 UTC
+        // Cron job once a day at 00h00 UTC
         const schedule = events.Schedule.cron({
             minute: '0',
             hour: '0',
