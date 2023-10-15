@@ -22,6 +22,7 @@ dependencies = [
     "TorToiSe @ git+https://github.com/camille-vanhoffelen/tortoise-tts.git",
     "voicefixer @ git+https://github.com/camille-vanhoffelen/voicefixer.git",
     "numpy==1.23",
+    "farm-haystack>=1.21.2",
 ]
 requires-python = ">=3.10"
 readme = "README.md"
@@ -45,6 +46,8 @@ test = [
     "pytest-mock>=3.11.1",
 ]
 dev = [
+    "jupyter>=1.0.0",
+    "smart-open[s3]>=6.4.0",
 ]
 ide = ["setuptools>=67.8.0"]
 

@@ -1,5 +1,6 @@
 config.yml
 tmp/
+data/
 
 
 # Ruff

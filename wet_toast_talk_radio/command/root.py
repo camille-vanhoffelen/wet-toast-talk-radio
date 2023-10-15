@@ -33,6 +33,10 @@ def root_cmd(ctx: dict, verbose: bool, config: Optional[str]):  # noqa: FBT001
             wrapper_class=structlog.make_filtering_bound_logger(logging.INFO),
         )
 
+    ctx.obj["root_cfg"] = load_config(config)
+
+
+def load_config(config: str) -> RootConfig:
     root_cfg = RootConfig()
     config_path = Path(config)
     if config_path.is_file():
@@ -45,4 +49,4 @@ def root_cmd(ctx: dict, verbose: bool, config: Optional[str]):  # noqa: FBT001
             root_cfg.emergency_alert_system.web_hook_url.value()
         )
 
-    ctx.obj["root_cfg"] = root_cfg
+    return root_cfg
