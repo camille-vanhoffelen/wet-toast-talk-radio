@@ -60,13 +60,19 @@ class Playlist:
         return all_shows
 
 
-def randomize_fallback(fallback_shows: list[ShowId]) -> list[ShowId]:
+def randomize_fallback(
+    fallback_shows: list[ShowId], n_fallback_shows: int = N_FALLBACK_SHOWS
+) -> list[ShowId]:
     """Randomize the order of the fallback shows.
     Picks a random index, and iterates through all elements starting from that index.
-    Loops around to the beginning of the list if necessary.
     Maintains show order. Expects sorted list of fallback shows."""
-    start = random.randrange(len(fallback_shows))
-    end = (start + N_FALLBACK_SHOWS) % len(fallback_shows)
+    n_fallback_shows = (
+        n_fallback_shows
+        if len(fallback_shows) > n_fallback_shows
+        else len(fallback_shows)
+    )
+    start = random.randint(0, len(fallback_shows) - n_fallback_shows)
+    end = start + n_fallback_shows
     logger.info("Randomly selected fallback shows", start=start, end=end)
-    randomized = fallback_shows[start:] + fallback_shows[:end]
+    randomized = fallback_shows[start:end]
     return randomized
