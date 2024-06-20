@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v1.2.0...v1.2.1) (2024-06-20)
+
+
+### Bug Fixes
+
+* playlist creation and fallback randomizer ([#127](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/issues/127)) ([1bdf0b6](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/1bdf0b61f23d66773bfc2479702f9e782bc96bd1))
+
 ## [1.2.0](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v1.1.0...v1.2.0) (2023-10-12)
 
 
