@@ -1,6 +1,6 @@
 import pytest
 
-from wet_toast_talk_radio.disc_jockey.playlist import Playlist
+from wet_toast_talk_radio.disc_jockey.playlist import Playlist, randomize_fallback
 from wet_toast_talk_radio.media_store.common.date import get_current_iso_utc_date
 from wet_toast_talk_radio.media_store.config import MediaStoreConfig
 from wet_toast_talk_radio.media_store.media_store import _FALLBACK_KEY, ShowId
@@ -47,3 +47,18 @@ class TestPlaylist:
 
         stream_shows = {message_queue.get_next_stream_show().show_id for _ in range(2)}
         assert stream_shows == {show0, show1}
+
+    @pytest.mark.parametrize(
+        ("fallback", "subset_size"),
+        [
+            ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 1),
+            ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 2),
+            ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 5),
+            ([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 10),
+        ],
+    )
+    def test_randomize_fallback(self, fallback, subset_size):
+        subset = randomize_fallback(fallback, subset_size)
+        assert len(subset) == subset_size
+        start_index = fallback.index(subset[0])
+        assert fallback[start_index : start_index + subset_size] == subset

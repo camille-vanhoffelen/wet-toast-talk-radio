@@ -35,17 +35,9 @@ build-backend = "setuptools.build_meta"
 py-modules = ["wet_toast_talk_radio"]
 
 [tool.pdm.dev-dependencies]
-lint = [
-    "black>=23.3.0",
-    "ruff>=0.0.270",
-]
-test = [
-    "pytest>=7.3.1",
-    "hypothesis>=6.76.0",
-    "pytest-mock>=3.11.1",
-]
-dev = [
-]
+lint = ["black>=23.3.0", "ruff>=0.0.270"]
+test = ["pytest>=7.3.1", "hypothesis>=6.76.0", "pytest-mock>=3.11.1"]
+dev = []
 ide = ["setuptools>=67.8.0"]
 
 [tool.pdm.scripts]
@@ -55,6 +47,4 @@ scriptwriter = "python -m wet_toast_talk_radio.main scriptwriter"
 local-setup = "python -m wet_toast_talk_radio.media_store.data.load_store"
 
 [tool.pytest.ini_options]
-markers = [
-    "integration: mark test as an integration test",
-]
+markers = ["integration: mark test as an integration test"]

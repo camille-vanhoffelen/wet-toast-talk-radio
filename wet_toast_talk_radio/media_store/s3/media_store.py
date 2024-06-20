@@ -156,8 +156,9 @@ class S3MediaStore(MediaStore):
                     raw_show_id = obj["Key"].removeprefix(
                         _TRANSCODED_SHOWS_PREFIX + "/"
                     )
-                    show_id = show_id_from_raw_key(raw_show_id)
-                    ret.append(show_id)
+                    if obj["Key"].endswith("show.mp3"):
+                        show_id = show_id_from_raw_key(raw_show_id)
+                        ret.append(show_id)
 
             if "NextContinuationToken" in response:
                 continuation_token = response["NextContinuationToken"]
