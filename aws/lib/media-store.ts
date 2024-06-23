@@ -7,20 +7,16 @@ export class MediaStore extends Construct {
     constructor(scope: Construct, id: string, dev = false) {
         super(scope, id);
 
-        const intelligentTieringConfigurations = [];
-        for (const prefix of ['raw', 'transcoded', 'script']) {
-            intelligentTieringConfigurations.push({
-                name: prefix,
-                prefix: `${prefix}/`,
-                archiveAccessTierTime: Duration.days(90),
-                deepArchiveAccessTierTime: Duration.days(180),
-            });
-        }
-
         const bucketName = resourceName('media-store-' + Aws.ACCOUNT_ID, dev);
         this.bucket = new s3.Bucket(this, 'Bucket', {
             bucketName,
-            intelligentTieringConfigurations,
+            intelligentTieringConfigurations: [
+                {
+                    name: 'all-bucket',
+                    archiveAccessTierTime: Duration.days(90),
+                    deepArchiveAccessTierTime: Duration.days(180),
+                },
+            ],
         });
     }
 }
