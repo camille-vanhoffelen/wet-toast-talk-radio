@@ -159,6 +159,7 @@ def _prepare(
 
             time.sleep(wait_time.total_seconds())
     except Exception as e:
+        logger.error("_prepare exception", error=e)
         cancel_event.set()
         raise e
 
@@ -214,6 +215,7 @@ def _stream(
             auto_dj.start(stream_logger)
 
     except Exception as e:
+        logger.error("_stream exception", error=e)
         auto_dj.start(stream_logger)
         cancel_event.set()
         raise e

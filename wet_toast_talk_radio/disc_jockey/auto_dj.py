@@ -18,17 +18,19 @@ class AutoDJ:
         This is needed to allow the shout client to take over the stream.
         """
         if self._enabled:
-            logger.info("Stopping audodj")
+            logger.info("Stopping audodj...")
             params = [self._key_param, ("action", "stop")]
-            resp = requests.get(self._url, params=params)
+            resp = requests.get(self._url, params=params, timeout=5)
             if resp.status_code != requests.codes.ok:
                 raise Exception("Failed to stop autodj")
+            logger.info("Autodj stopped!")
 
     def start(self, logger):
         """Starts the autodj stream on voscast."""
         if self._enabled:
-            logger.info("Starting audodj")
+            logger.info("Starting audodj...")
             params = [self._key_param, ("action", "start")]
-            resp = requests.get(self._url, params=params)
+            resp = requests.get(self._url, params=params, timeout=5)
             if resp.status_code != requests.codes.ok:
                 raise Exception("Failed to start autodj")
+            logger.info("Autodj started!")
