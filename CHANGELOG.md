@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.3.0](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v1.2.1...v1.3.0) (2024-06-26)
+
+
+### Features
+
+* updated media-store configuration ([f0c499b](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/f0c499ba21f5b6bacbf52d7d2fbd2bb163c7a820))
+
+
+### Bug Fixes
+
+* fix auto_dj request hang ([78a702d](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/commit/78a702d4e1888bb64a7865da0a6a701e54db56b1))
+
 ## [1.2.1](https://github.com/camille-vanhoffelen/wet-toast-talk-radio/compare/v1.2.0...v1.2.1) (2024-06-20)
 
 
