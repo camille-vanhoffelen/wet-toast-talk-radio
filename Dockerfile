@@ -8,6 +8,8 @@ RUN useradd --create-home wettoast
 WORKDIR /home/wettoast
 USER wettoast
 
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
 RUN pip install --no-warn-script-location -U pip setuptools wheel
 
 COPY ./requirements.txt .
