@@ -1,8 +1,7 @@
 name: Build
+
 on:
-  push:
-    tags:
-      - '*'
+  workflow_dispatch:
 
 env:
   REGISTRY: 289115055556.dkr.ecr.us-east-1.amazonaws.com
