@@ -1,7 +1,8 @@
 FROM ghcr.io/astral-sh/uv:python3.10-bookworm-slim AS builder
 
 RUN apt-get update && apt-get -y upgrade && apt-get install -y \
-    libshout3-dev
+    libshout3-dev \
+    build-essential
 
 ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
 WORKDIR /app
