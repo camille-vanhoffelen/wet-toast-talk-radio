@@ -27,4 +27,6 @@ COPY --from=builder --chown=app:app /app /app
 
 ENV PATH="/app/.venv/bin:$PATH"
 
+RUN wet-toast --help > /dev/null
+
 ENTRYPOINT ["wet-toast"]
