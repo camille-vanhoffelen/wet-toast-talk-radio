@@ -66,7 +66,7 @@ AAS_DESCRIPTION = "The products should be 'as a service' products. They should b
 
 
 class ProductGenerator:
-    def __init__(  # noqa: PLR0913
+    def __init__(
         self,
         llm: LLM,
         n_products: int,

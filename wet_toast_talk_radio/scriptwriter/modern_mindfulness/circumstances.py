@@ -2,6 +2,7 @@
 import asyncio
 import json
 from pathlib import Path
+from typing import ClassVar
 
 import structlog
 from guidance import Program
@@ -32,7 +33,7 @@ Now generate a list of {{n_circumstances}} conditions.
 class Circumstances:
     """Generate lists of frustrating circumstances, such as mild illnesses or injuries, for Modern Mindfulness."""
 
-    examples = [
+    examples: ClassVar[list[str]] = [
         "Toe injury from excessive kink play",
         "Hungover from Tequila Tuesdays",
         "Indigestion from eating too much Vietnamese food",

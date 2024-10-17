@@ -8,7 +8,8 @@ from wet_toast_talk_radio.emergency_alert_system.emergency_alert_system import (
     EmergencyAlertSystem,
 )
 
-if __name__ == "__main__":
+
+def main():
     init_logger()
     logger = structlog.get_logger()
     EmergencyAlertSystem()
@@ -17,3 +18,7 @@ if __name__ == "__main__":
         root_cmd()
     except Exception:
         logger.error(traceback.format_exc())
+
+
+if __name__ == "__main__":
+    main()

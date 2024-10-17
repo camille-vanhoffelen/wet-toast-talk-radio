@@ -153,7 +153,7 @@ def random_guests():
 class TheGreatDebate(RadioShow):
     """Radio show where two call-in guests debate a topic, moderated by the host."""
 
-    def __init__(  # noqa: PLR0913
+    def __init__(
         self,
         llm: LLM,
         media_store: MediaStore,
