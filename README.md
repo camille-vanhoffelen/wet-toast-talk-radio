@@ -12,7 +12,9 @@ Generating content for Wet Toast Talk Radio, a 24/7 non-stop internet parody rad
 
 We don’t do reruns - all shows are generated daily. We use ChatGPT + a lot of prompt engineering and randomization for the writing of the scripts, and the amazing transformer + diffusion models of [tortoise-tts](https://github.com/neonbjb/tortoise-tts) for speech generation.
 
-Checkout our [website](https://www.wettoast.ai/)!
+~Checkout our [website](https://www.wettoast.ai/)!~ 
+
+**⚠️ THIS PROJECT IS ON HOLD AND THE RADIO WAS TAKEN DOWN TO SAVE ON SERVER COSTS**
 
 # ToC
 
