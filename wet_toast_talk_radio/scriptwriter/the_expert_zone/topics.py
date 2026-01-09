@@ -73,7 +73,7 @@ MUNDANE_DESCRIPTION = (
 
 
 class TopicGenerator:
-    def __init__(  # noqa: PLR0913
+    def __init__(
         self,
         llm: LLM,
         n_topics: int,

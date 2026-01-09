@@ -2,6 +2,7 @@
 import asyncio
 import json
 from pathlib import Path
+from typing import ClassVar
 
 import structlog
 from guidance import Program
@@ -27,7 +28,7 @@ Now generate a list of {{n_traits}} traits.
 
 
 class Traits:
-    examples = ["Megalomania", "Cowardice", "Greed"]
+    examples: ClassVar[list[str]] = ["Megalomania", "Cowardice", "Greed"]
 
     def __init__(
         self,

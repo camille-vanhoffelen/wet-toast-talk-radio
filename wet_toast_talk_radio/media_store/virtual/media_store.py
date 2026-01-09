@@ -65,48 +65,48 @@ class VirtualMediaStore(MediaStore):
                         script_show_i += 1
 
     def put_raw_show(self, show_id: ShowId, data: bytes):
-        self._bucket[
-            f"{ShowType.RAW.value}/{show_id.store_key()}/show.wav"
-        ] = VirtualObject(
-            show_id=show_id,
-            data=data,
-            last_modified=datetime.now(),
-            show_type=ShowType.RAW,
+        self._bucket[f"{ShowType.RAW.value}/{show_id.store_key()}/show.wav"] = (
+            VirtualObject(
+                show_id=show_id,
+                data=data,
+                last_modified=datetime.now(),
+                show_type=ShowType.RAW,
+            )
         )
 
     def put_transcoded_show(self, show_id: ShowId, data: bytes):
-        self._bucket[
-            f"{ShowType.TRANSCODED.value}/{show_id.store_key()}/show.mp3"
-        ] = VirtualObject(
-            show_id=show_id,
-            data=data,
-            last_modified=datetime.now(),
-            show_type=ShowType.TRANSCODED,
+        self._bucket[f"{ShowType.TRANSCODED.value}/{show_id.store_key()}/show.mp3"] = (
+            VirtualObject(
+                show_id=show_id,
+                data=data,
+                last_modified=datetime.now(),
+                show_type=ShowType.TRANSCODED,
+            )
         )
 
     def put_script_show(self, show_id: ShowId, lines: list[Line]):
         text_lines = [line.json() for line in lines]
         content = "\n".join(text_lines)
         data = content.encode(TXT_ENCODING)
-        self._bucket[
-            f"{ShowType.SCRIPT.value}/{show_id.store_key()}/show.jsonl"
-        ] = VirtualObject(
-            show_id=show_id,
-            data=data,
-            last_modified=datetime.now(),
-            show_type=ShowType.SCRIPT,
+        self._bucket[f"{ShowType.SCRIPT.value}/{show_id.store_key()}/show.jsonl"] = (
+            VirtualObject(
+                show_id=show_id,
+                data=data,
+                last_modified=datetime.now(),
+                show_type=ShowType.SCRIPT,
+            )
         )
 
     def put_script_show_metadata(self, show_id: ShowId, metadata: ShowMetadata):
         content = json.dumps(dataclasses.asdict(metadata))
         data = content.encode(TXT_ENCODING)
-        self._bucket[
-            f"{ShowType.SCRIPT.value}/{show_id.store_key()}/metadata.json"
-        ] = VirtualObject(
-            show_id=show_id,
-            data=data,
-            last_modified=datetime.now(),
-            show_type=ShowType.SCRIPT,
+        self._bucket[f"{ShowType.SCRIPT.value}/{show_id.store_key()}/metadata.json"] = (
+            VirtualObject(
+                show_id=show_id,
+                data=data,
+                last_modified=datetime.now(),
+                show_type=ShowType.SCRIPT,
+            )
         )
 
     def upload_transcoded_shows(self, shows: list[ShowUploadInput]):

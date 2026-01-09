@@ -1,15 +1,15 @@
 .PHONY:
 local-setup:
-	pdm run local-setup
+	uv run ./wet_toast_talk_radio/media_store/data/load_store.py
 
 .PHONY:
 transcode: local-setup
-	pdm run disc-jockey transcode
+	uv run ./wet_toast_talk_radio/main.py transcode
 
 .PHONY:
 create-playlist: transcode
-	pdm run disc-jockey create-playlist
+	uv run ./wet_toast_talk_radio/main.py create-playlist
 
 .PHONY:
 stream: create-playlist
-	pdm run disc-jockey stream
+	uv run ./wet_toast_talk_radio/main.py stream

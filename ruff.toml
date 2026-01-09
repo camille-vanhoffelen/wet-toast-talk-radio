@@ -1,3 +1,8 @@
+line-length = 120
+respect-gitignore = true
+target-version = "py310"
+
+[lint]
 select = ["E", "W", "F", "B", "Q", "I", "ASYNC", "FBT", "A", "PIE", "PYI", "PT", "SLF", "SIM", "ARG", "PTH", "ERA", "PL", "PLR", "PLW", "PLC", "PLE", "RUF"]
 ignore = ["PT009"]
 
@@ -5,20 +10,14 @@ ignore = ["PT009"]
 fixable = ["A", "B", "C", "D", "E", "F", "G", "I", "N", "Q", "S", "T", "W", "ANN", "ARG", "BLE", "COM", "DJ", "DTZ", "EM", "ERA", "EXE", "FBT", "ICN", "INP", "ISC", "NPY", "PD", "PGH", "PIE", "PL", "PT", "PTH", "PYI", "RET", "RSE", "RUF", "SIM", "SLF", "TCH", "TID", "TRY", "UP", "YTT"]
 unfixable = []
 
-# Exclude a variety of commonly ignored directories.
-respect-gitignore = true
-line-length = 120
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-target-version = "py310"
-ignore-init-module-imports = true
 
-[extend-per-file-ignores]
+[lint.extend-per-file-ignores]
 "*/tests/*" = ["SLF001"]
 
-
-[mccabe]
+[lint.mccabe]
 # Unlike Flake8, default to a complexity level of 10.
 max-complexity = 10
 
-[flake8-pytest-style]
+[lint.flake8-pytest-style]
 # Disable the following rules:

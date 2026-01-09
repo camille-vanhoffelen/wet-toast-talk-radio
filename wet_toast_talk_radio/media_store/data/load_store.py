@@ -3,7 +3,6 @@ from pathlib import Path
 
 import structlog
 
-from tests.conftests import _BUCKET_NAME, _STREAM_QUEUE_NAME
 from wet_toast_talk_radio.common.aws_clients import new_s3_client, new_sqs_client
 from wet_toast_talk_radio.media_store.common.date import get_current_iso_utc_date
 from wet_toast_talk_radio.media_store.config import MediaStoreConfig
@@ -12,6 +11,9 @@ from wet_toast_talk_radio.media_store.new_media_store import new_media_store
 from wet_toast_talk_radio.media_store.s3.config import S3Config
 
 logger = structlog.get_logger()
+
+_BUCKET_NAME = "media-store"
+_STREAM_QUEUE_NAME = "stream-shows.fifo"
 
 
 def clear_bucket():

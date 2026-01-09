@@ -62,7 +62,7 @@ COMMON_DESCRIPTION = "The topics should be things that a lot of people do, but t
 
 
 class TopicGenerator:
-    def __init__(  # noqa: PLR0913
+    def __init__(
         self,
         llm: LLM,
         n_topics: int,

@@ -1,4 +1,5 @@
 import json
+import os
 from typing import Generic, TypeVar
 
 import boto3
@@ -9,8 +10,11 @@ from pydantic import (
 )
 from pydantic.fields import ModelField
 
+from wet_toast_talk_radio.common.aws_clients import AWS_REGION
+
 logger = structlog.get_logger()
-secrets_manager_client = boto3.client("secretsmanager")
+
+secrets_manager_client = boto3.client("secretsmanager", region_name=AWS_REGION)
 
 T = TypeVar("T")
 

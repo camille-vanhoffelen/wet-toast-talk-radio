@@ -42,7 +42,7 @@ class TestScriptwriter:
         assert_n_messages(mq=message_queue, n_messages=n_shows)
 
     @pytest.mark.integration()
-    def test_scriptwriter_failure(  # noqa: PLR0913
+    def test_scriptwriter_failure(
         self,
         mocker,
         _clear_bucket,  # noqa: PT019, F811
@@ -68,7 +68,7 @@ class TestScriptwriter:
         assert message_queue.poll_script_show() is None
 
     @pytest.mark.integration()
-    def test_scriptwriter_daily_purge(  # noqa: PLR0913
+    def test_scriptwriter_daily_purge(
         self,
         mocker,
         _clear_bucket,  # noqa: PT019, F811

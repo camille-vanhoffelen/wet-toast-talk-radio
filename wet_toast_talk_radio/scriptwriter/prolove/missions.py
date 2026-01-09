@@ -83,7 +83,7 @@ class HostMissions:
         "Do it in 8 sentences or less."
     )
 
-    def __init__(  # noqa: PLR0913
+    def __init__(
         self, anecdote: str, k: int, lesson: str, product: str, guest_name: str
     ):
         self.anecdote = anecdote
